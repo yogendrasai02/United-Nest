@@ -7,6 +7,8 @@ require('dotenv').config({
 });
 const express = require('express');
 const morgan = require('morgan');
+const swaggerUI = require('swagger-ui-express');
+const YAML = require('yamljs');
 
 // ** Import our OWN modules **
 
@@ -28,6 +30,10 @@ app.use(morgan(function (tokens, req, res) {
 
 // ** Serve static files from 'public' folder **
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ** Serve the API Contract (Swagger/OpenAPI) **
+const apiContract = YAML.load('./api-contract.yml');
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
 
 // ** Uncomment and test **
 // app.get('/', (req, res) => {

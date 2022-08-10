@@ -1,0 +1,48 @@
+openapi: 3.0.0
+info: 
+  title: United Nest API
+  description: This is the API Documentation of the United Nest REST API
+  version: 1.0.0
+servers:
+  - url: http://localhost:4000/
+    description: DEV Server
+  - url: https://www.united-nest.com/
+    description: PROD Server
+paths:
+  # Add endpoints here
+components:
+
+  schemas:
+    # Add Reusable schemas (data models) here
+
+  parameters:
+    # Add Reusable path, query, header and cookie parameters here
+
+  securitySchemes:
+    # Add Security scheme definitions (Authentication) here
+
+    # Authorization header: Bearer [TOKEN]
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Authorization header in the format 'Bearer [TOKEN]'"
+
+    # Cookie Auth (unsafe, prone to CSRF attacks)
+    cookieAuth:
+      type: http
+      in: cookie
+      name: token
+      description: "JWT Token in the cookie"
+
+  requestBodies:
+    # Add Reusable request bodies here
+
+  responses:
+    # Add Reusable responses, such as 401 Unauthorized or 400 Bad Request here
+
+  headers:
+    # Add Reusable response headers here
+
+  examples:
+    # Add Reusable examples here

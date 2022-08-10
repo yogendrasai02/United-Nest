@@ -13,3 +13,5 @@
     - These scripts are available in `package.json` file.
 
 - Use either Postman or Chrome to send the requests.
+
+- To access Swagger Documentation (Documentation of the United Nest's Backend API), run the app and goto `/api-docs` URL.

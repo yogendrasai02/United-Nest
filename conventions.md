@@ -23,3 +23,7 @@
 - Use **JSend** formatting while sending response. [Reference for JSend](https://github.com/omniti-labs/jsend/blob/master/README.md)
 
 - Chain response as `res.status(<STATUS_CODE>).json({ ... })`.
+
+- Before adding an endpoint (route), write the **API Contract** in `api-contract.yml` for that endpoint.
+
+- Incase you find a request object or response object common (**repeated**) in the API Contract, please add a new **Schema** object for that repeated object, and use **references** to that Schema object instead.
