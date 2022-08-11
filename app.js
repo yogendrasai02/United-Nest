@@ -2,17 +2,18 @@
 const path = require('path');
 
 // ** Import NPM modules **
-require('dotenv').config({
-    path: './config.env'
-});
 const express = require('express');
 const morgan = require('morgan');
 const swaggerUI = require('swagger-ui-express');
 const YAML = require('yamljs');
 
 // ** Import our OWN modules **
+const AppError = require('./utils/AppError');
+const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
+
+module.exports = app;
 
 // ** Log incoming requests **
 app.use(morgan(function (tokens, req, res) {
@@ -36,7 +37,7 @@ const apiContract = YAML.load('./api-contract.yml');
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
 
 // ** Uncomment and test **
-// app.get('/', (req, res) => {
+// app.get('/test-route', (req, res, next) => {
 //     res.status(200).json({
 //         status: 'success',
 //         data: {
@@ -45,7 +46,11 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
 //     });
 // });
 
-const port = process.env.PORT || 4000;
-app.listen(port, () => {
-    console.log(`Server started on port ${port} in ${process.env.NODE_ENV.toUpperCase()}👍`);
+// ** Unhandled Routes **
+app.all('*', (req, res, next) => {
+    const err = new AppError('Specified Resource/Path does not exist', 404);
+    next(err);
 });
+
+// ** Use the Global Error Handler (add to middleware stack) **
+app.use(globalErrorHandler);
