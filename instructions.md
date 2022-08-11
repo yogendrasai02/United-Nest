@@ -8,11 +8,11 @@
     - `NODE_ENV="development"`
     - `PORT=4000` You can specify any port number here.
 
-- Start the server by running the following command in the terminal (at the root level): ``npm run start:dev`.
+- Start the server by running the following command in the terminal (at the root level): `npm run start:dev`.
     - To start in production: `npm run start:prod`.
     - These scripts are available in `package.json` file.
 
-- To debug the application in NBD Chromium Console, run the command `npm run debug`.
+- To debug the application in NDB Chromium Console, run the command `npm run debug`.
 
 - Use either Postman or Chrome to send the requests.
 
