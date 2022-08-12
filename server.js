@@ -2,6 +2,7 @@
 require('dotenv').config({
     path: './config.env'
 });
+const mongoose = require('mongoose');
 
 // ** Final Safety Net for Uncaught Exception **
 process.on('uncaughtException', err => {
@@ -12,9 +13,18 @@ process.on('uncaughtException', err => {
 
 const app = require('./app');   // IMPORTING here is an exception to normal convention of IMPORTS
 
+const environment = process.env.NODE_ENV.toUpperCase();
+
+// ** Connect to DB as per environment **
+const dbUrl = process.env[`DB_URL_${environment}`]
+                .replace('<password>', process.env[`DB_PASSWORD_${environment}`]);
+mongoose.connect(dbUrl).then(conn => {
+    console.log(`Connected to DB in ${environment} successfully👍`);
+});
+
 const port = process.env.PORT || 4000;
 const server = app.listen(port, () => {
-    console.log(`Server started on port ${port} in ${process.env.NODE_ENV.toUpperCase()}👍`);
+    console.log(`Server started on port ${port} in ${environment}👍`);
 });
 
 // ** Final Safety Net for Unhandled Promise Rejection **

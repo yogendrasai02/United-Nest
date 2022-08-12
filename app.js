@@ -10,6 +10,7 @@ const YAML = require('yamljs');
 // ** Import our OWN modules **
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
+const userRouter = require('./routes/userRoutes');
 
 const app = express();
 
@@ -32,6 +33,9 @@ app.use(morgan(function (tokens, req, res) {
 // ** Serve static files from 'public' folder **
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ** Parse Request Body **
+app.use(express.json());
+
 // ** Serve the API Contract (Swagger/OpenAPI) **
 const apiContract = YAML.load('./api-contract.yml');
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
@@ -45,6 +49,9 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
 //         }
 //     });
 // });
+
+// ** Delegate Requests to the specific routes **
+app.use('/api/v1/users', userRouter);
 
 // ** Unhandled Routes **
 app.all('*', (req, res, next) => {

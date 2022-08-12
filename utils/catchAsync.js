@@ -1,6 +1,5 @@
-// ** To CATCH errors with ASYNCHRONOUS FUNCTION (especially async route handlers) **
+// ** To CATCH errors with ASYNCHRONOUS ROUTE HANDLERS **
 const catchAsync = (asyncFunction) => {
-    console.log('Inside CatchAsync');
     return (req, res, next) => {
         asyncFunction(req, res, next).catch(err => next(err));
     };

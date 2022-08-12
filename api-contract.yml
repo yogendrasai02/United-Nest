@@ -10,16 +10,223 @@ servers:
     description: PROD Server
 paths:
   # Add endpoints here
+
+  # SignUp endpoint
+  /api/v1/users/signup:
+    post:
+      description: 'Creates a new user and returns the JWT token (logs the user in)'
+      tags:
+        - users
+        - auth
+      requestBody:
+        description: 'JSON Payload required for user signup'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                username:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                passwordConfirm:
+                  type: string
+                mobile:
+                  type: number
+              required:
+                - name
+                - username
+                - email
+                - mobile
+                - password
+                - passwordConfirm
+      responses:
+        '201':
+          description: 'User signup successful'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/statusSchema'
+                  token: 
+                    $ref: '#/components/schemas/tokenSchema'
+                  data:
+                    $ref: '#/components/schemas/userDocument'
+        '400':
+          description: 'Invalid data submitted. Please view error message for more info'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  # Login endpoint
+  /api/v1/users/login:
+    post:
+      description: 'Logs in a user(returns JWT) based on username/email/mobile and the password'
+      tags:
+        - users
+        - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/loginPayloadUsername'
+                - $ref: '#/components/schemas/loginPayloadEmail'
+                - $ref: '#/components/schemas/loginPayloadMobile'
+      responses:
+        '200':
+          description: 'OK, logged in successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: '#/components/schemas/statusSchema'
+                  token:
+                    $ref: '#/components/schemas/tokenSchema'
+        '400':
+          description: 'Please provide both username|email|mobile & password'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: 'User with given credentials not found'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
 components:
 
-  schemas:
-    # Add Reusable schemas (data models) here
+  # Add Reusable schemas (data models) here
+  schemas: # TODO: add examples to all schemas 😢
+    
+    # ** User Document sent to Frontend **
+    userDocument:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        mobile:
+          type: integer
+        profilePhoto:
+          type: string
+        following:
+          type: array
+          items:
+            type: string
+        followers:
+          type: array
+          items:
+            type: string
+        pendingReqSent:
+          type: array
+          items:
+            type: string
+        pendingReqReceived:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        role:
+          type: string
+          enum:
+            - 'user'
+            - 'merchant'
+            - 'admin'
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+    
+    # ** Generic Error Schema **
+    error:  # TODO: Change the Schema once you differentiate DEV & PROD errors in errorController.js
+      type: object
+      properties:
+        status: 
+          type: string
+        message:
+          type: string
 
-  parameters:
-    # Add Reusable path, query, header and cookie parameters here
+    # ** Login payload with username, password **
+    loginPayloadUsername:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
 
+    # ** Login payload with email, password **
+    loginPayloadEmail:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    # ** Login payload with email, password **
+    loginPayloadMobile:
+      type: object
+      properties:
+        mobile:
+          type: integer
+        password:
+          type: string
+      required:
+        - mobile
+        - password
+
+    # ** response status (success|fail|error) **
+    statusSchema:
+      type: string
+      enum:
+        - success
+        - fail
+        - error
+
+    # ** token (JWT) **
+    tokenSchema:
+      type: string
+
+  # Add Security scheme definitions (Authentication) here
   securitySchemes:
-    # Add Security scheme definitions (Authentication) here
 
     # Authorization header: Bearer [TOKEN]
     bearerAuth:
@@ -30,19 +237,7 @@ components:
 
     # Cookie Auth (unsafe, prone to CSRF attacks)
     cookieAuth:
-      type: http
+      type: apiKey
       in: cookie
       name: token
       description: "JWT Token in the cookie"
-
-  requestBodies:
-    # Add Reusable request bodies here
-
-  responses:
-    # Add Reusable responses, such as 401 Unauthorized or 400 Bad Request here
-
-  headers:
-    # Add Reusable response headers here
-
-  examples:
-    # Add Reusable examples here
