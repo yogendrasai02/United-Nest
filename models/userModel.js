@@ -48,6 +48,9 @@ const userSchema = new mongoose.Schema({
             message: 'Password and PasswordConfirm must match' 
         }
     },
+    passwordChangedAt: {
+        type: Date
+    },
     profilePhoto: {
         type: String,
         default: ''
@@ -77,7 +80,7 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'merchant', 'admin'],
         default: 'user'
     }   // TODO: add fields to support RESET PASSWORD feature
-}, {
+}, {    // This option adds createdAt, updatedAt fields which are handled automatically
     timestamps: true
 });
 
@@ -88,6 +91,12 @@ userSchema.methods.comparePasswords = async function(givenPassword, actualHashed
     const res = await bcryptjs.compare(givenPassword, actualHashedPassword);
     return res;
 };
+
+// ** Method to check if user pwd was changed after a specified time **
+userSchema.methods.passwordChangedAfter = function(candidateTimeInSeconds) {
+    if(!this.passwordChangedAt) return false;
+    return this.passwordChangedAt.getTime() >= (candidateTimeInSeconds * 1000);
+}
 
 // *** MIDDLEWARES ***
 

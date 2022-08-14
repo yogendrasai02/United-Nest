@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const util = require('util');
 const validator = require('validator');
 
 const AppError = require('../utils/AppError');
@@ -13,6 +14,46 @@ const createToken = (id) => {
         expiresIn: process.env.JWT_EXPIRES_IN 
     });
     return token;
+};
+
+// ** Middleware to Protect Route. Also add a '.user' property on 'req' object **
+exports.authenticate = catchAsync(async (req, res, next) => {
+    // check if token exists & get token
+    if(!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+        return next(new AppError('You must be logged in to continue', 401));
+    }
+    const token = req.headers.authorization.split(' ')[1];
+    // verify token: this might lead to TokenExpiredError|JsonWebTokenError
+    const decodedToken = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
+    console.log(decodedToken);
+    // get user from decoded token
+    const user = await User.findById(decodedToken.id);
+    // check if user still exists (not deleted after JWT issual)
+    if(!user) {
+        return new AppError('Please login to continue', 401);
+    }
+    // check if user changed password after JWT issual
+    // TODO: test this thing once update/reset password are implemented
+    if(user.passwordChangedAfter(decodedToken.iat)) {
+        return next(new AppError('Your password was changed recently. Please login to continue', 401));
+    }
+    // if everything is ok, add userDocument to req object & goto next middleware
+    req.user = user;
+    console.log(req.user);
+    next();
+});
+
+// ** Function to Restrict Routes based on user permission. It RETURNS a middleware **
+exports.authorize = (...permittedRoles) => {
+    return (req, res, next) => {
+        if(!req.user) {
+            return next(new AppError('You must be logged in to continue.', 401));
+        }
+        if(!permittedRoles.includes(req.user.role)) {
+            return next(new AppError('You are not allowed to perform this action', 403));
+        }
+        next();
+    };
 };
 
 // ** Route handler for /signup route **
