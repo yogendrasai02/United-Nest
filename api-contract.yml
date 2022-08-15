@@ -12,11 +12,10 @@ paths:
   # Add endpoints here
 
   # SignUp endpoint
-  /api/v1/users/signup:
+  /api/v1/auth/signup:
     post:
       description: 'Creates a new user and returns the JWT token (logs the user in)'
       tags:
-        - users
         - auth
       requestBody:
         description: 'JSON Payload required for user signup'
@@ -73,11 +72,10 @@ paths:
                 $ref: '#/components/schemas/error'
 
   # Login endpoint
-  /api/v1/users/login:
+  /api/v1/auth/login:
     post:
       description: 'Logs in a user(returns JWT) based on username/email/mobile and the password'
       tags:
-        - users
         - auth
       requestBody:
         content:

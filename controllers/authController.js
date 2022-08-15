@@ -18,28 +18,27 @@ const createToken = (id) => {
 
 // ** Middleware to Protect Route. Also add a '.user' property on 'req' object **
 exports.authenticate = catchAsync(async (req, res, next) => {
-    // check if token exists & get token
+    // 1. check if token exists & get token
     if(!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
         return next(new AppError('You must be logged in to continue', 401));
     }
     const token = req.headers.authorization.split(' ')[1];
-    // verify token: this might lead to TokenExpiredError|JsonWebTokenError
+    // 2. verify token: this might lead to TokenExpiredError|JsonWebTokenError
     const decodedToken = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
     console.log(decodedToken);
-    // get user from decoded token
+    // 3. get user from decoded token
     const user = await User.findById(decodedToken.id);
-    // check if user still exists (not deleted after JWT issual)
+    // 4. check if user still exists (not deleted after JWT issual)
     if(!user) {
         return new AppError('Please login to continue', 401);
     }
-    // check if user changed password after JWT issual
+    // 5. check if user changed password after JWT issual
     // TODO: test this thing once update/reset password are implemented
     if(user.passwordChangedAfter(decodedToken.iat)) {
         return next(new AppError('Your password was changed recently. Please login to continue', 401));
     }
-    // if everything is ok, add userDocument to req object & goto next middleware
+    // 6. if everything is ok, add userDocument to req object & goto next middleware
     req.user = user;
-    console.log(req.user);
     next();
 });
 
@@ -71,7 +70,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     res.status(201).json({
         status: 'success',
         token,
-        data: { createdUser }
+        data: { createdUser }   // FIXME: this document has password: null, try to remove that
     });
 });
 

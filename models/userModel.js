@@ -110,6 +110,11 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
+// ** Post Save middleware to remove fields which SHOULD NOT be sent to client **
+userSchema.post('save', function(doc) {
+    doc.password = null;
+});
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
