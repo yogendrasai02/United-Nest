@@ -9,8 +9,9 @@ const YAML = require('yamljs');
 
 // ** Import our OWN modules **
 const AppError = require('./utils/AppError');
-const globalErrorHandler = require('./controllers/errorController');
 const authRouter = require('./routes/authRoutes');
+const connectionRouter = require('./routes/connectionRoutes');
+const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
 
 // ** Delegate Requests to the specific routes **
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/connections', connectionRouter);
 
 // ** Unhandled Routes **
 app.all('*', (req, res, next) => {
