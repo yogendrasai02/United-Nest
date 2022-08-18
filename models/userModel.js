@@ -1,3 +1,6 @@
+const crypto = require('crypto');
+const util = require('util');
+
 const bcryptjs = require('bcryptjs');
 const mongoose = require('mongoose');
 const validator = require('validator');
@@ -48,25 +51,12 @@ const userSchema = new mongoose.Schema({
             message: 'Password and PasswordConfirm must match' 
         }
     },
+    passwordChangedAt: {
+        type: Date
+    },
     profilePhoto: {
         type: String,
         default: ''
-    },
-    following: {
-        type: [mongoose.Types.ObjectId],
-        default: []
-    },
-    followers: {
-        type: [mongoose.Types.ObjectId],
-        default: []
-    },
-    pendingReqSent: {
-        type: [mongoose.Types.ObjectId],
-        default: []
-    },
-    pendingReqReceived: {
-        type: [mongoose.Types.ObjectId],
-        default: []
     },
     description: {
         type: String,
@@ -80,9 +70,40 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['user', 'merchant', 'admin'],
         default: 'user'
-    }   // TODO: add fields to support RESET PASSWORD feature
-}, {
-    timestamps: true
+    },
+    passwordResetToken: {
+        type: String
+    },
+    passwordResetTokenExpiresAt: {
+        type: Date
+    }
+}, {    // This option adds createdAt, updatedAt fields which are handled automatically
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
+
+// ** VIRTUAL PROPERTIES **
+// * Count of Followers *
+userSchema.virtual('followersCount', {
+    ref: 'UserConnection',
+    localField: 'username',
+    foreignField: 'requestReceiver',
+    count: true,
+    match: {
+        status: 'accepted'
+    }
+});
+
+// * Count of Following *
+userSchema.virtual('followingCount', {
+    ref: 'UserConnection',
+    localField: 'username',
+    foreignField: 'requestSender',
+    count: true,
+    match: {
+        status: 'accepted'
+    }
 });
 
 // *** INSTANCE METHODS ***
@@ -93,6 +114,21 @@ userSchema.methods.comparePasswords = async function(givenPassword, actualHashed
     return res;
 };
 
+// ** Method to check if user pwd was changed after a specified time **
+userSchema.methods.passwordChangedAfter = function(candidateTimeInSeconds) {
+    if(!this.passwordChangedAt) return false;
+    return this.passwordChangedAt.getTime() >= (candidateTimeInSeconds * 1000);
+}
+
+// ** Method to generate & store a password reset token **
+userSchema.methods.getPasswordResetToken = function() {
+    const passwordResetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(passwordResetToken).digest('hex');
+    this.passwordResetToken = hashedToken;
+    this.passwordResetTokenExpiresAt = Date.now() + 10 * 60 * 1000;
+    return passwordResetToken;
+}
+
 // *** MIDDLEWARES ***
 
 // ** Pre Save middleware to encrypt password **
@@ -102,7 +138,21 @@ userSchema.pre('save', async function(next) {
     }
     this.password = await bcryptjs.hash(this.password, 10);
     this.passwordConfirm = undefined;
+    if(!this.$isNew) {
+        this.passwordResetToken = undefined;
+        this.passwordResetTokenExpiresAt = undefined;
+    }
     next();
+});
+
+// ** Post Save middleware to remove fields which SHOULD NOT be sent to client **
+userSchema.post('save', function(doc) {
+    doc.password = null;
+});
+
+// ** Pre Save hook to populate virtual properties **
+userSchema.pre(/^find/, function() {
+    this.populate('followersCount followingCount');
 });
 
 const User = mongoose.model('User', userSchema);
