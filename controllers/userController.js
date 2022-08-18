@@ -9,6 +9,8 @@ const catchAsync = require('../utils/catchAsync');
 const User = require('../models/userModel');
 
 
+
+
 const getUserIdFromHeader = async (authHeader) => {
     // 1. Extract the token from the authentication header
     const token = authHeader && authHeader.split(' ')[1];
@@ -30,12 +32,12 @@ exports.getProfile = catchAsync(
         console.log(userid)
         // 3. Check if the user id is provided properly
         if(!userid){
-            return next(new AppError('Provide valid token', 403));
+            return next(new AppError('Please provide a valid token to continue', 403));
         }
         // 4. get the user with the given id from the db
         const user = await User.findById(userid);
         // 5. see if the user exists, if not return error
-        if(!user){
+        if(!user || user.isActive === false){
             return next(new AppError('User doesnot exist', 400));
         }
         // 6. return the user details
@@ -51,6 +53,9 @@ exports.getProfileByID = catchAsync(
     async (req,res,next) => {
         // 1. get the userid from the query
         const userid = req.params.userid;
+
+        // ** I think step-2 is redundant **
+
         // 2. check if the userid is provided as the query parameter
         if(!userid){
             return next(new AppError('Provide the user id', 400));
@@ -78,7 +83,7 @@ exports.deleteProfile = catchAsync(
         const userid = await getUserIdFromHeader(authHeader);
         // 3. Check if the user id is provided properly
         if(!userid){
-            return next(new AppError('Provide valid token', 403));
+            return next(new AppError('Please provide a valid token', 403));
         }
         // 4. set the isActive field in the user document to false
         await User.findByIdAndUpdate(userid, {$set : {isActive:false}});
@@ -94,5 +99,9 @@ exports.updateProfile = catchAsync(
         // 1. fetch the data
         const { name, username, profilePhoto, description } = req.body;
         // 2. check the data and update those in the database
+        if(!name){
+
+        }
     }
 )
+

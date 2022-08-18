@@ -447,6 +447,162 @@ paths: # TODO: add authentication methods for required endpoints
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+  
+  # Get Profile endpoint
+  /api/v1/users/myProfile:
+    get:
+      description: "Returns the profile details of the currently logged in user"
+      tags:
+        - "Users"
+      responses:
+        "200":
+          description: "Ok. Returns the profile deatails of the currently logged in user"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: "#/components/schemas/statusSchema"
+                  data:
+                    $ref: "#/components/schemas/userDocument"
+        "400":
+          description: "Bad Request. User doesnot exist or the account is deleted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "403":
+          description: "Forbidden. Please provide a valid token to continue"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  # Delete profile endpoint
+  /api/v1/users/deleteProfile:
+    delete:
+    description: "Deletes the profile of the currently logged in user"
+    tags:
+      - "Users"
+    responses:
+      "201": 
+        description: "Profile deleted Sucessfully"
+        content:
+          application/json:
+            schema:
+              type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+      "400":
+          description: "Bad Request. User doesnot exist or the account is deleted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "403":
+          description: "Forbidden. Please provide a valid token to continue"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  # Get Profile by id endpoint
+  /api/v1/users/profile/{userid}:
+    get:
+    description: "Returns the profile details of the currently logged in user"
+    tags:
+      - "Users"
+    responses:
+      "200":
+        description: "Ok. Returns the profile details of the provided userid"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: "#/components/schemas/statusSchema"
+                data:
+                  $ref: "#/components/schemas/userDocument"
+      "400":
+      description: "Bad Request. User doesnot exist or the account is deleted"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+      "500":
+        description: "Internal Server Error"
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/error"
+  
+  # Update Profile endpoint
+  /api/v1/users/updateProfile:
+    patch:
+    description: "Updates the profile of the currently logged in user"
+      tags:
+        - "User"
+      requestBody: # TODO: add example request payload
+        description: "JSON Payload required for user profile update"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                username:
+                  type: string
+                email: # TODO: This field is currently on hold
+                  type: string
+                mobile: # TODO: This field is currently on hold
+                  type: number
+                profilePhoto:
+                  type: # TODO: I don't know what the type is
+      responses:
+        "201":
+          description: "User Profile update successful"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: "#/components/schemas/statusSchema"
+                  data:
+                    $ref: "#/components/schemas/userDocument"
+        "400":
+          description: "Invalid data submitted. Please view error message for more info"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  
 
 components:
   # Add Reusable schemas (data models) here
@@ -495,7 +651,7 @@ components:
           type: string
         updatedAt:
           type: string
-
+  
     # ** Generic Error Schema **
     error: # TODO: Change the Schema once you differentiate DEV & PROD errors in errorController.js
       type: object
