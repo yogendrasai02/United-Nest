@@ -1,5 +1,5 @@
 openapi: 3.0.0
-info: 
+info:
   title: United Nest API
   description: This is the API Documentation of the United Nest REST API
   version: 1.0.0
@@ -14,12 +14,12 @@ paths:
   # SignUp endpoint
   /api/v1/users/signup:
     post:
-      description: 'Creates a new user and returns the JWT token (logs the user in)'
+      description: "Creates a new user and returns the JWT token (logs the user in)"
       tags:
         - users
         - auth
       requestBody:
-        description: 'JSON Payload required for user signup'
+        description: "JSON Payload required for user signup"
         required: true
         content:
           application/json:
@@ -46,36 +46,36 @@ paths:
                 - password
                 - passwordConfirm
       responses:
-        '201':
-          description: 'User signup successful'
+        "201":
+          description: "User signup successful"
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   status:
-                    $ref: '#/components/schemas/statusSchema'
-                  token: 
-                    $ref: '#/components/schemas/tokenSchema'
+                    $ref: "#/components/schemas/statusSchema"
+                  token:
+                    $ref: "#/components/schemas/tokenSchema"
                   data:
-                    $ref: '#/components/schemas/userDocument'
-        '400':
-          description: 'Invalid data submitted. Please view error message for more info'
+                    $ref: "#/components/schemas/userDocument"
+        "400":
+          description: "Invalid data submitted. Please view error message for more info"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
+                $ref: "#/components/schemas/error"
 
   # Login endpoint
   /api/v1/users/login:
     post:
-      description: 'Logs in a user(returns JWT) based on username/email/mobile and the password'
+      description: "Logs in a user(returns JWT) based on username/email/mobile and the password"
       tags:
         - users
         - auth
@@ -84,45 +84,79 @@ paths:
           application/json:
             schema:
               oneOf:
-                - $ref: '#/components/schemas/loginPayloadUsername'
-                - $ref: '#/components/schemas/loginPayloadEmail'
-                - $ref: '#/components/schemas/loginPayloadMobile'
+                - $ref: "#/components/schemas/loginPayloadUsername"
+                - $ref: "#/components/schemas/loginPayloadEmail"
+                - $ref: "#/components/schemas/loginPayloadMobile"
       responses:
-        '200':
-          description: 'OK, logged in successfully'
+        "200":
+          description: "OK, logged in successfully"
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   status:
-                    $ref: '#/components/schemas/statusSchema'
+                    $ref: "#/components/schemas/statusSchema"
                   token:
-                    $ref: '#/components/schemas/tokenSchema'
-        '400':
-          description: 'Please provide both username|email|mobile & password'
+                    $ref: "#/components/schemas/tokenSchema"
+        "400":
+          description: "Please provide both username|email|mobile & password"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '404':
-          description: 'User with given credentials not found'
+                $ref: "#/components/schemas/error"
+        "404":
+          description: "User with given credentials not found"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
+                $ref: "#/components/schemas/error"
+
+  # User profile endpoint
+  /api/v1/users/myProfile:
+    post:
+      description: "Fetches the profile details of the loggedin user"
+      tags:
+        - users
+      requestBody:
+        description: "Body not required"
+        required: false
+      responses:
+        "200":
+          description: "Profile fetched successfully"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    $ref: "#/components/schemas/statusSchema"
+                  token:
+                    $ref: "#/components/schemas/tokenSchema"
+                  data:
+                    $ref: "#/components/schemas/userDocument"
+        "400":
+          description: "Invalid token submitted. Please view error message for more info"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
 
 components:
-
   # Add Reusable schemas (data models) here
   schemas: # TODO: add examples to all schemas 😢
-    
     # ** User Document sent to Frontend **
     userDocument:
       type: object
@@ -160,19 +194,19 @@ components:
         role:
           type: string
           enum:
-            - 'user'
-            - 'merchant'
-            - 'admin'
+            - "user"
+            - "merchant"
+            - "admin"
         createdAt:
           type: string
         updatedAt:
           type: string
-    
+
     # ** Generic Error Schema **
-    error:  # TODO: Change the Schema once you differentiate DEV & PROD errors in errorController.js
+    error: # TODO: Change the Schema once you differentiate DEV & PROD errors in errorController.js
       type: object
       properties:
-        status: 
+        status:
           type: string
         message:
           type: string
@@ -227,7 +261,6 @@ components:
 
   # Add Security scheme definitions (Authentication) here
   securitySchemes:
-
     # Authorization header: Bearer [TOKEN]
     bearerAuth:
       type: http
