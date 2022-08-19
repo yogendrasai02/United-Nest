@@ -1,5 +1,6 @@
 const Post = require("../models/postModel.js");
 const ObjectId = require("mongodb").ObjectId;
+const Connection = require("../models/connectionModel.js");
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
@@ -15,16 +16,26 @@ module.exports.getPosts = catchAsync(async (req, res) => {
 
     // retrive all that usernames which the currently logged in user follows
 
+    let usernames = await Connection.find({$and: [{requestSender: req.user.username}, {status: 'accepted'}]}, {_id: 0, requestReceiver: 1});
 
+    console.log(usernames);
+
+    const users = [];
+
+    for(let user of usernames) {
+        users.push(user.requestReceiver);
+    }
+
+    console.log(users);
 
     // retreive the posts which are posted by those userids
-    let noOfPosts = await Post.find().count();
+    let noOfPosts = await Post.find({username: {$in: users}}).count();
 
     console.log(noOfPosts);
 
     let pagesCnt = Math.floor(noOfPosts / limit) + (noOfPosts % limit !== 0);
 
-    let data = await Post.find().skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
+    let data = await Post.find({username: {$in: users}}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
 
     res.send({data: data, pagesCnt: pagesCnt});
 });
@@ -55,8 +66,8 @@ module.exports.createPostsText = catchAsync(async (req, res) => {
 
     console.log("Posts data is ", postsDataFromFrontEnd);
 
-    const {content, contentType, user, postedAt, hashTags} = postsDataFromFrontEnd;
-    const postData = new Post({content: content, contentType: contentType, user: user, postedAt: postedAt, hashTags: hashTags, updatedAt: postedAt});
+    const {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+    const postData = new Post({content: content, contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, updatedAt: postedAt});
 
     let suc = await postData.save();
 
@@ -75,15 +86,15 @@ module.exports.createPostsImages = catchAsync(async (req, res) => {
     }
 
     if(postsDataFromFrontEnd.contentType === 'image') {
-        const {contentType, user, postedAt, hashTags} = postsDataFromFrontEnd;
-        const postData = new Post({contentType: contentType, user: user, postedAt: postedAt, hashTags: hashTags, images: imagesUrlArray, updatedAt: postedAt});
+        const {contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        const postData = new Post({contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, images: imagesUrlArray, updatedAt: postedAt});
 
         let suc = await postData.save();
 
         res.send({message: "Post containing image is added successfully"});
     } else {
-        const {content, contentType, user, postedAt, hashTags} = postsDataFromFrontEnd;
-        const postData = new Post({content: content, contentType: contentType, user: user, postedAt: postedAt, hashTags: hashTags, images: imagesUrlArray, updatedAt: postedAt});
+        const {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        const postData = new Post({content: content, contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, images: imagesUrlArray, updatedAt: postedAt});
 
         let suc = await postData.save();
 
@@ -98,15 +109,15 @@ module.exports.createPostsVideo = catchAsync(async (req, res) => {
     const videoUrl = req.file.path;
 
     if(postsDataFromFrontEnd.contentType === 'video') {
-        const {contentType, user, postedAt, hashTags} = postsDataFromFrontEnd;
-        const postData = new Post({contentType: contentType, user: user, postedAt: postedAt, hashTags: hashTags, video: videoUrl, updatedAt: postedAt});
+        const {contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        const postData = new Post({contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, video: videoUrl, updatedAt: postedAt});
 
         let suc = await postData.save();
 
         res.send({message: "Post containing video is added successfully"});
     } else {
-        const {content, contentType, user, postedAt, hashTags} = postsDataFromFrontEnd;
-        const postData = new Post({content: content, contentType: contentType, user: user, postedAt: postedAt, hashTags: hashTags, video: videoUrl, updatedAt: postedAt});
+        const {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        const postData = new Post({content: content, contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, video: videoUrl, updatedAt: postedAt});
 
         let suc = await postData.save();
 
@@ -120,6 +131,8 @@ module.exports.updatePostsText = catchAsync(async (req, res) => {
     const {content, hashTags, updatedAt} = req.body;
 
     console.log(req.body);
+
+    console.log(hashTags);
 
     let suc = await Post.updateOne({_id: pid}, {$set: {content: content, hashTags: hashTags, updatedAt: updatedAt}});
 

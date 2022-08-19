@@ -5,6 +5,8 @@ const authController = require("../controllers/authController.js");
 
 const postRouter = express.Router();
 
+postRouter.use(authController.authenticate, authController.authorize('user'));
+
 postRouter.get("/", postController.getPosts);
 
 postRouter.get("/:postId", postController.getPostsById);

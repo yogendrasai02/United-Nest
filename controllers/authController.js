@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const jwt = require('jsonwebtoken');
 const util = require('util');
 const validator = require('validator');
@@ -5,6 +7,8 @@ const validator = require('validator');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const User = require('../models/userModel');
+
+const Email = require('../utils/Email');
 
 // ** To create & sign a JWT **
 const createToken = (id) => {
@@ -18,28 +22,27 @@ const createToken = (id) => {
 
 // ** Middleware to Protect Route. Also add a '.user' property on 'req' object **
 exports.authenticate = catchAsync(async (req, res, next) => {
-    // check if token exists & get token
+    // 1. check if token exists & get token
     if(!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
         return next(new AppError('You must be logged in to continue', 401));
     }
     const token = req.headers.authorization.split(' ')[1];
-    // verify token: this might lead to TokenExpiredError|JsonWebTokenError
+    // 2. verify token: this might lead to TokenExpiredError|JsonWebTokenError
     const decodedToken = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
-    console.log(decodedToken);
-    // get user from decoded token
+    // 3. get user from decoded token
     const user = await User.findById(decodedToken.id);
-    // check if user still exists (not deleted after JWT issual)
+    // 4. check if user still exists (not deleted after JWT issual)
     if(!user) {
         return new AppError('Please login to continue', 401);
     }
-    // check if user changed password after JWT issual
+    // 5. check if user changed password after JWT issual
     // TODO: test this thing once update/reset password are implemented
     if(user.passwordChangedAfter(decodedToken.iat)) {
         return next(new AppError('Your password was changed recently. Please login to continue', 401));
     }
-    // if everything is ok, add userDocument to req object & goto next middleware
+    // 6. if everything is ok, add userDocument to req object & goto next middleware
     req.user = user;
-    console.log(req.user);
+    console.log(user);
     next();
 });
 
@@ -71,7 +74,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     res.status(201).json({
         status: 'success',
         token,
-        data: { createdUser }
+        data: { createdUser }   // FIXME: this document has password: null, try to remove that
     });
 });
 
@@ -116,5 +119,60 @@ exports.login = catchAsync(async (req, res, next) => {
     res.status(200).json({
         status: 'success',
         token
+    });
+});
+
+// ** Route Handler for /forgotPassword **
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+    console.log(req.query);
+    console.log('Inside Forgot Password Route Handler➡️');
+    // 1. get email & get user by that email
+    const { email } = req.body;
+    if(!validator.isEmail(email)) {
+        return next(new AppError('Please provide a valid email address', 400));
+    }
+    const user = await User.findOne({ email });
+    // 2. create a 32 bit password reset token, store its hashed version in DB
+    const passwordResetToken = await user.getPasswordResetToken();
+    await user.save({ validateBeforeSave: false });
+    // 3. send email to user with password reset token
+    const subject = 'Reset Password for your United Nest account';
+    // FIXME: this resetPwdURL should be handled at frontend?
+    // TODO: Refactor this sending email thing into methods of Email class itself (ex: sendPwdResetMail())
+    const resetPasswordURL = `${req.protocol}://${req.hostname}:${process.env.PORT}/api/v1/auth/resetPassword/${passwordResetToken}`;
+    const emailText = `Hello ${user.name}, you have initiated a request to reset your password.\n` + 
+                    `Please use the following link to reset your password:\n${resetPasswordURL}\n` +
+                    `This link is valid for 10 minutes and will expire by ` +
+                    user.passwordResetTokenExpiresAt.toString();
+    await (new Email()).sendEmail(user.email, subject, emailText);
+    console.log('Exiting Forgot Password Route Handler🟡');
+    res.status(200).json({
+        status: 'success',
+        message: 'If an user exists with that email, the Password Reset instructions will be sent to that email'
+    });
+});
+
+// ** Route handler for /resetPassword/:resetToken **
+exports.resetPassword = catchAsync(async(req, res, next) => {
+    console.log('Inside Reset Password Route Handler➡️');
+    // get reset token
+    const { resetToken } = req.params;
+    const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    // get user based on hashed reset token
+    const user = await User.findOne({ 
+        passwordResetToken: hashedResetToken
+    });
+    if(!user) {
+        return next(new AppError('Invalid Reset Token or Reset Token has expired', 400));
+    }
+    // get password, passwordConfirm from payload and update password
+    const { password, passwordConfirm } = req.body;
+    user['password'] = password;
+    user['passwordConfirm'] = passwordConfirm;
+    await user.save();
+    console.log('Exiting Reset Password Route Handler🟡');
+    res.status(200).json({
+        status: 'success',
+        message: 'Password reset successful. Please login to continue'
     });
 });

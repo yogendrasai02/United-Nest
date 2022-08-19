@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 const postSchema = new mongoose.Schema({
     content: {
@@ -11,8 +10,8 @@ const postSchema = new mongoose.Schema({
         enum: ['text', 'image', 'video', 'imageText', 'videoText'],
         required: true
     },
-    user: {
-        type: Schema.ObjectId,
+    username: {
+        type: String,
         required: true
     },
     postedAt: {
