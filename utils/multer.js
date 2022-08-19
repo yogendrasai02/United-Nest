@@ -7,11 +7,11 @@ function fileStorage(type) {
     let obj = {};
     if(type == 'images') {
         obj = {
-            folder: "PhotosOfUnitedNest",
+            folder: process.env.PHOTOS_FOLDER_NAME,
         };
     } else {
         obj = {
-            folder: "VideosOfUnitedNest",
+            folder: process.env.VIDEOS_FOLDER_NAME,
             resource_type: "video", 
         }
     }
