@@ -1,6 +1,3 @@
-const util = require('util');
-const jwt = require('jsonwebtoken');
-const validator = require('validator');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const User = require('../models/userModel');
@@ -8,11 +5,24 @@ const User = require('../models/userModel');
 
 exports.getUsers = catchAsync(
     async (req,res,next)=>{
-        const users = await User.find();
+
+        const filterBasedOn = req.query.sort;
+        const page = req.query.page;
+        const limit = req.query.limit || 15;
+
+        console.log(filterBasedOn, page, limit);
+
+        if(filterBasedOn === undefined || page === undefined) {
+            return next(new AppError("URL is incomplete", 400));
+        }
+
+        const users = await User.find().skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
+        let noOfUsers = await User.find().count();
+        let pagesCnt =  Math.floor(noOfUsers / limit) + (noOfUsers % limit !== 0);
         console.log(users)
         res.status(200).json({
             status: 'success',
-            data: { users }
+            data: { users, pagesCnt }
         })
     }
 )
@@ -20,24 +30,31 @@ exports.getUsers = catchAsync(
 exports.getUserById = catchAsync(
     async (req,res,next) => {
         const userid = req.params.userid;
-        const user = await User.findById(userid);
-        if(!user){
-            return next(new AppError('The User with the ID doesnot exist', 400));
+
+        try{
+            const user = await User.findById(userid);
+            if(!user){
+                return next(new AppError('The User with the ID doesnot exist', 400));
+            }
+            res.status(200).json({
+                status: 'success',
+                data: { user }
+            });
         }
-        res.status(200).json({
-            status: 'success',
-            data: { user }
-        })
+        catch(err){
+            console.log(err);
+            return next(new AppError('Some Error Occured', 500));
+        }
     }
 )
 
 exports.deleteUserById = catchAsync(
     async (req,res,next) =>{
         const userid = req.params.userid;
-        await User.findByIdAndDelete(userid, (err, data) => {
+        await User.findByIdAndDelete(userid, (err, result) => {
             if(err){
                 console.log(err);
-                return next(new AppError('Some error occured', 400));
+                return new AppError('Some error occured', 400);
             }
             else{
                 res.status(201).json({

@@ -1,88 +1,109 @@
 const util = require('util');
 const jwt = require('jsonwebtoken');
-
 const validator = require('validator');
 
+const Post = require("../models/postModel.js");
+const ObjectId = require("mongodb").ObjectId;
+const Connection = require("../models/connectionModel.js");
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const User = require('../models/userModel');
 
 
-
-
-const getUserIdFromHeader = async (authHeader) => {
-    // 1. Extract the token from the authentication header
-    const token = authHeader && authHeader.split(' ')[1];
-    if(!token){
-        return null;
-    }
-    // 2. Promisified the jwt.verify function, decode the token
-    const decodedToken = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
-    // 3. return the userid from the decoded token
-    return decodedToken.id;
-}
-
 exports.getProfile = catchAsync(
     async (req,res,next)=>{
-        // 1. get the authentication header
-        const authHeader = req.headers['authorization']
-        // 2. get the userid by decoding the token provided in header
-        const userid = await getUserIdFromHeader(authHeader);
-        console.log(userid)
-        // 3. Check if the user id is provided properly
-        if(!userid){
-            return next(new AppError('Please login to continue', 401));
+
+        let followRequestsSent = await Connection.find({requestSender: req.user.username});
+        let followRequestsRecv = await Connection.find({requestReceiver: req.user.username});
+        
+        let followers = [];
+        let following = [];
+        let followRequestPending = [];
+        let followRequestRecived = [];
+
+        for (let request in followRequestsSent){
+            if(request.status == 'pending'){
+                followRequestPending.push(request.requestReceiver);
+            }
+            else{
+                following.push(request.requestReceiver);
+            }
         }
-        // 4. get the user with the given id from the db
-        const user = await User.findById(userid);
-        // 5. see if the user exists, if not return error
-        if(!user || user.isActive === false){
-            return next(new AppError('User doesnot exist', 400));
+
+        for (let request in followRequestsRecv){
+            if(request.status == 'pending'){
+                followRequestRecived.push(request.requestSender);
+            }
+            else{
+                followers.push(request.requestSender);
+            }
         }
-        // 6. return the user details
+
         res.status(200).json({
             status: 'success',
-            data : {user}
-        });
+            data: { 
+                profile:{
+                    name: req.user.name,
+                    username: req.user.username,
+                    email: req.user.email,
+                    mobile: req.user.mobile,
+                    profilePhoto: req.user.profilePhoto,
+                    description: req.user.description,
+                    followers,
+                    following,
+                    pending: followRequestPending,
+                    received: followRequestRecived
+                }
+            }
+        })
     }
 );
 
 exports.getProfileByID = catchAsync(
     async (req,res,next) => {
-        // 1. get the userid from the query
-        const userid = req.params.userid;
-        // ** I think step-2 is redundant **
-        // 2. check if the userid is provided as the query parameter
-        if(!userid){
-            return next(new AppError('Provide the user id', 400));
+        const user = await User.findById(req.params.userid);
+        if(!user || user.isActive == false){
+            return new AppError('User doesnot exist or account is deleted', 400);
         }
-        // 3. get the details of the user from the db
-        const user = await User.findById(userid);
-        // 4. see if the user is there or not
-        if(!user){
-            return next(new AppError('User doesnot exist', 400));
+        // check if the req.user follows the user with userid 
+        let connection = await Connection.findOne({$and: [{requestSender: req.user.username}, {requestReceiver: user.username}]});
+        console.log(connection);
+        if(connection && connection.status == 'accepted'){
+            const posts = await Post.find({username: user.username});
+            console.log(posts);
+            res.status(200).json({
+                status: 'success',
+                data: {
+                    profile: {
+                        name: req.user.name,
+                        username: req.user.username,
+                        profilePhoto: req.user.profilePhoto,
+                        description: req.user.description
+                    },
+                    posts
+                }
+            })
         }
-        // 5. send back those details
-        res.status(200).json({
-            status:'success',
-            data : {user}
-        });
+        else{
+            res.status(200).json({
+                status: 'success',
+                data: {
+                    profile: {
+                        name: req.user.name,
+                        username: req.user.username,
+                        profilePhoto: req.user.profilePhoto,
+                        description: req.user.description
+                    }
+                }
+            })
+        }
     }
 );
 
 exports.deleteProfile = catchAsync(
     async (req,res,next) => {
-        // 1. get the authentication header
-        const authHeader = req.headers['authorization']
-        // 2. get the userid by decoding the token provided in header
-        const userid = await getUserIdFromHeader(authHeader);
-        // 3. Check if the user id is provided properly
-        if(!userid){
-            return next(new AppError('Please provide a valid token', 403));
-        }
-        // 4. set the isActive field in the user document to false
         try{
-            await User.findByIdAndUpdate(userid, {$set : {isActive:false}});
+            await User.findByIdAndUpdate(req.user.id, {$set : {isActive:false}});
             res.status(201).json({
                 status:'success',
                 data:{'message': 'Deleted the User Successfully'}
@@ -97,8 +118,6 @@ exports.deleteProfile = catchAsync(
 
 exports.updateProfile = catchAsync(
     async (req,res,next) => {
-        const authHeader = req.headers['authorization']
-        const userid = await getUserIdFromHeader(authHeader);
         const updatedocs = {};
         if(req.body.name){
             updatedocs.name = req.body.name;
@@ -116,7 +135,7 @@ exports.updateProfile = catchAsync(
             updatedocs.mobile = req.body.mobile;
         }
         try{
-            const updatedUser = await User.findByIdAndUpdate(userid, updatedocs);
+            const updatedUser = await User.findByIdAndUpdate(req.user.id, updatedocs);
             res.status(201).json({
                 status: 'success',
                 data : {updatedUser}
