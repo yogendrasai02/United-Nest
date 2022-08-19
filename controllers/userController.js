@@ -1,8 +1,7 @@
 const util = require('util');
 const jwt = require('jsonwebtoken');
+
 const validator = require('validator');
-
-
 
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
@@ -32,7 +31,7 @@ exports.getProfile = catchAsync(
         console.log(userid)
         // 3. Check if the user id is provided properly
         if(!userid){
-            return next(new AppError('Please provide a valid token to continue', 403));
+            return next(new AppError('Please login to continue', 401));
         }
         // 4. get the user with the given id from the db
         const user = await User.findById(userid);
@@ -41,7 +40,6 @@ exports.getProfile = catchAsync(
             return next(new AppError('User doesnot exist', 400));
         }
         // 6. return the user details
-        console.log('User details', user);
         res.status(200).json({
             status: 'success',
             data : {user}
@@ -53,9 +51,7 @@ exports.getProfileByID = catchAsync(
     async (req,res,next) => {
         // 1. get the userid from the query
         const userid = req.params.userid;
-
         // ** I think step-2 is redundant **
-
         // 2. check if the userid is provided as the query parameter
         if(!userid){
             return next(new AppError('Provide the user id', 400));
@@ -67,7 +63,6 @@ exports.getProfileByID = catchAsync(
             return next(new AppError('User doesnot exist', 400));
         }
         // 5. send back those details
-        console.log('User Details', user);
         res.status(200).json({
             status:'success',
             data : {user}
@@ -86,22 +81,51 @@ exports.deleteProfile = catchAsync(
             return next(new AppError('Please provide a valid token', 403));
         }
         // 4. set the isActive field in the user document to false
-        await User.findByIdAndUpdate(userid, {$set : {isActive:false}});
-        res.status(201).json({
-            status:'success',
-            data:{'message': 'Deleted the User Successfully'}
-        });
+        try{
+            await User.findByIdAndUpdate(userid, {$set : {isActive:false}});
+            res.status(201).json({
+                status:'success',
+                data:{'message': 'Deleted the User Successfully'}
+            });
+        }
+        catch(err){
+            console.log(err);
+            return next(new AppError('Some Error Occured', 500));
+        }
     }
 )
 
 exports.updateProfile = catchAsync(
-    async (req,res,next) {
-        // 1. fetch the data
-        const { name, username, profilePhoto, description } = req.body;
-        // 2. check the data and update those in the database
-        if(!name){
-
+    async (req,res,next) => {
+        const authHeader = req.headers['authorization']
+        const userid = await getUserIdFromHeader(authHeader);
+        const updatedocs = {};
+        if(req.body.name){
+            updatedocs.name = req.body.name;
         }
+        if(req.body.username){
+            updatedocs.username = req.body.username
+        }
+        if(req.file && req.file.path){
+            updatedocs.profilePhoto = req.file.path;
+        }
+        if(req.body.email){
+            updatedocs.email = req.body.email;
+        }
+        if(req.body.mobile){
+            updatedocs.mobile = req.body.mobile;
+        }
+        try{
+            const updatedUser = await User.findByIdAndUpdate(userid, updatedocs);
+            res.status(201).json({
+                status: 'success',
+                data : {updatedUser}
+            }); 
+        }
+        catch(err){
+            console.log(err);
+            return next(new AppError('Some error Ocurred while updating profile', 500));
+        } 
     }
 )
 

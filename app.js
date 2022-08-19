@@ -12,6 +12,7 @@ const AppError = require('./utils/AppError');
 const authRouter = require('./routes/authRoutes');
 const connectionRouter = require('./routes/connectionRoutes');
 const adminRouter = require('./routes/adminRoutes');
+const userRouter = require('./routes/userRoutes');
 const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
@@ -56,6 +57,8 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/connections', connectionRouter);
 app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/users', userRouter);
+
 // ** Unhandled Routes **
 app.all('*', (req, res, next) => {
     const err = new AppError('Specified Resource/Path does not exist', 404);
