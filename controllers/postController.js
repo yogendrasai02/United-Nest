@@ -5,7 +5,7 @@ const Connection = require("../models/connectionModel.js");
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
-module.exports.getPosts = catchAsync(async (req, res) => {
+module.exports.getPosts = catchAsync(async (req, res, next) => {
     let filterBasedOn = req.query.sort;
     const page = req.query.page;
     const limit = req.query.limit;
@@ -56,7 +56,7 @@ module.exports.getPosts = catchAsync(async (req, res) => {
     res.send({data: data, pagesCnt: pagesCnt});
 });
 
-module.exports.getPostsById = catchAsync(async (req, res) => {
+module.exports.getPostsById = catchAsync(async (req, res, next) => {
     console.log(req.params.postId);
     // await Post.findOne({_id: }).exec();
     const post = await Post.findById(req.params.postId);
@@ -70,7 +70,7 @@ module.exports.getPostsById = catchAsync(async (req, res) => {
     res.send(responseObj);
 });
 
-module.exports.createPostsText = catchAsync(async (req, res) => {
+module.exports.createPostsText = catchAsync(async (req, res, next) => {
     const postsDataFromFrontEnd = req.body;
 
     if(postsDataFromFrontEnd.length === 0) {
@@ -87,7 +87,7 @@ module.exports.createPostsText = catchAsync(async (req, res) => {
     res.send({message: "Post added successfully"});
 });
 
-module.exports.createPostsImages = catchAsync(async (req, res) => {
+module.exports.createPostsImages = catchAsync(async (req, res, next) => {
     const postsDataFromFrontEnd = req.body;
 
     console.log("req.file is: ", req.files);
@@ -115,7 +115,7 @@ module.exports.createPostsImages = catchAsync(async (req, res) => {
     }
 });
 
-module.exports.createPostsVideo = catchAsync(async (req, res) => {
+module.exports.createPostsVideo = catchAsync(async (req, res, next) => {
     console.log(req.file);
     const postsDataFromFrontEnd = req.body;
 
@@ -138,7 +138,7 @@ module.exports.createPostsVideo = catchAsync(async (req, res) => {
     }
 });
 
-module.exports.updatePostsText = catchAsync(async (req, res) => {
+module.exports.updatePostsText = catchAsync(async (req, res, next) => {
     let pid = new ObjectId(req.params.postId);
 
     const {content, hashTags, updatedAt} = req.body;
@@ -160,7 +160,7 @@ module.exports.updatePostsText = catchAsync(async (req, res) => {
     res.send({message: "Post containing text is updated"});
 });
 
-module.exports.updatePostsImages = catchAsync(async (req, res) => {
+module.exports.updatePostsImages = catchAsync(async (req, res, next) => {
     let pid = new ObjectId(req.params.postId);
 
     const imagesUrlArray = [];
@@ -188,7 +188,7 @@ module.exports.updatePostsImages = catchAsync(async (req, res) => {
     }
 });
 
-module.exports.updatePostsVideo = catchAsync(async (req, res) => {
+module.exports.updatePostsVideo = catchAsync(async (req, res, next) => {
     let pid = new ObjectId(req.params.postId);
 
     const videoUrl = req.file.path;
@@ -213,7 +213,7 @@ module.exports.updatePostsVideo = catchAsync(async (req, res) => {
     }
 });
 
-module.exports.deletePosts = catchAsync(async (req, res) => {
+module.exports.deletePosts = catchAsync(async (req, res, next) => {
     let pid = new ObjectId(req.params.postId);
 
     let data = await Post.find({_id: pid});
@@ -222,7 +222,7 @@ module.exports.deletePosts = catchAsync(async (req, res) => {
         return next(new AppError("Posts doesn't exist", 400));
     }
     
-    
+
     let suc = await Post.deleteOne({_id: pid});
 
     res.send({message: "Post deleted successfully"});

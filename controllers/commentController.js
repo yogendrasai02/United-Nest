@@ -1,8 +1,9 @@
 const catchAsync = require("../utils/catchAsync")
 const Comment = require("../models/commentModel.js");
 const Post = require("../models/postModel.js");
+const AppError = require('../utils/AppError');
 
-module.exports.getComments = catchAsync(async (req, res) => {
+module.exports.getComments = catchAsync(async (req, res, next) => {
     console.log("Comment ID: ", req.query.commentId);
     const commentId = req.query.commentId;
     const postId = req.params.postId;
@@ -10,7 +11,11 @@ module.exports.getComments = catchAsync(async (req, res) => {
     const page = req.query.page;
     let noOfComments;
 
-    let data = await Comment.findById(postId);
+    if(page === undefined || limit === undefined) {
+        return next(new AppError("URL is incomplete", 400));
+    }
+
+    let data = await Post.findById(postId);
 
     if(data === null) {
         return next(new AppError("Post doesn't exist", 400));
@@ -27,9 +32,12 @@ module.exports.getComments = catchAsync(async (req, res) => {
     } else {
         noOfComments = await Comment.find({$and: [{post: postId}, {parentComment: commentId}]}).count();
     }
+
     console.log(noOfComments);
+
     let pagesCnt = Math.floor(noOfComments / limit) + (noOfComments % limit !== 0);
 
+    console.log(pagesCnt);
     let filterBasedOn = {};
 
     if(commentId === "null") {
@@ -62,7 +70,7 @@ module.exports.getComments = catchAsync(async (req, res) => {
     res.send({comments: comments, pagesCnt: pagesCnt});
 }); 
 
-module.exports.postComment = catchAsync(async (req, res) => {
+module.exports.postComment = catchAsync(async (req, res, next) => {
     const postId = req.params.postId;
 
     const {user, content, commentedAt} = req.body;
@@ -99,7 +107,7 @@ module.exports.postComment = catchAsync(async (req, res) => {
     }
 });
 
-module.exports.updateComment = catchAsync(async (req, res) => {
+module.exports.updateComment = catchAsync(async (req, res, next) => {
     const {content, updatedAt} = req.body;
 
     let data = await Comment.findById(req.params.commentId);
@@ -114,7 +122,7 @@ module.exports.updateComment = catchAsync(async (req, res) => {
     res.send({message: "Update successful"});
 });
 
-module.exports.deleteComment = catchAsync(async (req, res) => {
+module.exports.deleteComment = catchAsync(async (req, res, next) => {
 
     const commentId = req.params.commentId;
     const postId = req.params.postId;
