@@ -6,17 +6,17 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
 
 module.exports.getPosts = catchAsync(async (req, res) => {
-    const filterBasedOn = req.query.sort;
+    let filterBasedOn = req.query.sort;
     const page = req.query.page;
     const limit = req.query.limit;
 
     if(filterBasedOn === undefined || page === undefined || limit === undefined) {
-        return new AppError("URL is incomplete", 400);
+        return next(new AppError("URL is incomplete", 400));
     }
 
     // retrive all that usernames which the currently logged in user follows
-
-    let usernames = await Connection.find({$and: [{requestSender: req.user.username}, {status: 'accepted'}]}, {_id: 0, requestReceiver: 1});
+    // req.user.username
+    let usernames = await Connection.find({$and: [{requestSender: "mario"}, {status: 'accepted'}]}, {_id: 0, requestReceiver: 1});
 
     console.log(usernames);
 
@@ -33,6 +33,22 @@ module.exports.getPosts = catchAsync(async (req, res) => {
 
     console.log(noOfPosts);
 
+    if(filterBasedOn === '-comments') {
+        filterBasedOn = {"reactionsCnt.comments": -1};
+    } else if(filterBasedOn === 'comments') {
+        filterBasedOn = {"reactionsCnt.comments": 1};
+    } else if(filterBasedOn === '-postedAt') {
+        filterBasedOn = {"postedAt": -1};
+    } else if(filterBasedOn === 'postedAt') {
+        filterBasedOn = {"postedAt": 1};
+    } else if(filterBasedOn === "-likes") {
+        filterBasedOn = {"reactionsCnt.likes": -1};
+    } else if(filterBasedOn === "likes") {
+        filterBasedOn = {"reactionsCnt.likes": 1};
+    } else {
+        return next(new AppError("Filter query string is wrong", 400));
+    }
+
     let pagesCnt = Math.floor(noOfPosts / limit) + (noOfPosts % limit !== 0);
 
     let data = await Post.find({username: {$in: users}}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
@@ -46,23 +62,20 @@ module.exports.getPostsById = catchAsync(async (req, res) => {
     const post = await Post.findById(req.params.postId);
 
     if(post === null) {
-        return new AppError("User doesn't exist", 400);
+        return next(new AppError("Post doesn't exist", 400));
     }
 
-    responseObj = {};
-
-    if(post !== null) {
-        responseObj['message'] = 'success';
-        responseObj['post'] = post;
-    } else {
-        responseObj['message'] = "Post doesn't exist";
-    }
+    responseObj = {message: "success", post:"post"};
 
     res.send(responseObj);
 });
 
 module.exports.createPostsText = catchAsync(async (req, res) => {
     const postsDataFromFrontEnd = req.body;
+
+    if(postsDataFromFrontEnd.length === 0) {
+        return next(new AppError("Text should be of length > 0", 400));
+    }
 
     console.log("Posts data is ", postsDataFromFrontEnd);
 
@@ -134,6 +147,12 @@ module.exports.updatePostsText = catchAsync(async (req, res) => {
 
     console.log(hashTags);
 
+    let data = await Post.find({_id: pid});
+
+    if(data === null) {
+        return next(new AppError("Posts doesn't exist", 400));
+    }
+
     let suc = await Post.updateOne({_id: pid}, {$set: {content: content, hashTags: hashTags, updatedAt: updatedAt}});
 
     console.log({content, hashTags, updatedAt});
@@ -145,6 +164,12 @@ module.exports.updatePostsImages = catchAsync(async (req, res) => {
     let pid = new ObjectId(req.params.postId);
 
     const imagesUrlArray = [];
+
+    let data = await Post.find({_id: pid});
+
+    if(data === null) {
+        return next(new AppError("Posts doesn't exist", 400));
+    }
 
     for(let file of req.files) {
         imagesUrlArray.push(file.path);
@@ -170,6 +195,13 @@ module.exports.updatePostsVideo = catchAsync(async (req, res) => {
 
     const {content, hashTags, updatedAt, contentType} = req.body;
 
+    let data = await Post.find({_id: pid});
+
+    if(data === null) {
+        return next(new AppError("Posts doesn't exist", 400));
+    }
+    
+
     if(contentType == 'video') {
         let suc = await Post.updateMany({_id: pid}, {$set: {hashTags: hashTags, video: videoUrl, updatedAt: updatedAt}});
 
@@ -184,6 +216,13 @@ module.exports.updatePostsVideo = catchAsync(async (req, res) => {
 module.exports.deletePosts = catchAsync(async (req, res) => {
     let pid = new ObjectId(req.params.postId);
 
+    let data = await Post.find({_id: pid});
+
+    if(data === null) {
+        return next(new AppError("Posts doesn't exist", 400));
+    }
+    
+    
     let suc = await Post.deleteOne({_id: pid});
 
     res.send({message: "Post deleted successfully"});
