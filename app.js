@@ -12,6 +12,7 @@ const AppError = require('./utils/AppError');
 const authRouter = require('./routes/authRoutes');
 const connectionRouter = require('./routes/connectionRoutes');
 const postRouter = require("./routes/postRoutes.js");
+const searchRouter = require("./routes/searchRoutes.js");
 const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
@@ -56,6 +57,7 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/connections', connectionRouter);
 app.use('/api/v1/posts', postRouter);
+app.use('/api/v1/search', searchRouter);
 
 // ** Unhandled Routes **
 app.all('*', (req, res, next) => {
