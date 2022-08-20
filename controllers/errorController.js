@@ -11,6 +11,8 @@ const handleJWTJsonWebTokenError = err => {
 // ** Global Error Handling Middleware **
 // TODO: Differentiate Error Handling for DEV & PROD
 // TODO: Handle Mongoose & MongoDB errors here, once they are established
+// TODO: Handle invalid Mongoose id error
+
 const globalErrorHandler = (err, req, res, next) => {
     console.log('💥An Error has occured💥');
     console.log(err);
