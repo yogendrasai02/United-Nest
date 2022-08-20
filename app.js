@@ -12,6 +12,10 @@ const YAML = require('yamljs');
 const AppError = require('./utils/AppError');
 const authRouter = require('./routes/authRoutes');
 const connectionRouter = require('./routes/connectionRoutes');
+
+const adminRouter = require('./routes/adminRoutes');
+const userRouter = require('./routes/userRoutes');
+
 const postRouter = require("./routes/postRoutes.js");
 const viewRouter = require('./routes/viewRoutes');
 const globalErrorHandler = require('./controllers/errorController');
@@ -61,6 +65,10 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
 // ** Delegate Requests to the specific routes **
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/connections', connectionRouter);
+
+app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/users', userRouter);
+
 app.use('/api/v1/posts', postRouter);
 app.use('/', viewRouter);
 

@@ -1,5 +1,5 @@
 openapi: 3.0.0
-info: 
+info:
   title: United Nest API
   description: This is the API Documentation of the United Nest REST API
   version: 1.0.0
@@ -8,17 +8,17 @@ servers:
     description: DEV Server
   - url: https://www.united-nest.com/
     description: PROD Server
-paths:  # TODO: add authentication methods for required endpoints
+paths: # TODO: add authentication methods for required endpoints
   # Add endpoints here
 
   # Signup endpoint
   /api/v1/auth/signup:
     post:
-      description: 'Creates a new user and returns the JWT token (logs the user in)'
+      description: "Creates a new user and returns the JWT token (logs the user in)"
       tags:
         - auth
-      requestBody:  # TODO: add example request payload
-        description: 'JSON Payload required for user signup'
+      requestBody: # TODO: add example request payload
+        description: "JSON Payload required for user signup"
         required: true
         content:
           application/json:
@@ -45,36 +45,36 @@ paths:  # TODO: add authentication methods for required endpoints
                 - password
                 - passwordConfirm
       responses:
-        '201':
-          description: 'User signup successful'
+        "201":
+          description: "User signup successful"
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   status:
-                    $ref: '#/components/schemas/statusSchema'
-                  token: 
-                    $ref: '#/components/schemas/tokenSchema'
+                    $ref: "#/components/schemas/statusSchema"
+                  token:
+                    $ref: "#/components/schemas/tokenSchema"
                   data:
-                    $ref: '#/components/schemas/userDocument'
-        '400':
-          description: 'Invalid data submitted. Please view error message for more info'
+                    $ref: "#/components/schemas/userDocument"
+        "400":
+          description: "Invalid data submitted. Please view error message for more info"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
+                $ref: "#/components/schemas/error"
 
   # Login endpoint
   /api/v1/auth/login:
     post:
-      description: 'Logs in a user(returns JWT) based on username/email/mobile and the password'
+      description: "Logs in a user(returns JWT) based on username/email/mobile and the password"
       tags:
         - auth
       requestBody:
@@ -82,44 +82,44 @@ paths:  # TODO: add authentication methods for required endpoints
           application/json:
             schema:
               oneOf:
-                - $ref: '#/components/schemas/loginPayloadUsername'
-                - $ref: '#/components/schemas/loginPayloadEmail'
-                - $ref: '#/components/schemas/loginPayloadMobile'
+                - $ref: "#/components/schemas/loginPayloadUsername"
+                - $ref: "#/components/schemas/loginPayloadEmail"
+                - $ref: "#/components/schemas/loginPayloadMobile"
       responses:
-        '200':
-          description: 'OK, logged in successfully'
+        "200":
+          description: "OK, logged in successfully"
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   status:
-                    $ref: '#/components/schemas/statusSchema'
+                    $ref: "#/components/schemas/statusSchema"
                   token:
-                    $ref: '#/components/schemas/tokenSchema'
-        '400':
-          description: 'Please provide both username|email|mobile & password'
+                    $ref: "#/components/schemas/tokenSchema"
+        "400":
+          description: "Please provide both username|email|mobile & password"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '404':
-          description: 'User with given credentials not found'
+                $ref: "#/components/schemas/error"
+        "404":
+          description: "User with given credentials not found"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
+                $ref: "#/components/schemas/error"
 
   # Forgot Password endpoint
   /api/v1/auth/forgotPassword:
     post:
-      description: 'Sends a reset password link to the associated User(if that user exists)'
+      description: "Sends a reset password link to the associated User(if that user exists)"
       tags:
         - auth
         - "User Account"
@@ -134,7 +134,7 @@ paths:  # TODO: add authentication methods for required endpoints
               required:
                 - email
       responses:
-        '200':  # TODO: add example for this response
+        "200": # TODO: add example for this response
           description: "If a user with given email exists, the password reset link will be sent to that email"
           content:
             application/json:
@@ -145,23 +145,23 @@ paths:  # TODO: add authentication methods for required endpoints
                     type: string
                   message:
                     type: string
-        '400':
-          description: 'Client Side Error - Bad Request'
+        "400":
+          description: "Client Side Error - Bad Request"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
+                $ref: "#/components/schemas/error"
 
   # Reset Password endpoint
   /api/v1/auth/resetPassword/{resetToken}:
     patch:
-      description: 'Resets the password of a user who has the given password reset token'
+      description: "Resets the password of a user who has the given password reset token"
       tags:
         - auth
         - "User Account"
@@ -171,7 +171,7 @@ paths:  # TODO: add authentication methods for required endpoints
           schema:
             type: string
           required: true
-          description: 'Password Reset Token'
+          description: "Password Reset Token"
       requestBody: # TODO: add example request payload
         content:
           application/json:
@@ -186,7 +186,7 @@ paths:  # TODO: add authentication methods for required endpoints
                 - password
                 - passwordConfirm
       responses:
-        '200':  # TODO: add example for this response
+        "200": # TODO: add example for this response
           description: "OK. Reset Token valid and Password of the User is reset successfully"
           content:
             application/json:
@@ -194,72 +194,72 @@ paths:  # TODO: add authentication methods for required endpoints
                 type: object
                 properties:
                   status:
-                    $ref: '#/components/schemas/statusSchema'
+                    $ref: "#/components/schemas/statusSchema"
                   message:
                     type: string
-        '400':
-          description: 'Client Side Error - Bad Request'
+        "400":
+          description: "Client Side Error - Bad Request"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
+                $ref: "#/components/schemas/error"
 
   # Get Follow Requests endpoint
   /api/v1/connections/followRequests/{action}:
     get:
-      description: 'Returns all the pending Received|Sent Following Requests for the currently logged in user'
+      description: "Returns all the pending Received|Sent Following Requests for the currently logged in user"
       tags:
-        - 'Connections'
+        - "Connections"
       parameters:
         - in: path
           name: action
           schema:
             type: string
-            enum: ['sent', 'received']
+            enum: ["sent", "received"]
           required: true
       responses:
-        '200':
-          description: 'Ok. Returns all pending request the user has sent|received, depending on action parameter value'
+        "200":
+          description: "Ok. Returns all pending request the user has sent|received, depending on action parameter value"
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/connectionDocument'
-        '400':
-          description: 'Client Side Error - Bad Request'
+                  $ref: "#/components/schemas/connectionDocument"
+        "400":
+          description: "Client Side Error - Bad Request"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
+                $ref: "#/components/schemas/error"
 
   # Send A Follow Request endpoint
   /api/v1/connections/followRequests/{username}:
     patch:
-      description: 'Sends a follow request to the specified user'
+      description: "Sends a follow request to the specified user"
       tags:
-        - 'Connections'
+        - "Connections"
       parameters:
         - in: path
           name: username
-          description: 'Intended user to whom the follow request goes to'
+          description: "Intended user to whom the follow request goes to"
           schema:
             type: string
           required: true
       responses:
-        '200':  # TODO: add example for this response
+        "200": # TODO: add example for this response
           description: "OK. Follow Request Sent Successfully"
           content:
             application/json:
@@ -267,89 +267,89 @@ paths:  # TODO: add authentication methods for required endpoints
                 type: object
                 properties:
                   status:
-                    $ref: '#/components/schemas/statusSchema'
+                    $ref: "#/components/schemas/statusSchema"
                   message:
                     type: string
-        '400':
-          description: 'Client Side Error - Bad Request'
+        "400":
+          description: "Client Side Error - Bad Request"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
+                $ref: "#/components/schemas/error"
 
   # Accept A Follow Request endpoint
   /api/v1/connections/followRequests/{username}/{action}:
     patch:
-      description: 'Accept|Reject a follow request from the specified user'
+      description: "Accept|Reject a follow request from the specified user"
       tags:
-        - 'Connections'
+        - "Connections"
       parameters:
         - in: path
           name: username
-          description: 'Intended user who sent the follow request'
+          description: "Intended user who sent the follow request"
           schema:
             type: string
           required: true
         - in: path
           name: action
-          description: 'accept|reject'
+          description: "accept|reject"
           schema:
             type: string
-            enum: ['accept', 'reject']
+            enum: ["accept", "reject"]
           required: true
       responses:
-        '200':  # TODO: add example for this response
-          description: 'OK. Follow Request has been accepted'
+        "200": # TODO: add example for this response
+          description: "OK. Follow Request has been accepted"
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   status:
-                    $ref: '#/components/schemas/statusSchema'
+                    $ref: "#/components/schemas/statusSchema"
                   message:
                     type: string
-        '204':
-          description: 'OK. Follow Request has be rejected and corresponding record is deleted'
+        "204":
+          description: "OK. Follow Request has be rejected and corresponding record is deleted"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/deleteDocumentSchema'
-        '400':
-          description: 'Client Side Error - Bad Request'
+                $ref: "#/components/schemas/deleteDocumentSchema"
+        "400":
+          description: "Client Side Error - Bad Request"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
+                $ref: "#/components/schemas/error"
 
   # Get All Following endpoint
   /api/v1/connections/following:
     get:
-      description: 'Return all exisiting users whom the current user is following'
+      description: "Return all exisiting users whom the current user is following"
       tags:
         - Connections
       responses:
-        '200':
-          description: 'Ok, success'
+        "200":
+          description: "Ok, success"
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   status:
-                    $ref: '#/components/schemas/statusSchema'
+                    $ref: "#/components/schemas/statusSchema"
                   results:
                     type: integer
                   data:
@@ -358,39 +358,39 @@ paths:  # TODO: add authentication methods for required endpoints
                       connections:
                         type: array
                         items:
-                          $ref: '#/components/schemas/connectionDocument'
+                          $ref: "#/components/schemas/connectionDocument"
                 required:
                   - status
                   - data
-        '400':
-          description: 'Client Side Error - Bad Request'
+        "400":
+          description: "Client Side Error - Bad Request"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
- 
+                $ref: "#/components/schemas/error"
+
   # Get All Followers endpoint
   /api/v1/connections/followers:
     get:
-      description: 'Return all exisiting users who are followers of current user'
+      description: "Return all exisiting users who are followers of current user"
       tags:
         - Connections
       responses:
-        '200':
-          description: 'Ok, success'
+        "200":
+          description: "Ok, success"
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   status:
-                    $ref: '#/components/schemas/statusSchema'
+                    $ref: "#/components/schemas/statusSchema"
                   results:
                     type: integer
                   data:
@@ -399,60 +399,58 @@ paths:  # TODO: add authentication methods for required endpoints
                       connections:
                         type: array
                         items:
-                          $ref: '#/components/schemas/connectionDocument'
+                          $ref: "#/components/schemas/connectionDocument"
                 required:
                   - status
                   - data
-        '400':
-          description: 'Client Side Error - Bad Request'
+        "400":
+          description: "Client Side Error - Bad Request"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
- 
+                $ref: "#/components/schemas/error"
+
   # Unfollower User endpoint
   /api/v1/connections/following/{username}:
     delete:
-      description: 'Unfollow the specified user'
+      description: "Unfollow the specified user"
       tags:
         - Connections
       parameters:
         - in: path
           name: username
-          schema: 
+          schema:
             type: string
           required: true
       responses:
-        '204':
-          description: 'Ok, unfollowed successfully'
+        "204":
+          description: "Ok, unfollowed successfully"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/deleteDocumentSchema'
-        '400':
-          description: 'Client Side Error - Bad Request'
+                $ref: "#/components/schemas/deleteDocumentSchema"
+        "400":
+          description: "Client Side Error - Bad Request"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        '500':
-          description: 'Internal Server Error'
+                $ref: "#/components/schemas/error"
+        "500":
+          description: "Internal Server Error"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/error'
-        
-components:
+                $ref: "#/components/schemas/error"
 
+components:
   # Add Reusable schemas (data models) here
   schemas: # TODO: add examples to all schemas 😢
-    
     # ** User Document sent to Frontend **
     userDocument:
       type: object
@@ -490,20 +488,20 @@ components:
         role:
           type: string
           enum:
-            - 'user'
-            - 'merchant'
-            - 'admin'
+            - "user"
+            - "merchant"
+            - "admin"
         createdAt:
           type: string
         updatedAt:
           type: string
-    
+
     # ** Generic Error Schema **
-    error:  # TODO: Change the Schema once you differentiate DEV & PROD errors in errorController.js
+    error: # TODO: Change the Schema once you differentiate DEV & PROD errors in errorController.js
       type: object
       properties:
-        status: 
-          $ref: '#/components/schemas/statusSchema'
+        status:
+          $ref: "#/components/schemas/statusSchema"
         message:
           type: string
 
@@ -567,7 +565,7 @@ components:
           type: string
         status:
           type: string
-          enum: ['success', 'fail', 'error']
+          enum: ["success", "fail", "error"]
       required:
         - requestSender
         - requestReceiver
@@ -580,13 +578,12 @@ components:
       properties:
         status:
           type: string
-          enum: ['success']
+          enum: ["success"]
       required:
         - status
 
   # Add Security scheme definitions (Authentication) here
   securitySchemes:
-
     # Authorization header: Bearer [TOKEN]
     bearerAuth:
       type: http

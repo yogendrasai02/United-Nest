@@ -3,12 +3,13 @@ const postController = require("../controllers/postController.js");
 const fileStorage = require("../utils/multer.js");
 const authController = require("../controllers/authController.js");
 const commentRouter = require("../routes/commentRoutes.js");
-
+const reactionRouter = require("../routes/reactionRoutes");
 const postRouter = express.Router();
 
 postRouter.use(authController.authenticate, authController.authorize('user'));
 
 postRouter.use("/:postId/comments/", commentRouter);
+postRouter.use("/:postId/reactions", reactionRouter);
 
 postRouter.get("/", postController.getPosts);
 
