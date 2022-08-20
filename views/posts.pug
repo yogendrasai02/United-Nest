@@ -3,3 +3,10 @@ extends index
 block content 
     - console.log(user);
     h1 Welcome #{user.username}
+    .toast(role='alert' aria-live='assertive' aria-atomic='true')
+        .toast-header
+            strong.me-auto Bootstrap
+            small 11 mins ago
+            button.btn-close(type='button' data-bs-dismiss='toast' aria-label='Close')
+        .toast-body
+            | Hello, world! This is a toast message.
