@@ -3,6 +3,7 @@ const path = require('path');
 
 // ** Import NPM modules **
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const swaggerUI = require('swagger-ui-express');
 const YAML = require('yamljs');
@@ -12,10 +13,10 @@ const AppError = require('./utils/AppError');
 const authRouter = require('./routes/authRoutes');
 const connectionRouter = require('./routes/connectionRoutes');
 const postRouter = require("./routes/postRoutes.js");
+const viewRouter = require('./routes/viewRoutes');
 const globalErrorHandler = require('./controllers/errorController');
 
 const app = express();
-
 module.exports = app;
 
 // ** Log incoming requests **
@@ -35,8 +36,13 @@ app.use(morgan(function (tokens, req, res) {
 // ** Serve static files from 'public' folder **
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ** Parse Request Body **
+// ** Setup views & template ending **
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
+// ** Parse Request Body & Cookies **
 app.use(express.json());
+app.use(cookieParser());
 
 // ** Serve the API Contract (Swagger/OpenAPI) **
 const apiContract = YAML.load('./api-contract.yml');
@@ -56,10 +62,11 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/connections', connectionRouter);
 app.use('/api/v1/posts', postRouter);
+app.use('/', viewRouter);
 
 // ** Unhandled Routes **
 app.all('*', (req, res, next) => {
-    const err = new AppError('Specified Resource/Path does not exist', 404);
+    const err = new AppError('Specified Resource|Path does not exist', 404);
     next(err);
 });
 

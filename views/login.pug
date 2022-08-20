@@ -1,0 +1,31 @@
+extends index
+
+block append scripts
+    script(type='module' src='/js/login.js')
+
+mixin individualTab(buttonId, target, controls, content, active, selected)
+    li.nav-item(role='presentation')
+        button(id=buttonId class='nav-link' + (active ? ' active' : ''), data-bs-toggle='tab', data-bs-target=`${target}`, type='button', role='tab', aria-controls=`${controls}` aria-selected=(selected ? 'true' : 'false'))= content 
+
+mixin tabContent(divId, labelledBy, show, active, inputId, inputType, inputContent, inputPlaceholder)
+    div(id=divId class='tab-pane fade' + (show ? ' show' : '') + (active ? ' active' : ''), role='tabpanel', aria-labelledby=labelledBy tabindex='0')
+        div.form-floating.mb-3.mt-3
+            input.form-control(id=inputId, type=inputType, placeholder=inputPlaceholder, name=inputId)
+            label(for=inputId)= inputContent
+
+block content
+    h1(class='text-center mb-3') Login to your account
+    div(class='container w-50')
+        form#loginForm
+            ul#myTab.nav.nav-tabs(role='tablist')
+                +individualTab('username-tab', '#username-tab-pane', 'username-tab-pane', 'Username', true, true)
+                +individualTab('email-tab', '#email-tab-pane', 'email-tab-pane', 'Email', false, false)
+                +individualTab('mobile-tab', '#mobile-tab-pane', 'mobile-tab-pane', 'Mobile', false, false)
+            div#myTabContent.tab-content
+                +tabContent('username-tab-pane', 'username-tab', true, true, 'username', 'text', 'Username', 'Username')
+                +tabContent('email-tab-pane', 'email-tab', false, false, 'email', 'email', 'Email', 'Email')
+                +tabContent('mobile-tab-pane', 'mobile-tab', false, false, 'mobile', 'number', 'Mobile Number', 'Mobile Number')
+            div.form-floating.mb-3.mt-3
+                input.form-control(id='password', type='password', placeholder='Password', required='true', min='8')
+                label(for='password') Password
+            input(type='submit' class='btn btn-success' value='Submit')

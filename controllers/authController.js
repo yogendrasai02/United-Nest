@@ -11,22 +11,36 @@ const User = require('../models/userModel');
 const Email = require('../utils/Email');
 
 // ** To create & sign a JWT **
-const createToken = (id) => {
+const createToken = (id, res) => {
     const token = jwt.sign({ 
         id 
     }, process.env.JWT_SECRET_KEY, { 
         expiresIn: process.env.JWT_EXPIRES_IN 
     });
+    // also add a cookie
+    res.cookie(
+        'token', token, {
+            httpOnly: true,
+            maxAge: process.env.JWT_EXPIRES_IN_MILLISECONDS
+        }
+    );
     return token;
 };
 
 // ** Middleware to Protect Route. Also add a '.user' property on 'req' object **
 exports.authenticate = catchAsync(async (req, res, next) => {
-    // 1. check if token exists & get token
-    if(!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
+    // 1. check if token exists & get token -> either from header | cookie
+    const tokenInHeader = req.headers.authorization && req.headers.authorization.startsWith('Bearer ');
+    const tokenInCookie = req.cookies.token;
+    if(!tokenInHeader && !tokenInCookie) {
         return next(new AppError('You must be logged in to continue', 401));
     }
-    const token = req.headers.authorization.split(' ')[1];
+    let token = null;
+    if(tokenInHeader) {
+        token = req.headers.authorization.split(' ')[1];
+    } else {
+        token = req.cookies.token;
+    }
     // 2. verify token: this might lead to TokenExpiredError|JsonWebTokenError
     const decodedToken = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
     // 3. get user from decoded token
@@ -43,6 +57,39 @@ exports.authenticate = catchAsync(async (req, res, next) => {
     // 6. if everything is ok, add userDocument to req object & goto next middleware
     req.user = user;
     console.log(user);
+    // 7. add user to res.locals so that user document is accessible in PUG file
+    res.locals.user = user;
+    next();
+});
+
+// ** This middleware is required in the views, to redirect user if he is already logged in **
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+    try {
+        // 1. check if token exists & get token -> from cookie
+        const tokenInCookie = req.cookies.token;
+        if(!tokenInCookie) {
+            next();
+        }
+        const token = req.cookies.token;
+        // 2. verify token: this might lead to TokenExpiredError|JsonWebTokenError
+        const decodedToken = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
+        // 3. get user from decoded token
+        const user = await User.findById(decodedToken.id);
+        // 4. check if user still exists (not deleted after JWT issual)
+        if(!user) {
+            next();
+        }
+        // 5. check if user changed password after JWT issual
+        // TODO: test this thing once update/reset password are implemented
+        if(user.passwordChangedAfter(decodedToken.iat)) {
+            next();
+        }
+        // 6. if everything is ok, add userDocument res.locals -> 'user' obj in PUG template
+        res.locals.user = user;
+        res.redirect('/posts');
+    } catch(err) {
+        // DO NOTHING, user is not logged in, so just call next()
+    }
     next();
 });
 
@@ -68,7 +115,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     // 2. save user to DB (runs validators, hashed pwd)
     const createdUser = await User.create(payload);
     // 3. create JWT
-    const token = createToken(createdUser['_id']);
+    const token = createToken(createdUser['_id'], res);
     // 4. send response
     console.log(`Exiting SignUp Route Handler🟡`);
     res.status(201).json({
@@ -114,13 +161,21 @@ exports.login = catchAsync(async (req, res, next) => {
         return next(new AppError('User with given credentials not found', 401));
     }
     // 4. create & send JWT
-    const token = createToken(user.id);
+    const token = createToken(user.id, res);
     console.log('Exiting Login Route Handler🟡');
     res.status(200).json({
         status: 'success',
         token
     });
 });
+
+// ** To Logout a user (Only for Frontend purpose) **
+exports.logout = (req, res, next) => {
+    res.cookie('token', '', {
+        maxAge: 0
+    });
+    res.redirect('/');
+};
 
 // ** Route Handler for /forgotPassword **
 exports.forgotPassword = catchAsync(async (req, res, next) => {
