@@ -51,17 +51,16 @@ exports.getUserById = catchAsync(
 exports.deleteUserById = catchAsync(
     async (req,res,next) =>{
         const userid = req.params.userid;
-        await User.findByIdAndDelete(userid, (err, result) => {
-            if(err){
-                console.log(err);
-                return new AppError('Some error occured', 400);
-            }
-            else{
-                res.status(201).json({
-                    status: 'success',
-                    message: 'User successfully deleted'
-                })
-            }
-        });       
+        try{
+            await User.findByIdAndDelete(userid);   
+            res.status(201).json({
+                status: 'success',
+                message: 'User successfully deleted'
+            });  
+        }
+        catch(err){
+            console.log(err);
+            return next(new AppError('Some error ocuured while deleting the user', 500));
+        }
     }
 ) 

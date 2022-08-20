@@ -1,9 +1,4 @@
-const util = require('util');
-const jwt = require('jsonwebtoken');
-const validator = require('validator');
-
 const Post = require("../models/postModel.js");
-const ObjectId = require("mongodb").ObjectId;
 const Connection = require("../models/connectionModel.js");
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
@@ -21,23 +16,23 @@ exports.getProfile = catchAsync(
         let followRequestPending = [];
         let followRequestRecived = [];
 
-        for (let request in followRequestsSent){
-            if(request.status == 'pending'){
+        followRequestsSent.forEach((request) => {
+            if(request.status === 'pending'){
                 followRequestPending.push(request.requestReceiver);
             }
             else{
                 following.push(request.requestReceiver);
             }
-        }
+        });
 
-        for (let request in followRequestsRecv){
-            if(request.status == 'pending'){
+        followRequestsRecv.forEach((request) => {
+            if(request.status === 'pending'){
                 followRequestRecived.push(request.requestSender);
             }
             else{
                 followers.push(request.requestSender);
             }
-        }
+        })
 
         res.status(200).json({
             status: 'success',
@@ -111,7 +106,7 @@ exports.deleteProfile = catchAsync(
         }
         catch(err){
             console.log(err);
-            return next(new AppError('Some Error Occured', 500));
+            return next(new AppError('Some Error Occured while deleting profile', 500));
         }
     }
 )
