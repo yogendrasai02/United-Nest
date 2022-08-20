@@ -6,7 +6,7 @@ const commentRouter = require("../routes/commentRoutes.js");
 
 const postRouter = express.Router();
 
-// postRouter.use(authController.authenticate, authController.authorize('user'));
+postRouter.use(authController.authenticate, authController.authorize('user'));
 
 postRouter.use("/:postId/comments/", commentRouter);
 

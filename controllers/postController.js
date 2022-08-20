@@ -15,8 +15,7 @@ module.exports.getPosts = catchAsync(async (req, res, next) => {
     }
 
     // retrive all that usernames which the currently logged in user follows
-    // req.user.username
-    let usernames = await Connection.find({$and: [{requestSender: "mario"}, {status: 'accepted'}]}, {_id: 0, requestReceiver: 1});
+    let usernames = await Connection.find({$and: [{requestSender: req.user.username}, {status: 'accepted'}]}, {_id: 0, requestReceiver: 1});
 
     console.log(usernames);
 
