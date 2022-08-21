@@ -1,0 +1,25 @@
+extends index 
+block append stylesheets
+  link(rel="stylesheet", href="/css/creategroup.css")
+
+block content
+  .card.w-50.m-auto.p-3
+    form(action='/chats/createGroup' method='POST')
+      .mb-3.form-group
+        label.form-label(for='gname') Group Name
+        input#gname.input.form-control(type='text' placeholder='Group Name' name='gname')
+      .mb-3.form-group
+        label.form-label(for='description') Description
+        input#description.input.form-control(type='text' placeholder='description' name='description')
+      .mb-3.form-group
+        label.form-label(for='description') Users 
+        br
+        - let i = 0
+        for usr in users 
+          - let name = `user${i}`;
+          - i++;
+          input.input.checkbox(id= name, type="checkbox", name= name, value= usr.username)
+          label(for= name)= usr.username
+          br
+      button.form-control(type='submit') Submit
+  

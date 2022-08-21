@@ -15,5 +15,8 @@ viewRouter.use(authController.authenticate);
 viewRouter.use(authController.authorize('user'));
 viewRouter.get('/posts', viewController.renderPostsPage);
 viewRouter.get('/chats', viewController.chats_get);
+viewRouter.get('/chats/createGroup', viewController.group_get);
+viewRouter.post('/chats/createGroup', viewController.group_post);
+viewRouter.get("/chats/:username1/:name2/:roomId", viewController.chat_get);
 
 module.exports = viewRouter;

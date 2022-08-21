@@ -1,35 +1,40 @@
-extends index
+//- extends index
 
-block append stylesheets
-    link(rel="stylesheet", href="/css/chats.css")
+//- block append stylesheets
+//-     link(rel="stylesheet", href="/css/chats.css")
 
-block content
-    div(class="row")
-        div(class="col-sm-2 leftNav pt-3")
+//- block content
+//-     div(class="row")
+//-         div(class="col-sm-2 leftNav pt-3")
 
-            div(class="creategroup")
-                form(method="GET", action="/chats/createGroup")
-                    button Create Team 
+//-             div(class="creategroup")
+//-                 form(method="GET", action="/chats/createGroup")
+//-                     button Create Team 
             
-            - console.log(user)
-            for usr in users
-                - let url = `/chats/${user.username}/${usr.username}/${usr.roomId}`
-                - let src = '/img/profilePhoto.jpg';
-                - console.log(usr)
-                if(usr.profilePhoto !== '') 
-                    div(class="name")
-                        img(src= usr.profilePhoto, class="profilephoto")
-                        a(href= url)= usr.username
-                else
-                    div(class="name")
-                        img(src= src, class="profilephoto")
-                        a(href= url)= usr.username
+//-             - console.log(user)
+//-             for usr in users
+//-                 - let url = `/chats/${user.username}/${usr.username}/${usr.roomId}`
+//-                 - let src = '/img/profilePhoto.jpg';
+//-                 - console.log(usr)
+//-                 if(usr.profilePhoto !== '') 
+//-                     div(class="name")
+//-                         img(src= usr.profilePhoto, class="profilephoto")
+//-                         a(href= url)= usr.username
+//-                 else
+//-                     div(class="name")
+//-                         img(src= src, class="profilephoto")
+//-                         a(href= url)= usr.username
                 
 
-            for grp in groups
-                - let url = `/chats/${user.username}/${grp.groupname}/${grp.roomId}`
-                div(class="name")
-                    img(src="/img/Profile_photo.jpg", class="profilephoto")
-                    a(href= url)= usr.username
+//-             for grp in groups
+//-                 - let url = `/chats/${user.username}/${grp.groupname}/${grp.roomId}`
+//-                 div(class="name")
+//-                     img(src="/img/Profile_photo.jpg", class="profilephoto")
+//-                     a(href= url)= usr.username
 
-        div(class="col-sm-10 rightNav pt-3") Welcome to United Nest Chatting Application
+//-         div(class="col-sm-10 rightNav pt-3") Welcome to United Nest Chatting Application
+
+extends chattemplate 
+block rightcontent
+  .d-flex.justify-content-center.align-items-center.h-100
+    h1 Welcome to United Nest Chatting Application

@@ -57,7 +57,7 @@ module.exports.chats_get = async (req, res) => {
 
     let groupsData = await Group.find({users : username});
 
-    res.render("chats", {username: username, isLoggedIn: true, users: users, groups: groupsData});
+    res.render("chats", {username: username, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Posts'});
 }
 
 module.exports.chat_get = async (req, res) => {
@@ -83,7 +83,7 @@ module.exports.chat_get = async (req, res) => {
 
     // console.log(req.user);
 
-    const toUsername = req.params.username2;
+    const toUsername = req.params.name2;
 
     try {
         userDataFromDb = await Chat.find({users : username}).exec();
@@ -93,11 +93,31 @@ module.exports.chat_get = async (req, res) => {
 
     users = [];
 
+    let toUserProfilePhoto = '';
+
     for(let val of userDataFromDb) {
-        if(val['users'][0] != username)
-            users.push({username: val['users'][0], roomId: val['roomId']});
-        else
-            users.push({username: val['users'][1], roomId: val['roomId']});
+        let user = {};
+        let usrname;
+        if(val['users'][0] != username) {
+            const userData = await User.findOne({username: val['users'][0]}, {_id: 0, profilePhoto: 1});
+            if(userData['profilePhoto'] === '') {
+                userData['profilePhoto'] = '/img/user.png';
+            }
+            usrname = val['users'][0];
+            user = {username: val['users'][0], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
+        }
+        else {
+            const userData = await User.findOne({username: val['users'][1]}, {_id: 0, profilePhoto: 1});
+            if(userData['profilePhoto'] === '') {
+                userData['profilePhoto'] = '/img/user.png';
+            }
+            usrname = val['users'][1];
+            user = {username: val['users'][1], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
+        }
+        if(usrname == toUsername) {
+            toUserProfilePhoto = user['profilePhoto'];
+        }
+        users.push(user);
     }
 
     let groupsData = await Group.find({users : username});
@@ -106,12 +126,18 @@ module.exports.chat_get = async (req, res) => {
 
     console.log("GROUPS DATA: ", groupsData);
 
-    res.render("chat", {isLoggedIn: true, roomId: roomId, fromUsername: username, toUsername: toUsername, users: users, groups: groupsData});
+    console.log(toUserProfilePhoto);
+
+    if(toUserProfilePhoto === '') {
+        toUserProfilePhoto = '/img/users-three.png';
+    }
+
+    res.render("chat", {isLoggedIn: true, roomId: roomId, username: username, toUsername: toUsername, users: users, groups: groupsData, title: 'United Nest | Posts', toUserProfilePhoto: toUserProfilePhoto});
 }
 
 module.exports.group_get = async (req, res) => {
-    const userData = await userModel.find({}, {_id: 0, username: 1});
-    res.render("creategroup", {isLoggedIn: true, userData: userData});
+    const userData = await User.find({}, {_id: 0, username: 1});
+    res.render("creategroup", {isLoggedIn: true, userData: userData, title: 'United Nest | Chats'});
 }
 
 module.exports.group_post = async (req, res) => {
@@ -125,6 +151,10 @@ module.exports.group_post = async (req, res) => {
 
     let users = [];
 
+    console.log(req.body);
+
+    console.log("Group details: ", groupDetails);   
+
     for(let val in groupDetails) {
         if(val.startsWith("user")) {
             users.push(groupDetails[val]);
@@ -137,23 +167,30 @@ module.exports.group_post = async (req, res) => {
 
     await groupData.save();
 
-    try {
-        userDataFromDb = await Chat.find({users : createdBy}).exec();
-    } catch(e) {
-        console.log("Error ", e);
-    }
+    res.redirect("/chats");
+    // try {
+    //     userDataFromDb = await Chat.find({users : createdBy}).exec();
+    // } catch(e) {
+    //     console.log("Error ", e);
+    // }
 
-    users = [];
+    // users = [];
 
-    for(let val of userDataFromDb) {
-        if(val['users'][0] != createdBy)
-            users.push({username: val['users'][0], roomId: val['roomId']});
-        else {
-            users.push({username: val['users'][1], roomId: val['roomId']});
-        }
-    }
+    // for(let val of userDataFromDb) {
+    //     let user = {};
+    //     if(val['users'][0] != createdBy) {
+    //         const userData = await User.findOne({username: val['users'][0]}, {_id: 0, profilePhoto: 1});
+    //         user = {username: val['users'][0], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
+    //     }
+    //     else {
+    //         const userData = await User.findOne({username: val['users'][1]}, {_id: 0, profilePhoto: 1});
+    //         user = {username: val['users'][1], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
+    //     }
 
-    let groupsData = await Group.find({users : createdBy});
+    //     users.push(user);
+    // }
 
-    res.render("chats", {username: createdBy, isLoggedIn: true, users: users, groups: groupsData});
+    // let groupsData = await Group.find({users : createdBy});
+
+    // res.render("chats", {username: createdBy, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Posts'});
 }

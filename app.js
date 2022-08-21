@@ -23,9 +23,11 @@ const searchRouter = require("./routes/searchRoutes.js");
 const viewRouter = require('./routes/viewRoutes');
 const chatRouter = require("./routes/chatRoutes.js");
 const globalErrorHandler = require('./controllers/errorController');
+const User = require("./models/userModel");
+const ChatMessage = require("./models/chatMessagesModel");
 
 const app = express();
-module.exports = app;
+module.exports.app = app;
 
 // ** Log incoming requests **
 app.use(morgan(function (tokens, req, res) {
@@ -52,6 +54,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());
 app.use(cookieParser());
 
+app.use(express.urlencoded({
+    extended: true
+}))
 // ** Serve the API Contract (Swagger/OpenAPI) **
 const apiContract = YAML.load('./api-contract.yml');
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
@@ -69,6 +74,8 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(apiContract));
 const server = http.createServer(app);
 const io = socketio(server);
 
+module.exports.server = server;
+
 const initSocket = async (req, res, next) => {
 
     io.on('connection', (socket) => { 
@@ -76,19 +83,29 @@ const initSocket = async (req, res, next) => {
         socket.on('joinRoom', async (roomId) => {
             socket.join(roomId);
             // retrieve all the messages based on the roomId, then call emit method and emit all the documents
-            const dataFromDb = await chatMessagesModel.find({roomId: roomId}).exec();
+            const dataFromDb = await ChatMessage.find({roomId: roomId}).exec();
             console.log("Data from db: ", dataFromDb);
             for(let i=0; i< dataFromDb.length; i++) {
-                socket.emit('message', {username: dataFromDb[i].fromUsername, message: dataFromDb[i].message, dateAndTime: new Date(dataFromDb[i].dateAndTime).getHours() + ':' + new Date(dataFromDb[i].dateAndTime).getMinutes()});
+                let usrName = dataFromDb[i].fromUsername;
+                let userdata = await User.findOne({username: usrName});
+                if(userdata['profilePhoto'] === '') {
+                    userdata['profilePhoto'] = '/img/user.png';
+                }
+                socket.emit('message', {username: dataFromDb[i].fromUsername, message: dataFromDb[i].message, dateAndTime: new Date(dataFromDb[i].dateAndTime).getHours() + ':' + new Date(dataFromDb[i].dateAndTime).getMinutes(), profilePhoto: userdata['profilePhoto']});
             }
         });
 
         socket.on('chatMessage', async (data) => {
             console.log("message_b: ", data);
             //store the roomId, username, message, timeStamp in DB
-            let chatObj = new chatMessagesModel({roomId: data.roomId, fromUsername: data.username1, toUsername: data.username2, message: data.msg, dateAndTime: data.dateAndTime});
+            let chatObj = new ChatMessage({roomId: data.roomId, fromUsername: data.username1, toUsername: data.username2, message: data.msg, dateAndTime: data.dateAndTime});
             await chatObj.save();
-            io.to(data.roomId).emit('message', {username: data.username1, message: data.msg, dateAndTime: new Date(data.dateAndTime).getHours() + ':' + new Date(data.dateAndTime).getMinutes()});
+            let userdata = await User.findOne({username: data.username1});
+            console.log("userdata: ", userdata);
+            if(userdata['profilePhoto'] === '') {
+                userdata['profilePhoto'] = '/img/user.png';
+            }
+            io.to(data.roomId).emit('message', {username: data.username1, message: data.msg, dateAndTime: new Date(data.dateAndTime).getHours() + ':' + new Date(data.dateAndTime).getMinutes(), profilePhoto: userdata['profilePhoto']});
         })
         
     });

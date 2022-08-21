@@ -70,6 +70,7 @@ main {
     background-color: var(--bg-primary);
     transition: width 600ms ease;
     overflow: auto;
+    z-index: 1;
 }
 
 .sidenavbar-nav {
