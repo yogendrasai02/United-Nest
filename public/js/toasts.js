@@ -1,7 +1,12 @@
 import { Toast } from 'bootstrap';
 
 // status: success|fail|error
-export const showToast = (status, message) => {
+export const showToast = (status, message, timeInSec = 10) => {
+    // 0. remove existing toasts
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(toast => {
+        toast.parentElement.removeChild(toast);
+    });
     // 1. create toast element
     const toast = document.createElement('div');
     toast.classList.add('toast', 'position-fixed', 'top-0', 'end-0');
@@ -39,7 +44,7 @@ export const showToast = (status, message) => {
     const toastObj = new Toast(toast, {
         animation: true,
         autohide: true,
-        delay: 10 * 1000    // in ms
+        delay: timeInSec * 1000    // in ms
     });
     toastObj.show();
 };
