@@ -3,6 +3,8 @@ const catchAsync = require('../utils/catchAsync');
 const UserConnection = require('../models/connectionModel');
 const QueryUtils = require('../utils/QueryUtils');
 const User = require('../models/userModel');
+const Chat = require("../models/chatModel");
+const { v4: uuidv4 } = require('uuid');
 
 // ** Route Handler for /followRequests/:action endpoint **
 exports.getPendingFollowRequests = catchAsync(async (req, res, next) => {
@@ -77,6 +79,25 @@ exports.actOnFollowRequest = catchAsync(async (req, res, next) => {
         return;
     }
     followRequest.status = 'accepted';
+
+    let d = await UserConnection.findOne({ 
+        requestSender: req.user.username,
+        requestReceiver: senderUser.username,
+        status: 'accepted'
+    })
+
+    if(d.length !== 0) {    
+        const roomId = uuidv4();
+        const users = [];
+
+        users.push(req.user.username);
+        users.push(senderUser.username);
+
+        const chatData = new Chat({roomId: roomId, users: users});
+
+        let suc = await chatData.save();
+    }
+
     followRequest.requestAcceptedTime = Date.now();
     followRequest = await followRequest.save();
     res.status(200).json({
@@ -112,11 +133,20 @@ exports.getAllConnections = catchAsync(async (req, res, next) => {
 });
 
 exports.unfollowUser = catchAsync(async(req, res, next) => {
+
     const result = await UserConnection.deleteOne({
         requestSender: req.user.username,
         requestReceiver: req.params.username,
         status: 'accepted'
     });
+
+    const result2 = await Chat.deleteOne({
+        $and: [
+            {users: req.user.username}, 
+            {users: req.params.username}
+        ]
+    });
+
     if(result.deletedCount == 0) {
         return next(new AppError('Specified user doesnt exists or you are not following that user', 400));
     }
