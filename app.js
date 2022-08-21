@@ -14,6 +14,10 @@ const socketio = require("socket.io");
 const AppError = require('./utils/AppError');
 const authRouter = require('./routes/authRoutes');
 const connectionRouter = require('./routes/connectionRoutes');
+
+const adminRouter = require('./routes/adminRoutes');
+const userRouter = require('./routes/userRoutes');
+
 const postRouter = require("./routes/postRoutes.js");
 const searchRouter = require("./routes/searchRoutes.js");
 const viewRouter = require('./routes/viewRoutes');
@@ -94,6 +98,10 @@ const initSocket = async (req, res, next) => {
 // ** Delegate Requests to the specific routes **
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/connections', connectionRouter);
+
+app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/users', userRouter);
+
 app.use('/api/v1/posts', postRouter);
 app.use('/api/v1/search', searchRouter);
 initSocket();
