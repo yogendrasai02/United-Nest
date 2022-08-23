@@ -73,7 +73,7 @@ module.exports.getComments = catchAsync(async (req, res, next) => {
 module.exports.postComment = catchAsync(async (req, res, next) => {
     const postId = req.params.postId;
 
-    const {user, content, commentedAt} = req.body;
+    const {username, content, commentedAt} = req.body;
 
     const commentId = req.query.commentId;
 
@@ -83,7 +83,7 @@ module.exports.postComment = catchAsync(async (req, res, next) => {
 
         console.log("In parent comment");
         //comment is a parent comment  
-        const commentData = new Comment({content: content, post: postId, user: user, commentedAt: commentedAt, updatedAt: commentedAt});
+        const commentData = new Comment({content: content, post: postId, username: username, commentedAt: commentedAt, updatedAt: commentedAt});
 
         let suc = await commentData.save();
 
@@ -94,7 +94,7 @@ module.exports.postComment = catchAsync(async (req, res, next) => {
 
         console.log("In child comment");
 
-        const commentData = new Comment({content: content, post: postId, user: user, commentedAt: commentedAt, parentComment: commentId, updatedAt: commentedAt});
+        const commentData = new Comment({content: content, post: postId, username: username, commentedAt: commentedAt, parentComment: commentId, updatedAt: commentedAt});
         let suc = await commentData.save();
 
         const id = commentData._id;

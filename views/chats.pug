@@ -35,6 +35,10 @@
 //-         div(class="col-sm-10 rightNav pt-3") Welcome to United Nest Chatting Application
 
 extends chattemplate 
+
+block append stylesheets
+  link(rel="stylesheet", href="/css/chats.css")
+
 block rightcontent
   .d-flex.justify-content-center.align-items-center.h-100
-    h1 Welcome to United Nest Chatting Application
+    h1.mainContent Welcome to United Nest Chatting Application

@@ -5,16 +5,15 @@ block append stylesheets
 
 block content
   .container.p-1
-    h1.h3.mb-3 Messages
     .card
       .row.g-0
         .col-12.col-lg-5.col-xl-3.border-end.leftNav
-          .px-4.d-none.d-md-block.border.border-top-0.border-start-0.createGroup.leftTop
-            .d-flex.align-items-center
+          .px-4.d-none.d-md-block.border.border-top-0.border-start-0.border-end-0.createGroup.leftTop
+            .d-flex.align-items-center.firstChild
               .flex-grow-1
                 div(class="creategroup")
                   form(method="GET", action="/chats/createGroup/")
-                    button.form-control.my-3 Create Team
+                    button.btn.btn-outline.border.my-3.w-100 Create Group
           div.usersandgroups.leftBottom
             for usr in users
               - let url = `/chats/${user.username}/${usr.username}/${usr.roomId}`

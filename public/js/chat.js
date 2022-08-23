@@ -22,7 +22,7 @@ socket.emit("joinRoom", roomId);
 const sendBtn = document.getElementsByClassName("sendBtn")[0];
 const message = document.getElementsByClassName("message")[0];
 
-sendBtn.addEventListener("click", () => {
+function sendMessage() {
     const msg = message.value;
 
     message.value = '';
@@ -30,7 +30,16 @@ sendBtn.addEventListener("click", () => {
     data = {msg, roomId, username1, username2, dateAndTime: new Date()};
     console.log("MEssage is: ", msg);
     socket.emit('chatMessage', data);
-});
+}
+
+sendBtn.addEventListener("click", sendMessage);
+
+message.addEventListener("keypress", (e) => {
+    console.log("Hello");
+    if(e.key === "Enter") {
+        sendBtn.click();
+    }
+})
 
 // const chatForm = document.getElementById('send-container');
 
@@ -99,7 +108,7 @@ function outputMessage(message) {
     inner_div_2.classList.add('flex-shrink-1', 'bg-light', 'rounded', 'py-2', 'px-3', 'me-3');
 
     let div5 = document.createElement("div");
-    div5.classList.add('text-weight-bold', 'mb-1');
+    div5.classList.add('fw-bold', 'text-decoration-underline', 'mb-1');
     
     div5.innerHTML = message.username;
 

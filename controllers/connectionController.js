@@ -86,7 +86,9 @@ exports.actOnFollowRequest = catchAsync(async (req, res, next) => {
         status: 'accepted'
     })
 
-    if(d.length !== 0) {    
+    console.log(d);
+
+    if(d !== null) {    
         const roomId = uuidv4();
         const users = [];
 

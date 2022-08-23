@@ -7,5 +7,9 @@ export const endpoints = {
     signup: {
         url: baseURL + '/api/v1/auth/signup',
         method: 'POST'
-    }
+    },
+    actOnRequest: {
+        url: baseURL + '/api/v1/connections/followRequests',
+        method: 'PATCH'
+    },
 };

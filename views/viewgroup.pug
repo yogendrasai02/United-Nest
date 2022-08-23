@@ -1,0 +1,24 @@
+extends index 
+block append stylesheets
+  link(rel="stylesheet", href="/css/viewgroup.css")
+
+//- action='/chats/createGroup' method='POST'
+
+block content
+  .card.m-auto.p-3
+    h1.text-center.text-decoration-underline.mb-3 Group Details
+    h4.text-decoration-underline Group Name
+    p= groupdetails[0].groupname 
+    h4.text-decoration-underline Group Description
+    p= groupdetails[0].description 
+    h4.text-decoration-underline Group Members
+    div.usersDiv 
+      - let i = 0;
+      for usr in groupdetails[0].users 
+        - let name = `user${i}`;
+        - i++;
+        - let url = `/profile/${usr}`
+        a.d-flex.align-items-center.mb-3.pb-1.border.border-top-0.border-start-0.border-end-0(href= url)
+          img.rounded-circle.me-3(src= photos[usr], height= "40", width= "40")
+          p.mb-0.users= usr
+  

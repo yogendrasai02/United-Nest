@@ -1,0 +1,118 @@
+extends index 
+
+block append stylesheets 
+  link(rel="stylesheet", href="/css/comments.css")
+  link(href='https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css' rel='stylesheet')
+
+block append scripts 
+  script(src="/js/comments.js", type="module")
+
+block content 
+  section#comments.content-item
+    .container
+      .row
+        .col-sm-2
+        .col-sm-8
+          //- a.list-group-item.list-group-item-action(href= '')
+          //-   .d-flex.align-items-center
+          //-     img.rounded-circle.me-1(src= '/img/users/default_user_profile_photo.png', alt= 'tmp', width='40', height='40')
+          //-     .flex-grow-1.ms-3 tmp
+          - url = `posts/${postId}/comments?commentId=${commentId}`;
+          if(commentId === "null")
+            .row
+              .col-sm-1
+                img.media-object.profile-photo(src=profilePhoto[user.username] alt= user.username)
+              .col-sm-11
+                .media-body
+                  h4.media-heading= user.username
+          if(commentId !== "null")
+            .row
+              .col-sm-1
+                img.media-object.profile-photo(src=profilePhoto[commentDetails['username']] alt='')
+              .col-sm-11
+                .media-body
+                  h4.media-heading= commentDetails['username']
+                  p= commentDetails['commentContent']
+
+          form#commentForm
+            h3.pull-left New Comment
+            button.btn.btn-outline.border.pull-right.submitBtn(type='submit') Submit
+            fieldset
+              .row.getComment
+                textarea#message.form-control(placeholder='Your message' required='')
+                input#username(value= user.username, type="hidden")
+                input#postid.hidden(value= postId, type="hidden")
+                input#commentid.hidden(value= commentId, type="hidden")
+          
+          .row
+            - let selected1, selected2;
+            - console.log("filter based on: ", filterBasedOn);
+            if(filterBasedOn[0] === '-')
+              - selected2 = 'desc'
+            if(filterBasedOn[0] !== '-')
+              - selected2 = 'asc'
+            if(filterBasedOn === 'comments' || filterBasedOn === '-comments')
+              - selected1 = 'comments'
+            if(filterBasedOn === 'commentedAt' || filterBasedOn === '-commentedAt')
+              - selected1 = 'commentedAt'
+            .col-sm-5
+              select.form-select#select1(aria-label='Default select example')
+                if(commentId === 'null')
+                  option(value='comments', selected = (selected1 ==='comments')) comments
+                option(value='commentedAt', selected = (selected1 ==='commentedAt')) commented time
+  
+            .col-sm-5
+              select.form-select#select2(aria-label='Default select example')
+                option(value='asc', selected = (selected2 ==='asc')) ascending
+                option(value='desc', selected = (selected2 ==='desc')) descending
+            
+            .col-sm-2 
+              button.btn.btn-outline.border.filterbtn Filter
+          
+          h3= comments.length+' Comments'
+          // COMMENT 1 - START
+          for comment in comments
+            .media.row
+              .col-sm-1
+                img.media-object.profile-photo(src=profilePhoto[comment['username']] alt='')
+              .col-sm-11
+                .media-body
+                  .row
+                    .col-sm-6
+                      h4.media-heading= comment['username']
+                    .col-sm-6.text-end= comment['time']
+                  p= comment['content']
+
+                  if(commentId === 'null')
+                    .row 
+                      .col-sm-6 rections
+                      .col-sm-6.text-end  
+                        - let cnt = comment['subComment'].length + ' comments'
+                        a(href=`/posts/${postId}/comments?commentId=${comment['_id']}&limit=5&page=1&filter=-commentedAt`)= cnt
+            // COMMENT 1 - END
+
+          
+          nav(aria-label='Page navigation example')
+            ul.pagination
+              if(+currPage !== 1)
+                - let url = `/posts/${postId}/comments?commentId=${commentId}&limit=${limit}&page=${+currPage-1}&filter=${filterBasedOn}`;
+                li.page-item
+                  a.page-link(href= url, aria-label='Previous')
+                    span(aria-hidden='true') &laquo;
+              - url = `/posts/${postId}/comments?commentId=${commentId}&limit=${limit}&page=${+currPage}&filter=${filterBasedOn}`;
+              li.page-item
+                a.page-link(href= url)= currPage
+              if(+currPage + 1 <= pagesCnt)
+                - url = `/posts/${postId}/comments?commentId=${commentId}&limit=${limit}&page=${+currPage+1}&filter=${filterBasedOn}`;
+                li.page-item
+                  a.page-link(href= url)= (+currPage) + 1
+              if(+currPage + 2 <= pagesCnt)
+                - url = `/posts/${postId}/comments?commentId=${commentId}&limit=${limit}&page=${+currPage+2}&filter=${filterBasedOn}`;
+                li.page-item
+                  a.page-link(href= url)= (+currPage) + 2
+              if(+currPage !== pagesCnt)
+                - url = `/posts/${postId}/comments?commentId=${commentId}&limit=${limit}&page=${+currPage+1}&filter=${filterBasedOn}`;
+                li.page-item
+                  a.page-link(href= url, aria-label='Next')
+                    span(aria-hidden='true') &raquo;  
+        .col-sm-2

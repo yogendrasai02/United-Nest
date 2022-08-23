@@ -1,4 +1,28 @@
-body{margin-top:20px;}
+/* body{margin-top:20px;} */
+
+html, body {
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+}
+
+html, body, main, .container, .card, .row {
+    height: 100% !important;
+}
+
+main {
+    height: 90% !important;
+    padding: 0px !important;
+    margin-top: 1rem;
+}
+
+.card {
+    box-shadow: 0px 0px 5px grey;
+}
+
+.container {
+    padding: 0px !important;
+}
 
 .chat-online {
     color: #34ce57
@@ -51,7 +75,7 @@ body{margin-top:20px;}
     height: 500px;
 }
 .usersandgroups {
-    height: 85% !important;
+    height: 90% !important;
     overflow: auto !important;
 }
 
@@ -80,7 +104,7 @@ body{margin-top:20px;}
 
 .leftNav {
     height: 100% !important;
-    /* box-shadow: 0px 0px 5px grey; */
+    border-right: 1px solid black !important;
 }
 
 .leftTop {
@@ -93,11 +117,18 @@ body{margin-top:20px;}
 
 .rightNav {
     height: 100% !important;
+    background-color: #edf2ff;
 }
 .createGroup {
-    height: 15% !important;
+    height: 10% !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 .border {
     border-color: black !important;
+}
+
+.firstChild {
+    flex: 1 1 100%;
 }

@@ -1,9 +1,11 @@
 .heading {
-    height: 15% !important;
+    height: 10% !important;
+    display: flex !important;
+    align-items: center !important;
 }
+
 .messages {
-    height: 70% !important;
-    
+    height: 75% !important;
 }
 
 .messages::-webkit-scrollbar-track {
@@ -31,10 +33,13 @@
 
 .inputmessage {
     height: 15% !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
 .rightTop {
     background-color: #dbe4ff;
+    border-bottom: 1px solid black !important;
 }
 
 .rightMiddle, .rightBottom {
@@ -43,4 +48,20 @@
 
 .border {
     border-color: black !important;
+}
+
+a, a:hover, a:active, a:visited, a:focus {
+    color: black;
+    text-decoration: none;
+}
+
+.sendBtn {
+    padding-top: 17px;
+    padding-bottom: 17px;
+}
+
+.input-group { 
+    border-top: 1px solid black;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
 }
