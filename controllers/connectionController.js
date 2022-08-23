@@ -4,6 +4,68 @@ const UserConnection = require('../models/connectionModel');
 const QueryUtils = require('../utils/QueryUtils');
 const User = require('../models/userModel');
 
+// * Utility function for intersection of 2 arrays (assuming both have unique elements) *
+function set_intersect(a, b) {
+    const setA = new Set(a);
+    const setB = new Set(b);
+    const intersection = new Set([...setA].filter(x => setB.has(x)));
+    return Array.from(intersection);
+}
+
+exports.checkIfUsersAreFriends = async (username_1, username_2) => {
+    try {
+        const ok_1 = await UserConnection.findOne({
+            requestSender: username_1,
+            requestReceiver: username_2,
+            status: 'accepted'
+        });
+        const ok_2 = await UserConnection.findOne({
+            requestSender: username_2,
+            requestReceiver: username_1,
+            status: 'accepted'
+        });
+        if(!ok_1 || !ok_2)    return false;
+        else    return true;
+    }
+    catch(err) {
+        throw err;
+    }
+};
+
+// ** Route Handler for /allFriends endpoint **
+exports.getAllFriends = catchAsync(async (req, res, next) => {
+    const allFollowers = await UserConnection.find({
+        requestReceiver: req.user.username,
+        status: 'accepted' 
+    }).select('requestSender');
+    const allFollowing = await UserConnection.find({
+        requestSender: req.user.username,
+        status: 'accepted'
+    }).select('requestReceiver');
+    const followers = allFollowers.map(obj => obj.requestSender);
+    const following = allFollowing.map(obj => obj.requestReceiver);
+    const usernames_friends = set_intersect(followers, following);
+    const queryUtils = new QueryUtils(User.find({
+            username: {
+                "$in": usernames_friends
+            }
+        }), req.query).filter().sort('username').limit().paginate();
+    const users_friends = await queryUtils.query;
+    const friends = [];
+    users_friends.forEach(el => {
+        friends.push({
+            username: el.username,
+            profilePhoto: el.profilePhoto
+        });
+    });
+    res.status(200).json({
+        status: 'success',
+        data: {
+            friends
+        }
+    });
+});
+
 // ** Route Handler for /followRequests/:action endpoint **
 exports.getPendingFollowRequests = catchAsync(async (req, res, next) => {
     const { action } = req.params;

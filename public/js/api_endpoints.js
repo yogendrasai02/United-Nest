@@ -7,5 +7,9 @@ export const endpoints = {
     signup: {
         url: baseURL + '/api/v1/auth/signup',
         method: 'POST'
+    },
+    joinVideoCall: {
+        url: baseURL + '/api/v1/video-call/join',
+        method: 'POST'
     }
 };

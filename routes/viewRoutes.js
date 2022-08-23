@@ -14,5 +14,7 @@ viewRouter.use(authController.authenticate);
 // ** Routes accessible by USER **
 viewRouter.use(authController.authorize('user'));
 viewRouter.get('/posts', viewController.renderPostsPage);
+viewRouter.get('/video-call-lobby', viewController.renderVideoCallLobbyPage);
+viewRouter.get('/video-call/:receiver_username', viewController.renderVideoCallPage);
 
 module.exports = viewRouter;

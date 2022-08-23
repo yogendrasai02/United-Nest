@@ -33,7 +33,7 @@ nav.sidenavbar
           circle(cx='176' cy='128' r='12')
         span.link-text Chat
     li.sidenav-item
-      a.sidenav-link(href='/video-call')
+      a.sidenav-link(href='/video-call-lobby')
         svg(xmlns='http://www.w3.org/2000/svg' width='192' height='192' fill='#000000' viewbox='0 0 256 256')
           rect(width='256' height='256' fill='none')
           path(d='M24,60H152a32,32,0,0,1,32,32v96a8,8,0,0,1-8,8H48a32,32,0,0,1-32-32V68A8,8,0,0,1,24,60Z' fill='none' stroke='#000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='16')
@@ -50,11 +50,12 @@ nav.sidenavbar
         span.link-text Follow Requests
     li.sidenav-item
       a.sidenav-link(href='/my-profile')
-        svg(xmlns='http://www.w3.org/2000/svg' width='192' height='192' fill='#000000' viewbox='0 0 256 256')
-          rect(width='256' height='256' fill='none')
-          circle(cx='128' cy='128' r='96' fill='none' stroke='#000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='16')
-          circle(cx='128' cy='120' r='40' fill='none' stroke='#000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='16')
-          path(d='M63.8,199.4a72,72,0,0,1,128.4,0' fill='none' stroke='#000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='16')
+        img(src=user.profilePhoto, alt=user.username)
+        //- svg(xmlns='http://www.w3.org/2000/svg' width='192' height='192' fill='#000000' viewbox='0 0 256 256')
+        //-   rect(width='256' height='256' fill='none')
+        //-   circle(cx='128' cy='128' r='96' fill='none' stroke='#000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='16')
+        //-   circle(cx='128' cy='120' r='40' fill='none' stroke='#000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='16')
+        //-   path(d='M63.8,199.4a72,72,0,0,1,128.4,0' fill='none' stroke='#000000' stroke-linecap='round' stroke-linejoin='round' stroke-width='16')
         span.link-text My Profile
     li.sidenav-item
       a.sidenav-link(href='/logout')
