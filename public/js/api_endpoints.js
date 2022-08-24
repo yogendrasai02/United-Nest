@@ -1,4 +1,6 @@
-const baseURL = 'http://localhost:4000';
+// const baseURL = 'http://localhost:4000';
+const baseURL = '';
+
 export const endpoints = {
     login: {
         url: baseURL + '/api/v1/auth/login',

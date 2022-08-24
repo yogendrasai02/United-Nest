@@ -8,6 +8,7 @@ const Group = require("../models/groupModel");
 const Comment = require("../models/commentModel");
 const connectionController = require('./connectionController');
 const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 
 // * Utility function for intersection of 2 arrays (assuming both have unique elements) *
 function set_intersect(a, b) {
@@ -175,6 +176,37 @@ exports.renderSignupPage = (req, res, next) => {
         title: 'United Nest | SignUp'
     })
 }
+
+exports.renderSignupCheckoutPage = (req, res, next) => {
+    res.render('signupCheckout', {
+        title: 'Sign Up Checkout | United Nest'
+    });
+};
+
+exports.renderVerificationPage = catchAsync(async (req, res, next) => {
+    // get verification token
+    const { verificationToken } = req.params;
+    const hashedToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
+    // get user based on hashed reset token
+    const user = await User.findOne({ 
+        verificationToken: hashedToken,
+        verificationTokenExpiresAt: {
+            $gt: new Date()
+        }
+    });
+    console.log(user.verificationTokenExpiresAt);
+    console.log(new Date());
+    console.log(verificationToken);
+    console.log(hashedToken);
+    if(!user) {
+        return next(new AppError('Invalid Verification Token or Verification Token has expired', 400));
+    }
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiresAt = undefined;
+    await user.save({ validateBeforeSave: false });
+    res.redirect('/login');
+});
 
 exports.renderForgotPassPage = (req, res, next)=> {
     res.render('forgot_password', {
@@ -953,8 +985,6 @@ if(commentId === "null") {
     res.send({"message": "child comment added successdully", title: 'United Nest | Comments'});
 }
 });
-<<<<<<< HEAD
-=======
 
 module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
     const type = req.query.type;
@@ -1018,4 +1048,3 @@ module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
 
     res.render("search", {title: "United Nest | Search", usersData: usersData});
 });
->>>>>>> 48deb2ead7bc588b5c060066061f705d57ab4223

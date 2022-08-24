@@ -8,9 +8,11 @@ const viewRouter = express.Router();
 viewRouter.get('/', authController.isLoggedIn, viewController.renderHomePage);
 viewRouter.get('/login', authController.isLoggedIn, viewController.renderLoginPage);
 viewRouter.get('/logout', authController.logout);
+viewRouter.get('/signup-checkout', viewController.renderSignupCheckoutPage);
 viewRouter.get('/signup', viewController.renderSignupPage);
 viewRouter.get('/forgot-password', viewController.renderForgotPassPage);
 viewRouter.get('/resetPassword/:resetToken', viewController.renderResetPassPage);
+viewRouter.get('/verify-account/:verificationToken', viewController.renderVerificationPage);
 
 viewRouter.use(authController.authenticate);
 

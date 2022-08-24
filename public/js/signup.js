@@ -12,8 +12,8 @@ const SignUpHandler = async ()=>{
     let username = document.getElementById('username')
     let email = document.getElementById('email')
     let mobile = document.getElementById('mobile');
-    let pass = document.getElementById('password')
-    let cpass = document.getElementById('passwordConfirm')
+    let pass = document.getElementById('pass')
+    let cpass = document.getElementById('cpass')
 
     //Error messages
     let signupErrorMsg = '<ul>'
@@ -69,10 +69,11 @@ const SignUpHandler = async ()=>{
     const response = await makeAPICall(url, method, signupPOSTData);
     if(response.status && response.status === 'success') {
         // Redirect to verify mail page
-        showToast('success', 'Signup, Success, Redirecting...', 5);
-        setTimeout(() => {
-            location.href = '/posts';
-        }, 3 * 1000);
+        // showToast('success', 'Signup, Success, Redirecting...', 5);
+        // setTimeout(() => {
+        //     location.href = '/posts';
+        // }, 3 * 1000);
+        location.assign('/signup-checkout');
     } else {
         showToast(response.status || 'error', response.message || 'Please try after sometime');
     }

@@ -107,6 +107,7 @@ block content
         button.btn.btn-success#prevPage
             i(class="ph-arrow-circle-left icon-3 me-3")
             span.fs-4 Previous Page
+        - if(pagesCnt === 0) { currentPage = 0; }
         .fs-4#pageIndicator(data-currentpage=currentPage, data-pagescnt=pagesCnt) Page #{currentPage} / #{pagesCnt}
         button.btn.btn-success#nextPage
             span.fs-4 Next Page

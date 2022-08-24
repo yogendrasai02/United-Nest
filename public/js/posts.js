@@ -49,8 +49,8 @@ window.onload = () => {
   const pageIndicator = document.getElementById('pageIndicator');
   const currentPage = +pageIndicator.dataset.currentpage;
   const pagesCnt = +pageIndicator.dataset.pagescnt;
-  if(currentPage == 1) prevBtn.disabled = true;
-  if(currentPage == pagesCnt) nextBtn.disabled = true;
+  if(pagesCnt == 0 || currentPage == 1) prevBtn.disabled = true;
+  if(pagesCnt == 0 || currentPage == pagesCnt) nextBtn.disabled = true;
 
   prevBtn.onclick = () => {
       if(!prevBtn.disabled)
