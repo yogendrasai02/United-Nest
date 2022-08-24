@@ -31,5 +31,9 @@ export const endpoints = {
     joinVideoCall: {
         url: baseURL + '/api/v1/video-call/join',
         method: 'POST'
-    }
+    },
+    actOnRequest: {
+        url: baseURL + '/api/v1/connections/followRequests',
+        method: 'PATCH'
+    },
 };

@@ -9,6 +9,7 @@ const postRouter = express.Router();
 postRouter.use(authController.authenticate, authController.authorize('user'));
 
 postRouter.use("/:postId/comments/", commentRouter);
+
 postRouter.use("/:postId/reactions", reactionRouter);
 
 postRouter.get("/", postController.getPosts);

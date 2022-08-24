@@ -16,4 +16,5 @@ connectionRouter.get('/followerRequests/:action', connectionController.getPendin
 connectionRouter.patch('/followRequests/:username', connectionController.sendFollowRequest);
 connectionRouter.patch('/followRequests/:username/:action', connectionController.actOnFollowRequest);
 
+//http://localhost:4000/api/v1/followRequests/mario/accept
 module.exports = connectionRouter;

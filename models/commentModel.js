@@ -11,8 +11,8 @@ const commentSchema = new mongoose.Schema({
         type: ObjectId,
         required: true,
     },
-    user: {
-        type: ObjectId,
+    username: {
+        type: String,
         required: true,
     },
     commentedAt: {

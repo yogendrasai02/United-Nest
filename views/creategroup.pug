@@ -1,0 +1,40 @@
+extends index 
+block append stylesheets
+  link(rel="stylesheet", href="/css/creategroup.css")
+
+block append scripts
+  script(src="/js/creategroup.js")
+
+//- action='/chats/createGroup' method='POST'
+
+block content
+  h1.text-center Create Team
+  .card.m-auto.p-3
+    form(action='/chats/createGroup' method='POST')
+      .mb-3.form-group.form-floating
+        input#gname.input.form-control(type='text' placeholder='Group Name' name='gname')
+        label.form-label(for='gname') Group Name
+      .mb-3.form-group.form-floating
+        input#description.input.form-control(type='text' placeholder='description' name='description')
+        label.form-label(for='description') Description
+      .mb-3.form-group
+        label.form-label.w-100(for='description') Users 
+        br
+        - let i = 0
+        div.usersDiv 
+          for usr in users 
+            - let name = `user${i}`;
+            - i++;
+            .form-check.ps-0.border.w-100.text-center.mb-1.mt-1.users 
+                input.form-check-input.checkboxinput(id= name, type="checkbox", name= name, value= usr.username)
+                label.form-check.label.checkboxlabel(for= name)= usr.username
+
+          //- <div class="form-check">
+          //-   <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+          //-   <label class="form-check-label" for="flexCheckDefault">
+          //-     Default checkbox
+          //-   </label>
+          //- </div>
+          br
+      button.btn.btn-outline.border.w-100(type='submit') Submit
+  
