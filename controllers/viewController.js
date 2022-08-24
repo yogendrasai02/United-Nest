@@ -6,7 +6,6 @@ const Post = require('../models/postModel');
 const Chat = require("../models/chatModel");
 const Group = require("../models/groupModel");
 const Comment = require("../models/commentModel");
-const Post = require("../models/postModel");
 const connectionController = require('./connectionController');
 const { v4: uuidv4 } = require('uuid');
 

@@ -49,7 +49,7 @@ window.onload = () => {
   const commentsBtn = document.getElementById('comments');
   commentsBtn.onclick = (e) => {
     const postid = commentsBtn.dataset.postid;
-    location.assign(`/comments/${postid}`);
+    location.assign(`/posts/${postid}/comments?commentId=null&limit=5&page=1&filter=-commentedAt`);
   };
 
   const addPostBtn = document.getElementById('addPostBtn');
