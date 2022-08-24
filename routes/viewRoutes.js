@@ -41,6 +41,6 @@ viewRouter.get('/video-call-lobby', viewController.renderVideoCallLobbyPage);
 viewRouter.get('/video-call/:receiver_username', viewController.renderVideoCallPage);
 
 viewRouter.get('/my-profile', viewController.renderMyprofilePage);
-viewRouter.get('/profile/:userid', viewController.renderProfilePage);
+viewRouter.get('/profile/:username', viewController.renderProfilePage);
 viewRouter.get('/update', viewController.renderProfileUpdate);
 module.exports = viewRouter;

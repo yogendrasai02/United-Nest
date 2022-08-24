@@ -4,10 +4,10 @@ block append stylesheets
     link(rel='stylesheet' href='/css/update_profile.css')
 
 block append scripts
-    script(type='module' src='/js/profile.js')
+    script(type='module' src='/js/update_profile.js')
 
 block content  
-    form#updateForm(method='post')
+    form#updateForm(method='post' , enctype='multipart/form-data')
         h1 Update Profile
         label.profile(for='images')
             if user.profilePhoto

@@ -49,18 +49,27 @@ exports.renderMyprofilePage = async (req, res, next) => {
     })    
 }
 //** To render other user's profile  **
-exports.renderProfilePage = async (req,res,next) => {
-    const id = req.params.userid;
-    const user = await User.findById(id);
+exports.renderProfilePage = async (req,res,next) => {  
+    const uname = req.params.username;
+    const user = await User.findOne({username: uname});
     const count =  await Post.find({username: user.username}).count();
     let con = await UserConnection.find({$and: [{requestSender: req.user.username}, {requestReceiver: user.username}]})
+    let chat = await Chat.findOne({$and : [{users: uname},{users:req.user.username}]})
+    let pending = (con.length == 0) ? false: true;
     let friend = (con.status === 'accepted') ? true : false;
+    let chatURL = ''
+    if(chat){
+        chatURL = `http://localhost:4000/chats/${req.user.username}/${uname}/${chat.roomId}`
+    }
+    console.log('I am insode the controller', chatURL)
     res.render('profile', {
         profile: 'other',
         title: 'United Nest | Profile',
-        user: req.user,
+        user: user,
         postsCount: count,
-        isFriend : friend
+        isFriend : friend,
+        pending,
+        chatURL
     })
 }
 
@@ -862,4 +871,3 @@ if(commentId === "null") {
     res.send({"message": "child comment added successdully", title: 'United Nest | Comments'});
 }
 });
->>>>>>> 9d57c7ead496538f0dcff7dd8f2827f69906bd6e

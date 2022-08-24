@@ -65,11 +65,16 @@ block content
                 
                 hr
                 .update
-                    button 
-                        if isFriend
-                            a(href='') Message
+                    if isFriend
+                        button 
+                            a(href=chatURL) Message
+                    else 
+                        if pending
+                            button.disabled
+                                a Follow
                         else 
-                            a(href='') Follow
+                            button#followBtn
+                                a Follow
             .right
                 div
                     h3 #{postsCount}
