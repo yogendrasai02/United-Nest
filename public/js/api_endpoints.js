@@ -14,7 +14,7 @@ export const endpoints = {
     },
     resetPassword: {
         url: baseURL + '/api/v1/auth/resetPassword',
-        method: 'POST'
+        method: 'PATCH'
     },
     myProfile: {
         url : baseURL + '/api/v1/users/myProfile',
