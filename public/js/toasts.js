@@ -1,7 +1,7 @@
 import { Toast } from 'bootstrap';
 
 // status: success|fail|error
-export const showToast = (status, message, timeInSec = 10) => {
+export const showToast = (status, message = 'Something went wrong. Please try after some', timeInSec = 10) => {
     // 0. remove existing toasts
     const existingToasts = document.querySelectorAll('.toast');
     existingToasts.forEach(toast => {

@@ -7,6 +7,7 @@ const connectionRouter = express.Router();
 
 connectionRouter.use(authController.authenticate, authController.authorize('user'));
 
+connectionRouter.get('/all-friends', connectionController.getAllFriends);
 connectionRouter.get('/followers', connectionController.getAllConnections);
 connectionRouter.get('/following', connectionController.getAllConnections);
 connectionRouter.delete('/following/:username', connectionController.unfollowUser);

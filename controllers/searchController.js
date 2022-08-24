@@ -53,7 +53,7 @@ module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
         res.send({posts: posts, pagesCnt: pagesCnt});
 
     } else if(type === "user") {
-        const users = await User.find({username: searchValue});
+        const users = await User.find({username: {$regex: searchValue, $options: 'i'}});
 
         res.send({users: users});
     } else {

@@ -14,6 +14,8 @@ viewRouter.use(authController.authenticate);
 // ** Routes accessible by USER **
 viewRouter.use(authController.authorize('user'));
 viewRouter.get('/posts', viewController.renderPostsPage);
+
+
 viewRouter.get('/chats', viewController.chats_get);
 viewRouter.get('/chats/createGroup', viewController.group_get);
 viewRouter.post('/chats/createGroup', viewController.group_post);
@@ -31,5 +33,8 @@ viewRouter.get('/requests/allfollowing', viewController.getAllFollowing);
 
 viewRouter.get('/posts/:postId/comments', viewController.getComments);
 viewRouter.post('/posts/:postId/comments', viewController.postComment);
+
+viewRouter.get('/video-call-lobby', viewController.renderVideoCallLobbyPage);
+viewRouter.get('/video-call/:receiver_username', viewController.renderVideoCallPage);
 
 module.exports = viewRouter;
