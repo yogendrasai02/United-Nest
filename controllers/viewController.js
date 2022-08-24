@@ -6,7 +6,6 @@ const Post = require('../models/postModel');
 const Chat = require("../models/chatModel");
 const Group = require("../models/groupModel");
 const Comment = require("../models/commentModel");
-const Post = require("../models/postModel");
 const connectionController = require('./connectionController');
 const { v4: uuidv4 } = require('uuid');
 
@@ -68,6 +67,8 @@ exports.renderPostsPage = catchAsync(async (req, res, next) => {
 
     console.log(noOfPosts);
 
+    const sortBy = filterBasedOn.substring(1);  // FIXME: works only for desc order
+
     if(filterBasedOn === '-comments') {
         filterBasedOn = {"reactionsCnt.comments": -1};
     } else if(filterBasedOn === 'comments') {
@@ -106,7 +107,8 @@ exports.renderPostsPage = catchAsync(async (req, res, next) => {
     res.render('posts', {
         title: 'United Nest | Posts',
         pagesCnt, posts, profilePhotosMap,
-        currentPage: page
+        currentPage: page,
+        sortBy
     });
 });
 
