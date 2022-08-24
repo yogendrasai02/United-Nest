@@ -953,8 +953,6 @@ if(commentId === "null") {
     res.send({"message": "child comment added successdully", title: 'United Nest | Comments'});
 }
 });
-<<<<<<< HEAD
-=======
 
 module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
     const type = req.query.type;
@@ -1018,4 +1016,3 @@ module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
 
     res.render("search", {title: "United Nest | Search", usersData: usersData});
 });
->>>>>>> 48deb2ead7bc588b5c060066061f705d57ab4223
