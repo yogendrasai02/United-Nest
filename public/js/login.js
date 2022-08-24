@@ -51,5 +51,6 @@ loginForm.addEventListener('submit', async e => {
 });
 
 loginFormSubmitBtn.addEventListener('click', async () => {
+    console.log('clicked')
     await loginEventHandler();
 });

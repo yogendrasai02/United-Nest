@@ -17,6 +17,7 @@ function set_intersect(a, b) {
     return Array.from(intersection);
 }
 
+
 // ** To render / page **
 exports.renderHomePage = (req, res, next) => {
     res.redirect('/login');
@@ -118,6 +119,69 @@ exports.renderAddPostPage = (req, res, next) => {
     });
 };
 
+//** To render /my-profile page **
+exports.renderMyprofilePage = async (req, res, next) => {
+    let count  = await Post.find({username: req.user.username}).count();
+    console.log(count, req.user)
+    res.render('profile', {
+        profile: 'self',
+        title: 'United Nest | My-Profile',
+        user: req.user,
+        postsCount: count
+    })    
+}
+//** To render other user's profile  **
+exports.renderProfilePage = async (req,res,next) => {  
+    const uname = req.params.username;
+    const user = await User.findOne({username: uname});
+    const count =  await Post.find({username: user.username}).count();
+    let con = await UserConnection.find({$and: [{requestSender: req.user.username}, {requestReceiver: user.username}]})
+    let chat = await Chat.findOne({$and : [{users: uname},{users:req.user.username}]})
+    let pending = (con.length == 0) ? false: true;
+    let friend = (con.status === 'accepted') ? true : false;
+    let chatURL = ''
+    if(chat){
+        chatURL = `http://localhost:4000/chats/${req.user.username}/${uname}/${chat.roomId}`
+    }
+    console.log('I am insode the controller', chatURL)
+    res.render('profile', {
+        profile: 'other',
+        title: 'United Nest | Profile',
+        user: user,
+        postsCount: count,
+        isFriend : friend,
+        pending,
+        chatURL
+    })
+}
+
+exports.renderResetPassPage = async (req,res,next) =>{
+    const token = req.params.resetToken
+    res.render('reset_password', {
+        title: 'Unites Nest | Reset Password',
+        token : token
+    })
+}
+
+exports.renderProfileUpdate = (req,res,next) => {
+    res.render('update_profile', {
+        title: 'United Nest | Update-Profile',
+        user: req.user,
+    })
+}
+
+exports.renderSignupPage = (req, res, next) => {
+    res.render('signup', {
+        title: 'United Nest | SignUp'
+    })
+}
+
+exports.renderForgotPassPage = (req, res, next)=> {
+    res.render('forgot_password', {
+        title: 'United Nest | Forgot Password'
+    })
+}
+
 // ** To render /video-call-lobby page **
 exports.renderVideoCallLobbyPage = catchAsync(async (req, res, next) => {
     const allFollowers = await UserConnection.find({
@@ -184,6 +248,7 @@ exports.renderVideoCallPage = catchAsync(async (req, res, next) => {
         username_receiver: receiver_username
     });
 });
+
 
 
 module.exports.chats_get = async (req, res) => {
@@ -888,6 +953,8 @@ if(commentId === "null") {
     res.send({"message": "child comment added successdully", title: 'United Nest | Comments'});
 }
 });
+<<<<<<< HEAD
+=======
 
 module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
     const type = req.query.type;
@@ -951,3 +1018,4 @@ module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
 
     res.render("search", {title: "United Nest | Search", usersData: usersData});
 });
+>>>>>>> 48deb2ead7bc588b5c060066061f705d57ab4223

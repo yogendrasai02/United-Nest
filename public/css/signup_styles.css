@@ -1,0 +1,58 @@
+.grid {
+    min-height: 100vh;
+    max-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 20vh 80vh;
+    justify-content: center;
+}
+.login-logo {
+    grid-row: 1 / 2;
+    grid-column: 1 / -1;
+}
+.login-logo img {
+    height: 100%;
+    width: auto;
+}
+.illustration svg {
+    height: 90%;
+}
+main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+}
+
+.signupForm{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#signupForm{
+    display: flex;
+    flex-direction: column;
+}
+
+.field{
+    width: 350px;
+    border: 2px solid rgba(0, 0, 0, 0);
+    outline: none;
+    background-color: rgba(230, 230, 230, 0.6);
+    padding: 0.5rem 1rem;
+    font-size: 1.1rem;
+    margin-bottom: 18px;
+    transition: .3s;
+    border-radius: 5px;
+}
+
+.field:hover{
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+#signupFormSubmitBtn{
+    width: 350px;
+    background-color: blueviolet;
+    margin-bottom: 10px;
+}
+

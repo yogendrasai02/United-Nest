@@ -1,0 +1,49 @@
+form{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+#file{
+    display: none;
+}
+
+
+#profile-label{
+    width:150px;
+    height:150px;
+    border-radius: 50%;
+    margin-bottom: 30px;
+    margin-bottom: 30px;
+}
+
+form input{
+    width: 300px;
+    margin-bottom: 20px;
+    padding: 0px 4px;
+    width: 350px;
+    padding: 8px;
+    border: solid 2px #e4edfb;
+    border-radius: 5px;
+    outline: none;
+}
+
+form textarea{
+    width:350px;
+    height: 50px;
+    margin-bottom: 20px;
+}
+
+#uploadFormSubmitBtn{
+    display: block;
+    text-align: center;
+    padding: 8px 20px;
+    width: 350px;
+    color: white;
+    background: #4968ad;
+    border: none;
+    background: #1e2c4b;
+    cursor: pointer;
+    border-radius: 5px;
+}

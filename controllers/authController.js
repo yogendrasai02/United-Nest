@@ -179,6 +179,7 @@ exports.logout = (req, res, next) => {
 
 // ** Route Handler for /forgotPassword **
 exports.forgotPassword = catchAsync(async (req, res, next) => {
+    console.log(req.query, req.body);
     console.log('Inside Forgot Password Route Handler➡️');
     // 1. get email & get user by that email
     const { email } = req.body;
@@ -204,6 +205,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
                     user.passwordResetTokenExpiresAt.toString();
     await (new Email()).sendEmail(user.email, subject, emailText);
     console.log('Exiting Forgot Password Route Handler🟡');
+    }
     res.status(200).json({
         status: 'success',
         message: 'If an user exists with that email, the Password Reset instructions will be sent to that email'
