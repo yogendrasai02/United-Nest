@@ -52,7 +52,14 @@ module.exports.getPosts = catchAsync(async (req, res, next) => {
 
     let data = await Post.find({username: {$in: users}}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
 
-    res.send({data: data, pagesCnt: pagesCnt});
+    res.status(200).json({
+        status: 'success',
+        pagesCnt: pagesCnt,
+        results: data.length,
+        data: {
+            posts: data
+        }
+    });
 });
 
 module.exports.getPostsById = catchAsync(async (req, res, next) => {
@@ -72,6 +79,8 @@ module.exports.getPostsById = catchAsync(async (req, res, next) => {
 module.exports.createPostsText = catchAsync(async (req, res, next) => {
     const postsDataFromFrontEnd = req.body;
 
+    console.log(req.body);
+
     if(postsDataFromFrontEnd.length === 0) {
         return next(new AppError("Text should be of length > 0", 400));
     }
@@ -83,7 +92,10 @@ module.exports.createPostsText = catchAsync(async (req, res, next) => {
 
     let suc = await postData.save();
 
-    res.send({message: "Post added successfully"});
+    res.status(201).json({
+        status: 'success',
+        message: "Post added successfully"
+    });
 });
 
 module.exports.createPostsImages = catchAsync(async (req, res, next) => {
@@ -103,14 +115,17 @@ module.exports.createPostsImages = catchAsync(async (req, res, next) => {
 
         let suc = await postData.save();
 
-        res.send({message: "Post containing image is added successfully"});
+        res.status(201).json({ status: 'success', message: "Post containing image is added successfully"});
     } else {
         const {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
         const postData = new Post({content: content, contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, images: imagesUrlArray, updatedAt: postedAt});
 
         let suc = await postData.save();
 
-        res.send({message: "Post containing image and text is added successfully"});
+        res.status(201).json({
+            status: 'success',
+            message: "Post containing image and text is added successfully"
+        });
     }
 });
 
@@ -126,14 +141,14 @@ module.exports.createPostsVideo = catchAsync(async (req, res, next) => {
 
         let suc = await postData.save();
 
-        res.send({message: "Post containing video is added successfully"});
+        res.status(201).json({status: 'success', message: "Post containing video is added successfully"});
     } else {
         const {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
         const postData = new Post({content: content, contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, video: videoUrl, updatedAt: postedAt});
 
         let suc = await postData.save();
 
-        res.send({message: "Post containing video and text is added successfully"});
+        res.status(201).json({status:'success', message: "Post containing video and text is added successfully"});
     }
 });
 

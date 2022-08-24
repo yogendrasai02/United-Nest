@@ -2,10 +2,10 @@ const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const UserConnection = require('../models/connectionModel');
 const User = require('../models/userModel');
+const Post = require('../models/postModel');
 const Chat = require("../models/chatModel");
 const Group = require("../models/groupModel");
 const Comment = require("../models/commentModel");
-const Post = require("../models/postModel");
 const connectionController = require('./connectionController');
 const { v4: uuidv4 } = require('uuid');
 
@@ -31,9 +31,91 @@ exports.renderLoginPage = (req, res, next) => {
 };
 
 // ** To render /posts page **
-exports.renderPostsPage = (req, res, next) => {
+exports.renderPostsPage = catchAsync(async (req, res, next) => {
+
+    if(!req.query)  req.query = {};
+
+    // 1. get posts
+    let filterBasedOn = req.query.sort;
+    let page = req.query.page;
+    let limit = req.query.limit;
+
+    if(!filterBasedOn) {
+        filterBasedOn = '-postedAt';
+    }
+    if(!page) {
+        page = '1';
+    }
+    if(!limit) {
+        limit = '5';
+    }
+
+    // retrive all that usernames which the currently logged in user follows
+    let usernames = await UserConnection.find({$and: [{requestSender: req.user.username}, {status: 'accepted'}]}, {_id: 0, requestReceiver: 1});
+
+    console.log(usernames);
+
+    const users = [];
+
+    for(let user of usernames) {
+        users.push(user.requestReceiver);
+    }
+
+    console.log(users);
+
+    // retreive the posts which are posted by those userids
+    let noOfPosts = await Post.find({username: {$in: users}}).count();
+
+    console.log(noOfPosts);
+
+    const sortBy = filterBasedOn.substring(1);  // FIXME: works only for desc order
+
+    if(filterBasedOn === '-comments') {
+        filterBasedOn = {"reactionsCnt.comments": -1};
+    } else if(filterBasedOn === 'comments') {
+        filterBasedOn = {"reactionsCnt.comments": 1};
+    } else if(filterBasedOn === '-postedAt') {
+        filterBasedOn = {"postedAt": -1};
+    } else if(filterBasedOn === 'postedAt') {
+        filterBasedOn = {"postedAt": 1};
+    } else if(filterBasedOn === "-likes") {
+        filterBasedOn = {"reactionsCnt.likes": -1};
+    } else if(filterBasedOn === "likes") {
+        filterBasedOn = {"reactionsCnt.likes": 1};
+    } else {
+        filterBasedOn = {"postedAt": -1};
+    }
+
+    let pagesCnt = Math.floor(noOfPosts / limit) + (noOfPosts % limit !== 0);
+
+    let posts = await Post.find({username: {$in: users}}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
+
+    posts.forEach(post => {
+        console.log(post);
+    });
+
+    // 2. get profile photos (as MAP)
+    const userDocs = await User.find({
+        username: { $in: users }
+    }).select('username profilePhoto');
+
+    const profilePhotosMap = new Map();
+
+    userDocs.forEach(doc => {
+        profilePhotosMap.set(doc.username, doc.profilePhoto);
+    });
+
     res.render('posts', {
-        title: 'United Nest | Posts'
+        title: 'United Nest | Posts',
+        pagesCnt, posts, profilePhotosMap,
+        currentPage: page,
+        sortBy
+    });
+});
+
+exports.renderAddPostPage = (req, res, next) => {
+    res.render('addPost', {
+        title: 'Add Post | United Nest'
     });
 };
 
@@ -871,3 +953,69 @@ if(commentId === "null") {
     res.send({"message": "child comment added successdully", title: 'United Nest | Comments'});
 }
 });
+<<<<<<< HEAD
+=======
+
+module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
+    const type = req.query.type;
+    const searchValue = req.query.searchQuery;
+    let UsersData;
+    if(type === 'hashtag') {
+        const page = req.query.page;
+        const limit = req.query.limit;
+
+        let filterBasedOn = req.query.filter;
+        if(filterBasedOn === '-comments') {
+            filterBasedOn = {"reactionsCnt.comments": -1};
+        } else if(filterBasedOn === 'comments') {
+            filterBasedOn = {"reactionsCnt.comments": 1};
+        } else if(filterBasedOn === '-postedAt') {
+            filterBasedOn = {"postedAt": -1};
+        } else if(filterBasedOn === 'postedAt') {
+            filterBasedOn = {"postedAt": 1};
+        } else if(filterBasedOn === "-likes") {
+            filterBasedOn = {"reactionsCnt.likes": -1};
+        } else if(filterBasedOn === "likes") {
+            filterBasedOn = {"reactionsCnt.likes": 1};
+        } else {
+            return next(new AppError("Filter query string is wrong", 400));
+        }
+        
+        //req.user.username;
+        
+        let connectedUsers = await Connection.find({$and: [{requestSender: "mario"}, {status: 'accepted'}]}, {_id: 0, requestReceiver: 1});
+
+        console.log(connectedUsers);
+
+        const users = [];
+
+        for(let user of connectedUsers) {
+            users.push(user.requestReceiver);
+        }
+
+        users.push("mario");
+
+        console.log(users);
+
+        const noOfPosts = await Post.find({$and: [{hashTags: searchValue}, {username: {$in: users}}]}).count();
+
+        let pagesCnt = Math.floor(noOfPosts / limit) + (noOfPosts % limit !== 0);
+
+        const posts = await Post.find({$and: [{hashTags: searchValue}, {username: {$in: users}}]}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
+
+        res.send({posts: posts, pagesCnt: pagesCnt});
+
+    } else if(type === "user") {
+        console.log("Hello");
+        usersData = await User.find({name: {$regex: searchValue, $options: 'i'}});
+    } else {
+        // return next(new AppError("Type is not coorect", 400));
+        const usersData = [];
+        const postsData = [];
+
+        res.render("search", {title: "United Nest | Search", usersData: usersData, postsData: postsData});
+    }
+
+    res.render("search", {title: "United Nest | Search", usersData: usersData});
+});
+>>>>>>> 48deb2ead7bc588b5c060066061f705d57ab4223
