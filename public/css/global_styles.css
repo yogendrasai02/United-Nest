@@ -221,3 +221,14 @@ svg:hover {
         left: 0px;
     }
 }
+
+.form-control { 
+    border: none;
+    border-radius: 0;
+    border-bottom: 4px solid black;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    outline: 3px solid black;
+}

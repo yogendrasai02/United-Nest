@@ -1,0 +1,68 @@
+
+extends index
+
+block append stylesheets
+  link(rel="stylesheet", href="/css/request.css")
+
+block append scripts 
+  script(src="/js/request.js", type="module")
+
+block content
+  .card.w-75.m-auto
+    .tab.row.overflow-auto 
+      if(followers)
+        a.col-sm-6.text-center.bordertrue.header(href='/requests/allfollowers') Followers
+        a.col-sm-6.text-center.borderfalse.header(href='/requests/allfollowing') Following
+      if(following)
+        a.col-sm-6.text-center.borderfalse.header(href='/requests/allfollowers') Followers
+        a.col-sm-6.text-center.bordertrue.header(href='/requests/allfollowing') Following
+      
+      .row 
+        .col-sm-6
+          table.table 
+            thead 
+              tr 
+                th Accepted
+            
+            tbody 
+              for fa in accepted
+                tr 
+                  td  
+                    - let url = `/profile/${fa['username']}`
+                    a.d-flex.align-items-center(href= url)
+                      img.rounded-circle.me-3(src= fa['profilePhoto'], height= "40", width= "40")
+                      p.mb-0.users= fa['username']
+                    //- .users= fa['username']
+                
+        .col-sm-6
+          table.table 
+            thead 
+              tr 
+                th Pending
+            
+            tbody 
+              for fp in pending
+                tr 
+                  td  
+                    - let url = `/profile/${fp['username']}`
+                    .row 
+                      .col-sm-6
+                        a.d-flex.align-items-center(href= url)
+                          img.rounded-circle.me-3(src= fp['profilePhoto'], height= "40", width= "40")
+                          p.mb-0.users#username= fp['username']
+                      .col-sm-6
+                        .row 
+                          .col-sm-6
+                            - url = `/requests/followRequests/${fp['username']}/accept`
+                            form#form1
+                              input(type= 'hidden', name= 'username', value= fp['username'])
+                              button.btn.btn-outline.border.btn1(type="submit") 
+                                i.las.la-check
+                          .col-sm-6 
+                            - url = `/requests/followRequests/${fp['username']}/reject`  
+                            form#form2
+                              input(type= 'hidden', name= 'username', value= fp['username'])
+                              button.btn.btn-outline.border.btn2(type="submit")
+                                i.las.la-times
+                        
+                        

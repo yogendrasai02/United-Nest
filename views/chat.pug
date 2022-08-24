@@ -1,0 +1,41 @@
+extends chattemplate 
+
+block append stylesheets
+  link(rel="stylesheet", href="/css/chat.css")
+
+block append scripts
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.11.0/qs.min.js" integrity="sha512-/l6vieC+YxaZywUhmqs++8uF9DeMvJE61ua5g+UK0TuHZ4TkTgB1Gm1n0NiA86uEOM9JJ6JUwyR0hboKO0fCng==" crossorigin="anonymous" referrerpolicy="no-referrer")
+  script(src="/socket.io/socket.io.js")
+  script(src="/js/chat.js")
+//-   <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.11.0/qs.min.js" integrity="sha512-/l6vieC+YxaZywUhmqs++8uF9DeMvJE61ua5g+UK0TuHZ4TkTgB1Gm1n0NiA86uEOM9JJ6JUwyR0hboKO0fCng==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+block rightcontent
+  //- a
+  //- if(isGroup) 
+  //-   - a.href = `/chats/${}`
+  //- if(!isGroup)
+  //-   - a.href = `/profile/`
+  - let url = '';
+  - console.log(isGroup);
+  if(isGroup)
+    - url = `/chats/group/${toUsername}`;
+  if(!isGroup)
+    - url = `/profile/${toUsername}`;
+  a(href= url)
+    .py-3.px-4.border-bottom.d-none.d-lg-block.heading.rightTop
+      .d-flex.align-items-center
+        .position-relative
+          img.rounded-circle.me-1(src= toUserProfilePhoto, alt= toUsername, width='40', height='40')
+        .flex-grow-1.ps-3
+          strong= toUsername
+      
+  .position-relative.messages.overflow-auto.rightMiddle
+    .chat-messages.p-4
+  .flex-grow-0.py-3.px-4.border.border-bottom-0.border-start-0.border-end-0.inputmessage.rightBottom
+    .input-group
+      .form-floating.flex-grow-1
+        input#message.message.form-control(type='text' placeholder='Type your message' name='message')
+        label.form-label(for='message') Type your message
+    button.btn.btn-outline.border.sendBtn 
+      img(src="/img/arrow-right.png" width="20" height="20")  

@@ -11,8 +11,8 @@ process.on('uncaughtException', err => {
     process.exit(1);
 });
 
-const app = require('./app');   // IMPORTING here is an exception to normal convention of IMPORTS
-
+// const app = require('./app').app;   // IMPORTING here is an exception to normal convention of IMPORTS
+const {app, server} = require('./app');
 const environment = process.env.NODE_ENV.toUpperCase();
 
 // ** Connect to DB as per environment **
@@ -23,7 +23,11 @@ mongoose.connect(dbUrl).then(conn => {
 });
 
 const port = process.env.PORT || 4000;
-const server = app.listen(port, () => {
+// const server = app.listen(port, () => {
+//     console.log(`Server started on port ${port} in ${environment}👍`);
+// });
+
+server.listen(port, () => {
     console.log(`Server started on port ${port} in ${environment}👍`);
 });
 
