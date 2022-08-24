@@ -60,7 +60,7 @@ block content
                             p.fs-6= post.content
                     .hashTags
                         each hashTag in post.hashTags
-                            a.fs-4(href=hashTag, target='_blnk')
+                            a.fs-4(href=hashTag.slice(1), target='_blnk')
                     - if(hasImages)
                         .swiper.images
                             .swiper-wrapper
@@ -82,9 +82,9 @@ block content
                   - let i = 0;
                   each hashTag in post['hashTags'] 
                     if i!=0
-                      a.hashTagLink(href=`search?type=posts&searchQuery=${hashTag}`)= ',' + hashTag
+                      a.hashTagLink(href=`search?type=posts&searchQuery=${hashTag.slice(1)}`)= ',' + hashTag
                     if i==0
-                      a.hashTagLink(href=`search?type=posts&searchQuery=${hashTag}`)= hashTag
+                      a.hashTagLink(href=`search?type=posts&searchQuery=${hashTag.slice(1)}`)= hashTag
                     - i++
                 - let noOfComments;
                 .postFooter.mt-3

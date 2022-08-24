@@ -1,0 +1,92 @@
+extends index
+
+block append stylesheets
+    link(rel='stylesheet' href='/css/profile_styles.css')
+
+block append scripts
+    script(type='module' src='/js/profile.js')
+
+block content 
+    if profile === 'self'
+        .card
+            .left
+                if user.profilePhoto
+                    img#profile-label(src=user.profilePhoto, alt='photo')
+                else
+                    img#profile-label(src='https://cdn-icons-png.flaticon.com/128/3135/3135715.png', alt="photo")
+                .card-info
+                    h2= user.name
+                    p  
+                        a(href='#') @#{user.username}
+                    p.contacts 
+                        i.ph-envelope 
+                        span &nbsp#{user.email} 
+                        span &nbsp;|&nbsp;
+                        i.ph-phone 
+                        span &nbsp;#{user.mobile}
+                .description 
+                    p 
+                        i #{user.description}
+                
+                hr
+                .update
+                    button 
+                        a(href='http://localhost:4000/update') Update Profile
+            .right
+                div
+                    h3 #{postsCount}
+                    p Posts
+                div
+                    h3 #{user.followingCount}
+                    p Following
+                div
+                    h3 #{user.followingCount}
+                    p Followers
+    else 
+        .card
+            .left
+                if user.profilePhoto
+                    img#profile-label(src=user.profilePhoto, alt='photo')
+                else
+                    img#profile-label(src='https://cdn-icons-png.flaticon.com/128/3135/3135715.png', alt="photo")
+                .card-info
+                    h2= user.name
+                    p  
+                        a(href='') @#{user.username}
+                    p.contacts
+                        i.ph-envelope 
+                        span &nbsp#{user.email} 
+                        span &nbsp;|&nbsp;
+                        i.ph-phone 
+                        span &nbsp;#{user.mobile}
+                .description 
+                    p 
+                        i #{user.description}
+                
+                hr
+                .update
+                    if isFriend
+                        button 
+                            a(href=chatURL) Message
+                    else 
+                        if pending
+                            button.disabled
+                                a Follow
+                        else 
+                            button#followBtn
+                                a Follow
+            .right
+                div
+                    h3 #{postsCount}
+                    p Posts
+                div
+                    h3 #{user.followingCount}
+                    p Following
+                div
+                    h3 #{user.followingCount}
+                    p Followers
+
+
+
+
+

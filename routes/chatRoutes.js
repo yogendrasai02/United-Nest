@@ -13,6 +13,6 @@ chatRouter.get("/createGroup", chatController.group_get);
 
 chatRouter.post("/createGroup", chatController.group_post);
 
-// chatRouter.get("/createChats", chatController.singlechat_post);
+chatRouter.get("/createChats", chatController.singlechat_post);
 
 module.exports = chatRouter;

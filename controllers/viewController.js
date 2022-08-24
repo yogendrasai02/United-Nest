@@ -17,6 +17,7 @@ function set_intersect(a, b) {
     return Array.from(intersection);
 }
 
+
 // ** To render / page **
 exports.renderHomePage = (req, res, next) => {
     res.redirect('/login');
@@ -118,6 +119,69 @@ exports.renderAddPostPage = (req, res, next) => {
     });
 };
 
+//** To render /my-profile page **
+exports.renderMyprofilePage = async (req, res, next) => {
+    let count  = await Post.find({username: req.user.username}).count();
+    console.log(count, req.user)
+    res.render('profile', {
+        profile: 'self',
+        title: 'United Nest | My-Profile',
+        user: req.user,
+        postsCount: count
+    })    
+}
+//** To render other user's profile  **
+exports.renderProfilePage = async (req,res,next) => {  
+    const uname = req.params.username;
+    const user = await User.findOne({username: uname});
+    const count =  await Post.find({username: user.username}).count();
+    let con = await UserConnection.find({$and: [{requestSender: req.user.username}, {requestReceiver: user.username}]})
+    let chat = await Chat.findOne({$and : [{users: uname},{users:req.user.username}]})
+    let pending = (con.length == 0) ? false: true;
+    let friend = (con.status === 'accepted') ? true : false;
+    let chatURL = ''
+    if(chat){
+        chatURL = `http://localhost:4000/chats/${req.user.username}/${uname}/${chat.roomId}`
+    }
+    console.log('I am insode the controller', chatURL)
+    res.render('profile', {
+        profile: 'other',
+        title: 'United Nest | Profile',
+        user: user,
+        postsCount: count,
+        isFriend : friend,
+        pending,
+        chatURL
+    })
+}
+
+exports.renderResetPassPage = async (req,res,next) =>{
+    const token = req.params.resetToken
+    res.render('reset_password', {
+        title: 'Unites Nest | Reset Password',
+        token : token
+    })
+}
+
+exports.renderProfileUpdate = (req,res,next) => {
+    res.render('update_profile', {
+        title: 'United Nest | Update-Profile',
+        user: req.user,
+    })
+}
+
+exports.renderSignupPage = (req, res, next) => {
+    res.render('signup', {
+        title: 'United Nest | SignUp'
+    })
+}
+
+exports.renderForgotPassPage = (req, res, next)=> {
+    res.render('forgot_password', {
+        title: 'United Nest | Forgot Password'
+    })
+}
+
 // ** To render /video-call-lobby page **
 exports.renderVideoCallLobbyPage = catchAsync(async (req, res, next) => {
     const allFollowers = await UserConnection.find({
@@ -186,6 +250,7 @@ exports.renderVideoCallPage = catchAsync(async (req, res, next) => {
 });
 
 
+
 module.exports.chats_get = async (req, res) => {
 
     let username, userDataFromDb;
@@ -220,7 +285,7 @@ module.exports.chats_get = async (req, res) => {
 
     let groupsData = await Group.find({users : username});
 
-    res.render("chats", {username: username, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Posts'});
+    res.render("chats", {username: username, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Chats'});
 }
 
 module.exports.chat_get = async (req, res) => {
@@ -381,6 +446,7 @@ let groupCheck = await Group.find({groupname: groupDetails.gname});
 
 if(groupCheck.length !== 0) {
     //send an error message that group already exists
+    // showToast('failure', 'Group name already exists', 5);
 }
 
 const roomId = uuidv4();
@@ -479,6 +545,7 @@ res.status(201).json({
 
 // ** Route handle for accept|reject follow request endpoint **
 exports.actOnFollowRequest = catchAsync(async (req, res, next) => {
+    console.log("act on follow request");
 const { username, action } = req.params;
 if(username === req.user.username) {
     return next(new AppError('Username cannot be same as currently logged in user', 400));
@@ -508,6 +575,9 @@ if(action === 'reject') {
     res.redirect("/requests/allfollowers");
     return;
 }
+
+console.log("Hello");
+
 followRequest.status = 'accepted';
 
 let d = await UserConnection.findOne({ 
@@ -516,17 +586,19 @@ let d = await UserConnection.findOne({
     status: 'accepted'
 })
 
-if(d.length !== 0) {    
-    const roomId = uuidv4();
-    const users = [];
+console.log("d value is: ", d);
 
-    users.push(req.user.username);
-    users.push(senderUser.username);
+// if(d.length !== 0) {    
+//     const roomId = uuidv4();
+//     const users = [];
 
-    const chatData = new Chat({roomId: roomId, users: users});
+//     users.push(req.user.username);
+//     users.push(senderUser.username);
 
-    let suc = await chatData.save();
-}
+//     const chatData = new Chat({roomId: roomId, users: users});
+
+//     let suc = await chatData.save();
+// }
 
 followRequest.requestAcceptedTime = Date.now();
 followRequest = await followRequest.save();

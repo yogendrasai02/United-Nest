@@ -151,15 +151,20 @@ exports.actOnFollowRequest = catchAsync(async (req, res, next) => {
     console.log(d);
 
     if(d !== null) {    
-        const roomId = uuidv4();
-        const users = [];
+        const chatD = await Chat.findOne({$and: [{users: req.user.username}, {users: senderUser.username}]});
 
-        users.push(req.user.username);
-        users.push(senderUser.username);
+        if(chatD === null) {
+            const roomId = uuidv4();
+            const users = [];
 
-        const chatData = new Chat({roomId: roomId, users: users});
+            users.push(req.user.username);
+            users.push(senderUser.username);
 
-        let suc = await chatData.save();
+
+            const chatData = new Chat({roomId: roomId, users: users});
+
+            let suc = await chatData.save();
+        }
     }
 
     followRequest.requestAcceptedTime = Date.now();

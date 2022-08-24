@@ -50,19 +50,20 @@ block content
                         a.d-flex.align-items-center(href= url)
                           img.rounded-circle.me-3(src= fp['profilePhoto'], height= "40", width= "40")
                           p.mb-0.users#username= fp['username']
-                      .col-sm-6
-                        .row 
-                          .col-sm-6
-                            - url = `/requests/followRequests/${fp['username']}/accept`
-                            form#form1
-                              input(type= 'hidden', name= 'username', value= fp['username'])
-                              button.btn.btn-outline.border.btn1(type="submit") 
-                                i.las.la-check
-                          .col-sm-6 
-                            - url = `/requests/followRequests/${fp['username']}/reject`  
-                            form#form2
-                              input(type= 'hidden', name= 'username', value= fp['username'])
-                              button.btn.btn-outline.border.btn2(type="submit")
-                                i.las.la-times
-                        
-                        
+                      if(followers)
+                        .col-sm-6
+                          .row 
+                            .col-sm-6
+                              - url = `/requests/followRequests/${fp['username']}/accept`
+                              form#form1
+                                input(type= 'hidden', name= 'username', value= fp['username'])
+                                button.btn.btn-outline.border.btn1(type="submit") 
+                                  i.las.la-check
+                            .col-sm-6 
+                              - url = `/requests/followRequests/${fp['username']}/reject`  
+                              form#form2
+                                input(type= 'hidden', name= 'username', value= fp['username'])
+                                button.btn.btn-outline.border.btn2(type="submit")
+                                  i.las.la-times
+                          
+                          

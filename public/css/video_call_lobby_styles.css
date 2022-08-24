@@ -6,3 +6,8 @@
     transform: scale(1.2);
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
+
+.videoCallPhoto {
+    height: 100px!important;
+    width: 100px!important;
+}

@@ -1,6 +1,10 @@
 const User = require("../models/userModel");
 const Group = require("../models/groupModel");
 const Chat = require("../models/chatModel");
+const GroupMessages = require("../models/groupMessagesModel");
+const ChatMessages = require("../models/chatMessagesModel");
+const UserConnection = require("../models/connectionModel");
+
 const { v4: uuidv4 } = require('uuid');
 
 module.exports.chats_get = async (req, res) => {
@@ -130,24 +134,33 @@ module.exports.group_post = async (req, res) => {
     res.render("chats.ejs", {username: createdBy, isLoggedIn: true, users: users, groups: groupsData});
 }
 
-// module.exports.singlechat_post = async (req, res) => {
-//     let suc = await Chat.deleteMany({});
+module.exports.singlechat_post = async (req, res) => {
+    let suc = await Chat.deleteMany({});
+    suc = await ChatMessages.deleteMany({});
+    suc = await Group.deleteMany({});
+    suc = await GroupMessages.deleteMany({});
 
-//     let usernames = await User.find({});
-//     console.log(usernames);
+    let usernames = await User.find({});
+    console.log(usernames);
 
-//     for(let i = 0; i < usernames.length; i++) {
-//         for(let j = i+1; j < usernames.length; j++) {
-//             const roomId = uuidv4();
-//             const users = [];
+    for(let i = 0; i < usernames.length; i++) {
+        for(let j = i+1; j < usernames.length; j++) {
 
-//             users.push(usernames[i]['username']);
-//             users.push(usernames[j]['username']);
+            const d1 = await UserConnection.findOne({$and: [{requestSender: usernames[i]['username']}, {requestReceiver: usernames[j]['username']}, {status: "accepted"}]})
+            const d2 = await UserConnection.findOne({$and: [{requestSender: usernames[j]['username']}, {requestReceiver: usernames[i]['username']}, {status: "accepted"}]})
 
-//             const chatData = new Chat({roomId: roomId, users: users});
+            if(d1 !== null && d2 !== null) {
+                const roomId = uuidv4();
+                const users = [];
 
-//             let suc = await chatData.save();
-//         }
-//     }
-//     res.send({usernames: usernames});
-// }
+                users.push(usernames[i]['username']);
+                users.push(usernames[j]['username']);
+
+                const chatData = new Chat({roomId: roomId, users: users});
+
+                let suc = await chatData.save();
+            }
+        }
+    }
+    res.send({usernames: usernames});
+}

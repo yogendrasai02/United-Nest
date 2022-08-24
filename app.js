@@ -129,7 +129,6 @@ const initSocket = async (req, res, next) => {
 // });
 
 
-
 // ** Delegate Requests to the specific routes **
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/connections", connectionRouter);
