@@ -4,7 +4,9 @@
     align-items: center;
     margin-bottom: 5px;
 }
-
+.selected{
+    background-color: red;
+}
 .options .dropdown-item:last-child {
     margin-bottom: 0;
 }

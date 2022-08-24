@@ -7,6 +7,7 @@ const Chat = require("../models/chatModel");
 const Group = require("../models/groupModel");
 const Comment = require("../models/commentModel");
 const connectionController = require('./connectionController');
+const Reaction = require('../models/reactionModel');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 
@@ -91,9 +92,17 @@ exports.renderPostsPage = catchAsync(async (req, res, next) => {
 
     let posts = await Post.find({username: {$in: users}}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
 
-    posts.forEach(post => {
-        console.log(post);
-    });
+    let reactions = [];
+    for(let post of posts){
+        //fetch the current user's reaction for this post
+        let reaction = await Reaction.findOne({$and: [{user: req.user.id}, {reactedTo:'post'},{reactedToId:post.id}]})
+        if(reaction){
+            reactions.push({'reacted':true, 'type': reaction.reactionType, 'id':reaction.id})
+        }
+        else{
+            reactions.push({'reacted':false})
+        }
+    }
 
     // 2. get profile photos (as MAP)
     const userDocs = await User.find({
@@ -106,10 +115,13 @@ exports.renderPostsPage = catchAsync(async (req, res, next) => {
         profilePhotosMap.set(doc.username, doc.profilePhoto);
     });
 
+    
+
     res.render('posts', {
         title: 'United Nest | Posts',
         pagesCnt, posts, profilePhotosMap,
         currentPage: page,
+        reactions,
         sortBy
     });
 });
