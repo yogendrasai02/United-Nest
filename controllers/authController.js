@@ -182,10 +182,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     console.log('Inside Forgot Password Route Handler➡️');
     // 1. get email & get user by that email
     const { email } = req.body;
+    console.log(email);
     if(!validator.isEmail(email)) {
         return next(new AppError('Please provide a valid email address', 400));
     }
     const user = await User.findOne({ email });
+    if(!user) {
+        return next(new AppError('User does not exist', 404));
+    }
     // 2. create a 32 bit password reset token, store its hashed version in DB
     const passwordResetToken = await user.getPasswordResetToken();
     await user.save({ validateBeforeSave: false });

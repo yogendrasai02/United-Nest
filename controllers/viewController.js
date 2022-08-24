@@ -220,7 +220,7 @@ module.exports.chats_get = async (req, res) => {
 
     let groupsData = await Group.find({users : username});
 
-    res.render("chats", {username: username, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Posts'});
+    res.render("chats", {username: username, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Chats'});
 }
 
 module.exports.chat_get = async (req, res) => {
