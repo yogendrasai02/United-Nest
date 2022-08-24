@@ -1,3 +1,6 @@
+import { makeAPICall } from './make_api_call.js';
+
+
 const swiper = new Swiper('.swiper', {
     autoHeight: true,
     pagination: {
