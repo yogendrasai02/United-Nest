@@ -8,48 +8,11 @@ const User = require('../models/userModel');
 exports.getProfile = catchAsync(
     async (req,res,next)=>{
 
-        let followRequestsSent = await Connection.find({requestSender: req.user.username});
-        let followRequestsRecv = await Connection.find({requestReceiver: req.user.username});
-        
-        let followers = [];
-        let following = [];
-        let followRequestPending = [];
-        let followRequestRecived = [];
-
-        followRequestsSent.forEach((request) => {
-            if(request.status === 'pending'){
-                followRequestPending.push(request.requestReceiver);
-            }
-            else{
-                following.push(request.requestReceiver);
-            }
-        });
-
-        followRequestsRecv.forEach((request) => {
-            if(request.status === 'pending'){
-                followRequestRecived.push(request.requestSender);
-            }
-            else{
-                followers.push(request.requestSender);
-            }
-        })
-
         res.status(200).json({
             status: 'success',
             data: { 
-                profile:{
-                    name: req.user.name,
-                    username: req.user.username,
-                    email: req.user.email,
-                    mobile: req.user.mobile,
-                    profilePhoto: req.user.profilePhoto,
-                    description: req.user.description,
-                    followers,
-                    following,
-                    pending: followRequestPending,
-                    received: followRequestRecived
+                user: req.user
                 }
-            }
         })
     }
 );
@@ -69,13 +32,8 @@ exports.getProfileByID = catchAsync(
             res.status(200).json({
                 status: 'success',
                 data: {
-                    profile: {
-                        name: req.user.name,
-                        username: req.user.username,
-                        profilePhoto: req.user.profilePhoto,
-                        description: req.user.description
-                    },
-                    posts
+                    user,
+                    isFriend : true
                 }
             })
         }
@@ -83,12 +41,13 @@ exports.getProfileByID = catchAsync(
             res.status(200).json({
                 status: 'success',
                 data: {
-                    profile: {
-                        name: req.user.name,
-                        username: req.user.username,
-                        profilePhoto: req.user.profilePhoto,
-                        description: req.user.description
-                    }
+                    user : {
+                        name: user.name,
+                        username: user.username,
+                        profilePhoto: user.profilePhoto,
+                        description: user.description
+                    },
+                    isFriend: false
                 }
             })
         }
@@ -113,6 +72,7 @@ exports.deleteProfile = catchAsync(
 
 exports.updateProfile = catchAsync(
     async (req,res,next) => {
+        console.log('I ma insode the user controller')
         const updatedocs = {};
         if(req.body.name){
             updatedocs.name = req.body.name;
@@ -128,6 +88,9 @@ exports.updateProfile = catchAsync(
         }
         if(req.body.mobile){
             updatedocs.mobile = req.body.mobile;
+        }
+        if(req.body.description){
+            updatedocs.description = req.body.description;
         }
         try{
             const updatedUser = await User.findByIdAndUpdate(req.user.id, updatedocs);

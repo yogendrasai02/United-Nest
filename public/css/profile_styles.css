@@ -1,0 +1,156 @@
+
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0 0;
+  padding: 0 0;
+}
+main {
+    background: rgb(231, 220, 255);
+	background: linear-gradient(
+		120deg,
+		rgba(231, 220, 255, 1) 0%,
+		rgba(255, 234, 203, 0.8687850140056023) 59%,
+		rgba(246, 241, 255, 1) 100%
+	);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card {
+  width: 600px;
+  height: auto;
+  /* min-height: 500px; */
+  aspect-ratio: 1;
+  background: #fff;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  box-shadow: 5px 5px 20px 1px #0007;
+}
+.card .left {
+  position: relative;
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-items: center;
+  padding-top: 30px;
+}
+.card .left > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #000;
+}
+.card .left .card-info {
+  padding-top: 20px;
+}
+.card .left .card-info h2 {
+  font-size: 15px;
+}
+.card .left .card-info p a{
+  font-size: 12px;
+  text-decoration: underline;
+}
+.card .left .card-btn {
+  /* padding-top: 40px; */
+  gap: 10px;
+}
+.card .left .card-btn button {
+  width: 100px;
+  background: linear-gradient(90deg, #fa3967 0%, #fa9639 100%);
+  border-radius: 100vw;
+  border: none;
+  padding: 7px;
+  font-size: 11px;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s linear;
+}
+.card .left .update button{
+    background-color: #ffedd2;
+    border: none;
+    border-radius: 100vw;
+    padding: 7px 15px;
+    font-size: 11px;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.2s linear;
+  }
+.card .left .description{
+  color: #000;
+  padding: 30px 20px;
+  height: 30%;
+  display: flex;
+  
+  justify-content: center;
+}
+
+.card .left img {
+  width: 150px;
+  height: 150px;;
+  border-radius: 50%;
+}
+
+.card .left h2, .card .left p a{
+  font-weight: bolder;
+}
+
+.card .left .contacts{
+  color:#000;
+  font-size: 15px;
+  padding-top: 20px;
+  padding-bottom: 10px;
+  font-weight: bolder;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card .left .contacts i{
+  font-size: 25px;
+}
+
+.card .left .update button a{
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 400;
+  color: white;
+}
+.card .left .update button{
+  display: block;
+  text-align: center;
+  padding: 5px 20px;
+  min-width: 150px;
+  border: none;
+  background: #1e2c4b;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.card .right {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.card .right > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  color: #000;
+  background: #f5e8df;
+  cursor: pointer;
+  transition: background 0.3s linear;
+}
+.card .right > div:hover {
+  background: #d9bdaa;
+}
+.card .right > div p {
+  font-size: 12px;
+}
+
+  

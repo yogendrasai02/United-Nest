@@ -179,10 +179,10 @@ exports.logout = (req, res, next) => {
 
 // ** Route Handler for /forgotPassword **
 exports.forgotPassword = catchAsync(async (req, res, next) => {
-    console.log(req.query);
+    console.log(req.query, req.body);
     console.log('Inside Forgot Password Route Handler➡️');
     // 1. get email & get user by that email
-    const { email } = req.body;
+    const email = req.body.email;
     if(!validator.isEmail(email)) {
         return next(new AppError('Please provide a valid email address', 400));
     }
@@ -194,7 +194,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     const subject = 'Reset Password for your United Nest account';
     // FIXME: this resetPwdURL should be handled at frontend?
     // TODO: Refactor this sending email thing into methods of Email class itself (ex: sendPwdResetMail())
-    const resetPasswordURL = `${req.protocol}://${req.hostname}:${process.env.PORT}/api/v1/auth/resetPassword/${passwordResetToken}`;
+    const resetPasswordURL = `${req.protocol}://${req.hostname}:${process.env.PORT}/resetPassword/${passwordResetToken}`;
     const emailText = `Hello ${user.name}, you have initiated a request to reset your password.\n` + 
                     `Please use the following link to reset your password:\n${resetPasswordURL}\n` +
                     `This link is valid for 10 minutes and will expire by ` +
