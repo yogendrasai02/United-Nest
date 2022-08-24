@@ -5,7 +5,6 @@ const UserConnection = require('../models/connectionModel');
 
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
-const User = require('../models/userModel');
 const connectionController = require('./connectionController');
 
 // * Utility function for intersection of 2 arrays (assuming both have unique elements) *
@@ -47,7 +46,7 @@ exports.renderMyprofilePage = async (req, res, next) => {
         postsCount: count
     })    
 }
-
+//** To render other user's profile  **
 exports.renderProfilePage = async (req,res,next) => {
     const id = req.params.userid;
     const user = await User.findById(id);
