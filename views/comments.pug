@@ -21,10 +21,10 @@ block content
           if(commentId === "null")
             .row
               .col-sm-1
-                img.media-object.profile-photo(src=profilePhoto[user.username] alt= user.username)
+                img.media-object.profile-photo(src=profilePhoto[postedUsername] alt= postedUsername)
               .col-sm-11
                 .media-body
-                  h4.media-heading= user.username
+                  h4.media-heading= postedUsername
           if(commentId !== "null")
             .row
               .col-sm-1

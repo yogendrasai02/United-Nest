@@ -62,11 +62,21 @@ window.onload = () => {
           location.assign(`/posts?page=${currentPage + 1}`);
   };
 
-  const commentsBtn = document.getElementById('comments');
-  commentsBtn.onclick = (e) => {
-    const postid = commentsBtn.dataset.postid;
-    location.assign(`/posts/${postid}/comments?commentId=null&limit=5&page=1&filter=-commentedAt`);
-  };
+  const commentsBtn = document.getElementsByClassName('comments');
+
+  for(let commentBtn of commentsBtn) {
+    commentBtn.onclick = (e) => {
+      const postid = commentBtn.dataset.postid;
+      console.log("Hello");
+      location.assign(`/posts/${postid}/comments?commentId=null&limit=5&page=1&filter=-commentedAt`);
+    };  
+  }
+
+  // commentsBtn.onclick = (e) => {
+  //   const postid = commentsBtn.dataset.postid;
+  //   console.log("Hello");
+  //   location.assign(`/posts/${postid}/comments?commentId=null&limit=5&page=1&filter=-commentedAt`);
+  // };
 
   const addPostBtn = document.getElementById('addPostBtn');
   addPostBtn.onclick = (e) => {

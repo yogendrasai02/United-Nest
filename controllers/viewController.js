@@ -831,9 +831,11 @@ for(let comment of comments) {
     i++;
 }
 
-profilePhoto = await User.findOne({username: req.user.username}, {_id: 0, profilePhoto: 1});
+console.log("data is for username: ", data);
 
-profilePhotos[req.user.username] = profilePhoto['profilePhoto'];
+profilePhoto = await User.findOne({username: data['username']}, {_id: 0, profilePhoto: 1});
+
+profilePhotos[data['username']] = profilePhoto['profilePhoto'];
 
 console.log("filter: ", filter);
 
@@ -845,7 +847,7 @@ if(commentId !== 'null') {
     commentDetails['username'] = cmt['username'];
 }
 
-res.render("comments", {comments: comments, pagesCnt: pagesCnt, time: time, profilePhoto: profilePhotos, currPage: page, limit: limit, filterBasedOn: filter, commentId: commentId, postId: postId, commentDetails: commentDetails, title: 'United Nest | Comments', noOfComments: noOfComments});
+res.render("comments", {comments: comments, pagesCnt: pagesCnt, time: time, profilePhoto: profilePhotos, currPage: page, limit: limit, filterBasedOn: filter, commentId: commentId, postId: postId, commentDetails: commentDetails, title: 'United Nest | Comments', noOfComments: noOfComments, postedUsername: data['username']});
 });
 
 module.exports.postComment = catchAsync(async (req, res, next) => {
@@ -892,12 +894,51 @@ if(commentId === "null") {
 module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
     const type = req.query.type;
     const searchValue = req.query.searchQuery;
-    let UsersData;
-    if(type === 'hashtag') {
-        const page = req.query.page;
-        const limit = req.query.limit;
+    let usersData = [], posts = [], pagesCnt = 0, results = 0, currentPage, sortBy;
+    let profilePhotosMap = new Map();
 
-        let filterBasedOn = req.query.filter;
+    if(type === 'posts') {
+        if(!req.query)  req.query = {};
+
+        // 1. get posts
+        let filterBasedOn = req.query.sort;
+        let page = req.query.page;
+        let limit = req.query.limit;
+
+        if(!filterBasedOn) {
+            filterBasedOn = '-postedAt';
+        }
+        if(!page) {
+            page = '1';
+        }
+        if(!limit) {
+            limit = '5';
+        }
+
+        console.log(filterBasedOn, page, limit);
+
+        // retrive all that usernames which the currently logged in user follows
+        let usernames = await UserConnection.find({$and: [{requestSender: req.user.username}, {status: 'accepted'}]}, {_id: 0, requestReceiver: 1});
+
+        console.log(usernames);
+
+        const users = [];
+
+        for(let user of usernames) {
+            users.push(user.requestReceiver);
+        }
+
+        console.log(users);
+
+        // retreive the posts which are posted by those userids
+        let searchValueHashtag = '#' + searchValue;
+
+        let noOfPosts = await Post.find({$and: [{username: {$in: users}}, {hashTags: searchValueHashtag}]}).count();
+
+        console.log(noOfPosts);
+
+        sortBy = filterBasedOn.substring(1);  // FIXME: works only for desc order
+
         if(filterBasedOn === '-comments') {
             filterBasedOn = {"reactionsCnt.comments": -1};
         } else if(filterBasedOn === 'comments') {
@@ -911,32 +952,38 @@ module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
         } else if(filterBasedOn === "likes") {
             filterBasedOn = {"reactionsCnt.likes": 1};
         } else {
-            return next(new AppError("Filter query string is wrong", 400));
-        }
-        
-        //req.user.username;
-        
-        let connectedUsers = await Connection.find({$and: [{requestSender: "mario"}, {status: 'accepted'}]}, {_id: 0, requestReceiver: 1});
-
-        console.log(connectedUsers);
-
-        const users = [];
-
-        for(let user of connectedUsers) {
-            users.push(user.requestReceiver);
+            filterBasedOn = {"postedAt": -1};
         }
 
-        users.push("mario");
+        pagesCnt = Math.floor(noOfPosts / limit) + (noOfPosts % limit !== 0);
 
-        console.log(users);
+        posts = await Post.find({$and: [{username: {$in: users}}, {hashTags: searchValueHashtag}]}).sort(filterBasedOn);
 
-        const noOfPosts = await Post.find({$and: [{hashTags: searchValue}, {username: {$in: users}}]}).count();
+        posts.forEach(post => {
+            console.log(post);
+        });
 
-        let pagesCnt = Math.floor(noOfPosts / limit) + (noOfPosts % limit !== 0);
+        // 2. get profile photos (as MAP)
+        const userDocs = await User.find({
+            username: { $in: users }
+        }).select('username profilePhoto');
 
-        const posts = await Post.find({$and: [{hashTags: searchValue}, {username: {$in: users}}]}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
+        userDocs.forEach(doc => {
+            profilePhotosMap.set(doc.username, doc.profilePhoto);
+        });
 
-        res.send({posts: posts, pagesCnt: pagesCnt});
+        // res.render('posts', {
+        //     title: 'United Nest | Posts',
+        //     pagesCnt, posts, profilePhotosMap,
+        //     currentPage: page,
+        //     sortBy
+        // });
+
+        pasgesCnt=  pagesCnt;
+        posts = posts;
+        profilePhotosMap = profilePhotosMap;
+        currentPage = page;
+        sortBy = sortBy;
 
     } else if(type === "user") {
         console.log("Hello");
@@ -946,8 +993,8 @@ module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
         const usersData = [];
         const postsData = [];
 
-        res.render("search", {title: "United Nest | Search", usersData: usersData, postsData: postsData});
+        res.render("search", {title: "United Nest | Search", usersData: usersData, posts: postsData});
     }
 
-    res.render("search", {title: "United Nest | Search", usersData: usersData});
+    res.render("search", {title: "United Nest | Search", pagesCnt: pagesCnt, results: results, usersData: usersData, posts: posts, profilePhotosMap: profilePhotosMap, currentPage: currentPage, sortBy: sortBy});
 });

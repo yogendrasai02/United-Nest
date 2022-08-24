@@ -15,7 +15,7 @@ block append scripts
 
 block content 
     .container
-        .options.d-flex.align-items-center
+        .options.d-flex.align-items-center.justify-content-center
             .dropdown.me-3
                 button.btn.btn-info.dropdown-toggle(type='button', data-bs-toggle='dropdown', aria-expanded='false')
                     i(class="ph-sort-descending icon-3 me-2")
@@ -36,7 +36,7 @@ block content
                     span.fs-4 Add New Post
     .container.mt-4#posts-container
         each post in posts
-            .post.bg-white.w-75.p-3.pt-0.mb-4(id=`${post._id}`)
+            .post.bg-white.w-75.p-3.pt-0.mb-4.ms-auto.me-auto(id=`${post._id}`)
                 .postHeader
                     .profilePhoto
                         - const author = post.username;
@@ -77,6 +77,16 @@ block content
                         .video
                             video(controls='controls', src=`${post.video}`, type='video/mp4', controlslist='nodownload') 
                                 h2.text-danger Your browser doesnt support embedded videos 
+                h3 HashTags
+                  br
+                  - let i = 0;
+                  each hashTag in post['hashTags'] 
+                    if i!=0
+                      a.hashTagLink(href=`search?type=posts&searchQuery=${hashTag}`)= ',' + hashTag
+                    if i==0
+                      a.hashTagLink(href=`search?type=posts&searchQuery=${hashTag}`)= hashTag
+                    - i++
+                - let noOfComments;
                 .postFooter.mt-3
                     .postOptions.d-flex.align-items.center
                         .btn-group.dropup
@@ -100,9 +110,11 @@ block content
                                                 i(class=`${iconsMap.get(key)} icon-3 me-2`)
                                                 | #{key}
                                             span(class='badge rounded-pill text-bg-primary me-2')= value
-                        button.btn.btn-info#comments(data-postid=`${post._id}`)
+                                    - if(key == 'comments')
+                                        - noOfComments = value
+                        button.btn.btn-info.comments(data-postid=`${post._id}`)
                             i(class="las la-comment icon-3 me-2")
-                            span.fs-4 Comments
+                            span.fs-4= noOfComments+' Comments'
     .container.mt-4.mb-4.d-flex.justify-content-between.align-items-center#posts-pagination-controls
         button.btn.btn-success#prevPage
             i(class="ph-arrow-circle-left icon-3 me-3")

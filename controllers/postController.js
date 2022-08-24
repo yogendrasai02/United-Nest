@@ -52,6 +52,8 @@ module.exports.getPosts = catchAsync(async (req, res, next) => {
 
     let data = await Post.find({username: {$in: users}}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
 
+    console.log("data is: ", data);
+
     res.status(200).json({
         status: 'success',
         pagesCnt: pagesCnt,
@@ -87,7 +89,11 @@ module.exports.createPostsText = catchAsync(async (req, res, next) => {
 
     console.log("Posts data is ", postsDataFromFrontEnd);
 
-    const {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+    let {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+
+    hashTags = hashTags.split(' ');
+    hashTags = hashTags.map(el => '#' + el);
+
     const postData = new Post({content: content, contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, updatedAt: postedAt});
 
     let suc = await postData.save();
@@ -110,14 +116,18 @@ module.exports.createPostsImages = catchAsync(async (req, res, next) => {
     }
 
     if(postsDataFromFrontEnd.contentType === 'image') {
-        const {contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        let {contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        hashTags = hashTags.split(' ');
+        hashTags = hashTags.map(el => '#' + el);
         const postData = new Post({contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, images: imagesUrlArray, updatedAt: postedAt});
 
         let suc = await postData.save();
 
         res.status(201).json({ status: 'success', message: "Post containing image is added successfully"});
     } else {
-        const {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        let {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        hashTags = hashTags.split(' ');
+        hashTags = hashTags.map(el => '#' + el);
         const postData = new Post({content: content, contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, images: imagesUrlArray, updatedAt: postedAt});
 
         let suc = await postData.save();
@@ -136,14 +146,18 @@ module.exports.createPostsVideo = catchAsync(async (req, res, next) => {
     const videoUrl = req.file.path;
 
     if(postsDataFromFrontEnd.contentType === 'video') {
-        const {contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        let {contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        hashTags = hashTags.split(' ');
+        hashTags = hashTags.map(el => '#' + el);
         const postData = new Post({contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, video: videoUrl, updatedAt: postedAt});
 
         let suc = await postData.save();
 
         res.status(201).json({status: 'success', message: "Post containing video is added successfully"});
     } else {
-        const {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        let {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
+        hashTags = hashTags.split(' ');
+        hashTags = hashTags.map(el => '#' + el);
         const postData = new Post({content: content, contentType: contentType, username: username, postedAt: postedAt, hashTags: hashTags, video: videoUrl, updatedAt: postedAt});
 
         let suc = await postData.save();
@@ -155,11 +169,14 @@ module.exports.createPostsVideo = catchAsync(async (req, res, next) => {
 module.exports.updatePostsText = catchAsync(async (req, res, next) => {
     let pid = new ObjectId(req.params.postId);
 
-    const {content, hashTags, updatedAt} = req.body;
+    let {content, hashTags, updatedAt} = req.body;
 
     console.log(req.body);
 
     console.log(hashTags);
+
+    hashTags = hashTags.split(' ');
+    hashTags = hashTags.map(el => '#' + el);
 
     let data = await Post.find({_id: pid});
 
@@ -189,7 +206,10 @@ module.exports.updatePostsImages = catchAsync(async (req, res, next) => {
         imagesUrlArray.push(file.path);
     }
 
-    const {content, hashTags, updatedAt, contentType} = req.body;
+    let {content, hashTags, updatedAt, contentType} = req.body;
+
+    hashTags = hashTags.split(' ');
+    hashTags = hashTags.map(el => '#' + el);
 
     if(contentType == 'image') {
         let suc = await Post.updateMany({_id: pid}, {$set: {hashTags: hashTags, images: imagesUrlArray, updatedAt: updatedAt}});
@@ -207,7 +227,10 @@ module.exports.updatePostsVideo = catchAsync(async (req, res, next) => {
 
     const videoUrl = req.file.path;
 
-    const {content, hashTags, updatedAt, contentType} = req.body;
+    let {content, hashTags, updatedAt, contentType} = req.body;
+
+    hashTags = hashTags.split(' ');
+    hashTags = hashTags.map(el => '#' + el);
 
     let data = await Post.find({_id: pid});
 

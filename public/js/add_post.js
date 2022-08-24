@@ -12,8 +12,6 @@ window.onload = () => {
         const images = document.getElementById('images').files;
         const video = document.getElementById('video').files;
         let hashTags = document.getElementById('hashTags').value;
-        hashTags = hashTags.split(' ');
-        hashTags = hashTags.map(el => '#' + el);
 
         const contentTypeObj = {
             text: (content && !images.length && !video.length),
