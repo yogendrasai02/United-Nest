@@ -1,0 +1,35 @@
+extends index
+
+block append stylesheets
+  link(rel="stylesheet", href="/css/search.css")
+
+block append scripts 
+  script(src="/js/search.js", type="module")
+
+block content
+  .card.h-100
+    .form-floating.mb-3 
+      input.form-control#floatingInput(type="text", placeholder="Search", required=true) 
+      label(for="floatingInput") Search
+    .row 
+      .col-sm-2
+      .col-sm-6
+        select.form-select#searchBy(aria-label='Search for')
+          option(value='user') User
+          option(value='posts') Posts
+      .col-sm-2
+        button.btn.btn-outline.border Submit
+      .col-sm-2 
+
+    if(usersData.length !== 0)
+      .card.w-50.margin-auto.mt-3
+        h1.text-center Users
+        for user of usersData
+          a(href=`/profile/${user['username']}`)
+            .row.border.border-top-0.border-start-0.border-end-0
+              .col-sm-2
+                img(src= user.profilePhoto, height="56", width="56")
+              .col-sm-10
+                h5= user['username']
+                h6= user['name']
+        

@@ -7,10 +7,10 @@ const catchAsync = require('../utils/catchAsync');
 module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
     const type = req.query.type;
     const searchValue = req.query.searchQuery;
-    const page = req.query.page;
-    const limit = req.query.limit;
-
     if(type === 'hashtag') {
+        const page = req.query.page;
+        const limit = req.query.limit;
+
         let filterBasedOn = req.query.filter;
         if(filterBasedOn === '-comments') {
             filterBasedOn = {"reactionsCnt.comments": -1};
@@ -53,7 +53,7 @@ module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
         res.send({posts: posts, pagesCnt: pagesCnt});
 
     } else if(type === "user") {
-        const users = await User.find({username: {$regex: searchValue, $options: 'i'}});
+        const users = await User.find({name: {$regex: searchValue, $options: 'i'}});
 
         res.send({users: users});
     } else {
