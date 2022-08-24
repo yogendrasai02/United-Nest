@@ -188,23 +188,21 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
         return next(new AppError('Please provide a valid email address', 400));
     }
     const user = await User.findOne({ email });
-    if(!user) {
-        return next(new AppError('User does not exist', 404));
-    }
-    // 2. create a 32 bit password reset token, store its hashed version in DB
-    const passwordResetToken = await user.getPasswordResetToken();
-    await user.save({ validateBeforeSave: false });
-    // 3. send email to user with password reset token
-    const subject = 'Reset Password for your United Nest account';
-    // FIXME: this resetPwdURL should be handled at frontend?
-    // TODO: Refactor this sending email thing into methods of Email class itself (ex: sendPwdResetMail())
-    const resetPasswordURL = `${req.protocol}://${req.hostname}:${process.env.PORT}/api/v1/auth/resetPassword/${passwordResetToken}`;
-    const emailText = `Hello ${user.name}, you have initiated a request to reset your password.\n` + 
-                    `Please use the following link to reset your password:\n${resetPasswordURL}\n` +
-                    `This link is valid for 10 minutes and will expire by ` +
-                    user.passwordResetTokenExpiresAt.toString();
-    await (new Email()).sendEmail(user.email, subject, emailText);
-    console.log('Exiting Forgot Password Route Handler🟡');
+    if(user) {
+        // 2. create a 32 bit password reset token, store its hashed version in DB
+        const passwordResetToken = await user.getPasswordResetToken();
+        await user.save({ validateBeforeSave: false });
+        // 3. send email to user with password reset token
+        const subject = 'Reset Password for your United Nest account';
+        // FIXME: this resetPwdURL should be handled at frontend?
+        // TODO: Refactor this sending email thing into methods of Email class itself (ex: sendPwdResetMail())
+        const resetPasswordURL = `${req.protocol}://${req.hostname}:${process.env.PORT}/api/v1/auth/resetPassword/${passwordResetToken}`;
+        const emailText = `Hello ${user.name}, you have initiated a request to reset your password.\n` + 
+                        `Please use the following link to reset your password:\n${resetPasswordURL}\n` +
+                        `This link is valid for 10 minutes and will expire by ` +
+                        user.passwordResetTokenExpiresAt.toString();
+        await (new Email()).sendEmail(user.email, subject, emailText);
+        console.log('Exiting Forgot Password Route Handler🟡');
     }
     res.status(200).json({
         status: 'success',
