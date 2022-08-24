@@ -67,6 +67,8 @@ exports.renderPostsPage = catchAsync(async (req, res, next) => {
 
     console.log(noOfPosts);
 
+    const sortBy = filterBasedOn.substring(1);  // FIXME: works only for desc order
+
     if(filterBasedOn === '-comments') {
         filterBasedOn = {"reactionsCnt.comments": -1};
     } else if(filterBasedOn === 'comments') {
@@ -105,7 +107,8 @@ exports.renderPostsPage = catchAsync(async (req, res, next) => {
     res.render('posts', {
         title: 'United Nest | Posts',
         pagesCnt, posts, profilePhotosMap,
-        currentPage: page
+        currentPage: page,
+        sortBy
     });
 });
 

@@ -21,13 +21,13 @@ block content
                     i(class="ph-sort-descending icon-3 me-2")
                     span.fs-4.me-2 Sort Posts by
                 ul.dropdown-menu 
-                    li.dropdown-item.activeOption
+                    li#sortBy_postedAt(class=`dropdown-item ${ sortBy == 'postedAt' ? 'activeOption' : '' }`, data-by='-postedAt')
                         i(class="ph-clock icon-3")
                         span Latest Posts
-                    li.dropdown-item 
+                    li#sortBy_likes(class=`dropdown-item ${ sortBy == 'likes' ? 'activeOption' : '' }`, data-by='-likes')
                         i(class="las la-thumbs-up icon-3")
                         span Highest Likes
-                    li.dropdown-item
+                    li#sortBy_comments(class=`dropdown-item ${ sortBy == 'comments' ? 'activeOption' : '' }`, data-by='-comments')
                         i(class="las la-comment icon-3")
                         span Highest Comments
             .addPostBtn.ms-3

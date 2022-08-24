@@ -28,6 +28,22 @@ window.onload = () => {
 
   formatDates();
 
+  const filterByPostedTimeBtn = document.querySelector('#sortBy_postedAt');
+  const filterByLikes = document.querySelector('#sortBy_likes');
+  const filterByComments = document.querySelector('#sortBy_comments');
+
+  filterByPostedTimeBtn.onclick = e => {
+    location.assign(`/posts?page=1&sort=${filterByPostedTimeBtn.dataset.by}`);
+  };
+
+  filterByLikes.onclick = e => {
+    location.assign(`/posts?page=1&sort=${filterByLikes.dataset.by}`);
+  };
+
+  filterByComments.onclick = e => {
+    location.assign(`/posts?page=1&sort=${filterByComments.dataset.by}`);
+  };
+
   const prevBtn = document.querySelector('#prevPage');
   const nextBtn = document.querySelector('#nextPage');
   const pageIndicator = document.getElementById('pageIndicator');
