@@ -1,0 +1,27 @@
+extends index
+
+block append stylesheets 
+    link(rel='stylesheet', href='/css/video_call_styles.css')
+
+block append headScripts
+    script(src='//sdk.twilio.com/js/video/releases/2.24.0/twilio-video.min.js')
+
+block append scripts
+    script(src='/js/video_call.js' type='module')
+
+block content
+    //- p.d-none(id='accessToken', data-accessToken=`${accessToken}`) 
+    p#username_receiver.d-none.fs-4(data-username_receiver=`${username_receiver}`) Video Call with #{username_receiver}
+    div#video-container 
+    div#media-controls.mt-4
+        button#leave-button
+            i.ph-phone-slash-fill.icon-3
+        button#mute-unmute-audio-button.ms-3.me-3
+            i.ph-microphone-fill.icon-3
+        button#mute-unmute-video-button
+            i.ph-video-camera-fill.icon-3
+    //- <i class="ph-microphone-fill"></i> -> MIC-ON ICON
+    //- <i class="ph-microphone-slash-fill"></i> -> MIC-OFF ICON
+    //- <i class="ph-video-camera-fill"></i> -> VIDEO-ON ICON
+    //- <i class="ph-video-camera-slash-fill"></i> -> VIDEO-OFF ICON
+    //- <i class="ph-phone-slash-fill"></i> -> END CALL ICON

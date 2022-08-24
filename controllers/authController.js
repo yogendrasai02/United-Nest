@@ -19,7 +19,7 @@ const createToken = (id, res) => {
     });
     // also add a cookie
     res.cookie(
-        'token', token, {
+        'authToken', token, {
             httpOnly: true,
             maxAge: process.env.JWT_EXPIRES_IN_MILLISECONDS
         }
@@ -31,7 +31,7 @@ const createToken = (id, res) => {
 exports.authenticate = catchAsync(async (req, res, next) => {
     // 1. check if token exists & get token -> either from header | cookie
     const tokenInHeader = req.headers.authorization && req.headers.authorization.startsWith('Bearer ');
-    const tokenInCookie = req.cookies.token;
+    const tokenInCookie = req.cookies.authToken;
     if(!tokenInHeader && !tokenInCookie) {
         return next(new AppError('You must be logged in to continue', 401));
     }
@@ -39,7 +39,7 @@ exports.authenticate = catchAsync(async (req, res, next) => {
     if(tokenInHeader) {
         token = req.headers.authorization.split(' ')[1];
     } else {
-        token = req.cookies.token;
+        token = req.cookies.authToken;
     }
     // 2. verify token: this might lead to TokenExpiredError|JsonWebTokenError
     const decodedToken = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
@@ -56,7 +56,7 @@ exports.authenticate = catchAsync(async (req, res, next) => {
     }
     // 6. if everything is ok, add userDocument to req object & goto next middleware
     req.user = user;
-    console.log(user);
+    // console.log(user);
     // 7. add user to res.locals so that user document is accessible in PUG file
     res.locals.user = user;
     next();
@@ -66,11 +66,11 @@ exports.authenticate = catchAsync(async (req, res, next) => {
 exports.isLoggedIn = catchAsync(async (req, res, next) => {
     try {
         // 1. check if token exists & get token -> from cookie
-        const tokenInCookie = req.cookies.token;
+        const tokenInCookie = req.cookies.authToken;
         if(!tokenInCookie) {
             next();
         }
-        const token = req.cookies.token;
+        const token = req.cookies.authToken;
         // 2. verify token: this might lead to TokenExpiredError|JsonWebTokenError
         const decodedToken = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
         // 3. get user from decoded token
@@ -120,7 +120,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     console.log(`Exiting SignUp Route Handler🟡`);
     res.status(201).json({
         status: 'success',
-        token,
+        authToken: token,
         data: { createdUser }   // FIXME: this document has password: null, try to remove that
     });
 });
@@ -165,15 +165,15 @@ exports.login = catchAsync(async (req, res, next) => {
     console.log('Exiting Login Route Handler🟡');
     res.status(200).json({
         status: 'success',
-        token
+        authToken: token
     });
 });
 
 // ** To Logout a user (Only for Frontend purpose) **
 exports.logout = (req, res, next) => {
-    res.cookie('token', '', {
-        maxAge: 0
-    });
+    res.clearCookie('authToken', {
+        httpOnly: true
+    });   // options must be same as set in res.cookie() excluding maxAge|expiresIn
     res.redirect('/');
 };
 

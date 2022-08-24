@@ -8,6 +8,14 @@
     font-size: 16px;
 }
 
+:root {
+    --global-primary-color: #A060FF;
+}
+
+.global-primary-color {
+    color: var(--global-primary-color);
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -70,6 +78,7 @@ main {
     background-color: var(--bg-primary);
     transition: width 600ms ease;
     overflow: auto;
+    z-index: 9999;
 }
 
 .sidenavbar-nav {
@@ -109,8 +118,9 @@ svg:hover {
     margin-left: 1rem;
 }
 
-.sidenav-link svg {
+.sidenav-link svg, .sidenav-link img {
     width: 2rem;
+    height: 2rem;
     min-width: 2rem;
     margin: 0 1.5rem;
 }

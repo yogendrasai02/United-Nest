@@ -27,5 +27,9 @@ export const endpoints = {
     updateProfile: {
         url: baseURL + '/api/v1/users/updateProfile',
         method: 'PATCH'
+    },
+    joinVideoCall: {
+        url: baseURL + '/api/v1/video-call/join',
+        method: 'POST'
     }
 };
