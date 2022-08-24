@@ -37,4 +37,6 @@ viewRouter.post('/posts/:postId/comments', viewController.postComment);
 viewRouter.get('/video-call-lobby', viewController.renderVideoCallLobbyPage);
 viewRouter.get('/video-call/:receiver_username', viewController.renderVideoCallPage);
 
+viewRouter.get("/search", viewController.searchPostsAndUsers);
+
 module.exports = viewRouter;

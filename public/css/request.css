@@ -3,7 +3,7 @@ html, body, main, .card {
 }
 
 .card {
-  box-shadow: 0px 0px 5px grey;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 }
 
 .tab {
