@@ -2,6 +2,7 @@ const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
 const UserConnection = require('../models/connectionModel');
 const User = require('../models/userModel');
+const Post = require('../models/postModel');
 const connectionController = require('./connectionController');
 
 // * Utility function for intersection of 2 arrays (assuming both have unique elements) *
@@ -25,9 +26,88 @@ exports.renderLoginPage = (req, res, next) => {
 };
 
 // ** To render /posts page **
-exports.renderPostsPage = (req, res, next) => {
+exports.renderPostsPage = catchAsync(async (req, res, next) => {
+
+    if(!req.query)  req.query = {};
+
+    // 1. get posts
+    let filterBasedOn = req.query.sort;
+    let page = req.query.page;
+    let limit = req.query.limit;
+
+    if(!filterBasedOn) {
+        filterBasedOn = '-postedAt';
+    }
+    if(!page) {
+        page = '1';
+    }
+    if(!limit) {
+        limit = '5';
+    }
+
+    // retrive all that usernames which the currently logged in user follows
+    let usernames = await UserConnection.find({$and: [{requestSender: req.user.username}, {status: 'accepted'}]}, {_id: 0, requestReceiver: 1});
+
+    console.log(usernames);
+
+    const users = [];
+
+    for(let user of usernames) {
+        users.push(user.requestReceiver);
+    }
+
+    console.log(users);
+
+    // retreive the posts which are posted by those userids
+    let noOfPosts = await Post.find({username: {$in: users}}).count();
+
+    console.log(noOfPosts);
+
+    if(filterBasedOn === '-comments') {
+        filterBasedOn = {"reactionsCnt.comments": -1};
+    } else if(filterBasedOn === 'comments') {
+        filterBasedOn = {"reactionsCnt.comments": 1};
+    } else if(filterBasedOn === '-postedAt') {
+        filterBasedOn = {"postedAt": -1};
+    } else if(filterBasedOn === 'postedAt') {
+        filterBasedOn = {"postedAt": 1};
+    } else if(filterBasedOn === "-likes") {
+        filterBasedOn = {"reactionsCnt.likes": -1};
+    } else if(filterBasedOn === "likes") {
+        filterBasedOn = {"reactionsCnt.likes": 1};
+    } else {
+        filterBasedOn = {"postedAt": -1};
+    }
+
+    let pagesCnt = Math.floor(noOfPosts / limit) + (noOfPosts % limit !== 0);
+
+    let posts = await Post.find({username: {$in: users}}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
+
+    posts.forEach(post => {
+        console.log(post);
+    });
+
+    // 2. get profile photos (as MAP)
+    const userDocs = await User.find({
+        username: { $in: users }
+    }).select('username profilePhoto');
+
+    const profilePhotosMap = new Map();
+
+    userDocs.forEach(doc => {
+        profilePhotosMap.set(doc.username, doc.profilePhoto);
+    });
+
     res.render('posts', {
-        title: 'United Nest | Posts'
+        title: 'United Nest | Posts',
+        pagesCnt, posts, profilePhotosMap,
+        currentPage: page
+    });
+});
+
+exports.renderAddPostPage = (req, res, next) => {
+    res.render('addPost', {
+        title: 'Add Post | United Nest'
     });
 };
 

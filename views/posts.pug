@@ -1,12 +1,113 @@
 extends index
 
+block append stylesheets
+    link(rel='stylesheet', href='/css/posts_styles.css')
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css')
+
+block append headScripts
+    script(src='https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js')
+    script(src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js")
+    script(src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js")
+
+block append scripts
+    script(type='module', src='/js/posts.js')
+
+
 block content 
-    - console.log(user);
-    h1 Welcome #{user.username}
-    .toast(role='alert' aria-live='assertive' aria-atomic='true')
-        .toast-header
-            strong.me-auto Bootstrap
-            small 11 mins ago
-            button.btn-close(type='button' data-bs-dismiss='toast' aria-label='Close')
-        .toast-body
-            | Hello, world! This is a toast message.
+    .container
+        .options.d-flex.align-items-center
+            .dropdown.me-3
+                button.btn.btn-info.dropdown-toggle(type='button', data-bs-toggle='dropdown', aria-expanded='false')
+                    i(class="ph-sort-descending icon-3 me-2")
+                    span.fs-4.me-2 Sort Posts by
+                ul.dropdown-menu 
+                    li.dropdown-item.activeOption
+                        i(class="ph-clock icon-3")
+                        span Latest Posts
+                    li.dropdown-item 
+                        i(class="las la-thumbs-up icon-3")
+                        span Highest Likes
+                    li.dropdown-item
+                        i(class="las la-comment icon-3")
+                        span Highest Comments
+            .addPostBtn.ms-3
+                button.btn.btn-success#addPostBtn(type='button') 
+                    i(class="ph-plus-circle icon-3 me-2")
+                    span.fs-4 Add New Post
+    .container.mt-4#posts-container
+        each post in posts
+            .post.bg-white.w-75.p-3.pt-0.mb-4(id=`${post._id}`)
+                .postHeader
+                    .profilePhoto
+                        - const author = post.username;
+                        - const profilePhoto = profilePhotosMap.get(author);
+                        img.img-fluid.rounded(src=`${profilePhoto}`, alt=`${author}`)
+                    .authorDetails.mt-3
+                        p
+                            a.fs-4(href='profile of user')= author
+                        p.fs-6.postedAt= post.postedAt
+                .postBody.p-3
+                    -
+                        const textRegex = /text/i;
+                        const imageRegex = /image/i;
+                        const videoRegex = /video/i;
+                        const type = post.contentType;
+                        const hasText = textRegex.test(type);
+                        const hasImages = imageRegex.test(type);
+                        const hasVideo = videoRegex.test(type);
+                    - if(hasText)
+                        .text
+                            p.fs-6= post.content
+                    .hashTags
+                        each hashTag in post.hashTags
+                            a.fs-4(href=hashTag, target='_blnk')
+                    - if(hasImages)
+                        .swiper.images
+                            .swiper-wrapper
+                                each image in post.images
+                                    .swiper-slide
+                                        img(src=`${image}`, alt='Image Not Available.')
+                                    //- .swiper-slide
+                                    //-     img(src=`${image}`, alt='Image Not Available.')                                    
+                            .swiper-pagination
+                            .swiper-button-next
+                            .swiper-button-prev
+                            .swiper-scrollbar
+                    - if(hasVideo)
+                        .video
+                            video(controls='controls', src=`${post.video}`, type='video/mp4', controlslist='nodownload') 
+                                h2.text-danger Your browser doesnt support embedded videos 
+                .postFooter.mt-3
+                    .postOptions.d-flex.align-items.center
+                        .btn-group.dropup
+                            button.btn.btn-info.reactions.me-3.dropdown-toggle(type='button', data-bs-toggle='dropdown', aria-expanded='false')
+                                i(class="las la-thumbs-up icon-3 me-2")
+                                span.fs-4 Reactions
+                            ul.dropdown-menu.reactionsOptions
+                                -
+                                    const iconsMap = new Map();
+                                    iconsMap.set('likes', 'las la-thumbs-up')
+                                    iconsMap.set('dislikes', 'las la-thumbs-down')
+                                    iconsMap.set('love', 'ph-heart')
+                                    iconsMap.set('funny', 'las la-laugh-squint')
+                                    iconsMap.set('angry', 'lar la-angry')
+                                    iconsMap.set('wow', 'lar la-surprise')
+                                    iconsMap.set('sad', 'las la-frown')
+                                - for(const [key, value] of post.reactionsCnt)
+                                    - if(key != 'comments')
+                                        li.dropdown-item.mt-1
+                                            span.d-flex.align-items-center
+                                                i(class=`${iconsMap.get(key)} icon-3 me-2`)
+                                                | #{key}
+                                            span(class='badge rounded-pill text-bg-primary me-2')= value
+                        button.btn.btn-info#comments(data-postid=`${post._id}`)
+                            i(class="las la-comment icon-3 me-2")
+                            span.fs-4 Comments
+    .container.mt-4.mb-4.d-flex.justify-content-between.align-items-center#posts-pagination-controls
+        button.btn.btn-success#prevPage
+            i(class="ph-arrow-circle-left icon-3 me-3")
+            span.fs-4 Previous Page
+        .fs-4#pageIndicator(data-currentpage=currentPage, data-pagescnt=pagesCnt) Page #{currentPage} / #{pagesCnt}
+        button.btn.btn-success#nextPage
+            span.fs-4 Next Page
+            i(class="ph-arrow-circle-right icon-3 ms-3")

@@ -19,6 +19,11 @@
 body {
     margin: 0;
     padding: 0;
+    background-color: rgb(241, 242, 242) !important;
+}
+
+.bg-white {
+    background-color: #fff !important;
 }
 
 /* For icons */

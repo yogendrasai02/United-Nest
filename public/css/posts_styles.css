@@ -1,0 +1,109 @@
+.options .dropdown-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.options .dropdown-item:last-child {
+    margin-bottom: 0;
+}
+
+.options .dropdown-item i {
+    margin-right: 10px;
+}
+
+.options .dropdown-item:hover {
+    background-color: black;
+    color: white;
+    cursor: pointer;
+}
+
+.options .btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.75em;
+}
+
+.activeOption {
+    background-color: #A060FF;
+    color: white;
+}
+
+.postHeader {
+    display: grid;
+    grid-template-columns: 15% auto;
+    grid-template-rows: 1fr;
+}
+
+.postHeader, .postBody {
+    border-bottom: 2px solid lightgray;
+}
+
+.post {
+    border: 2px solid lightgray;
+    border-radius: 5px;
+}
+
+.profilePhoto {
+    padding: 10px;
+}
+
+.authorDetails {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.postOptions .btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.swiper {
+    width: 100%;
+    height: auto;
+}
+
+.swiper img {
+    width: 100%;
+    height: auto;
+}
+
+.swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 10px;
+}
+
+video {
+    display: block;
+    width: 90%;
+    height: auto;
+    margin: auto;
+    border: 5px solid #a060ff;
+    border-radius: 10px;
+}
+
+#posts-pagination-controls .btn {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px;
+}
+
+.reactionsOptions .dropdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+}
+
+.reactionsOptions .dropdown-item:hover {
+    cursor: pointer;
+    background-color: black;
+    color: white;
+}

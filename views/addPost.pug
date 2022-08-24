@@ -1,0 +1,52 @@
+extends index
+
+block append stylesheets
+    link(rel='stylesheet', href='/css/add_post_styles.css')
+
+block append scripts
+    script(src='/js/add_post.js', type='module')
+
+block content
+    .loadingSpinner.d-none
+        .spinner
+            .spinner-grow.text-primary.me-2(role='status')
+                span.visually-hidden Loading...
+            .spinner-grow.text-secondary.me-2(role='status')
+                span.visually-hidden Loading...
+            .spinner-grow.text-success.me-2(role='status')
+                span.visually-hidden Loading...
+            .spinner-grow.text-danger.me-2(role='status')
+                span.visually-hidden Loading...
+            .spinner-grow.text-warning.me-2(role='status')
+                span.visually-hidden Loading...
+            .spinner-grow.text-info.me-2(role='status')
+                span.visually-hidden Loading...
+            .spinner-grow.text-dark.me-2(role='status')
+                span.visually-hidden Loading...
+
+    h2.text-center Share your thoughts with the world..
+    p.text-center Add a post..
+    .container.mx-auto.bg-white.border.rounded
+        form#addPostForm(encoding='multipart/form-data')
+            .helper.d-flex.align-items-center
+                i(class="ph-warning icon-4 text-warning me-3")
+                p.fw-bold.fs-5.mt-3 
+                    | You can post only text, only images, only video, or image & text, or video & text
+            p.d-none(id='username')= user.username
+            .form-floating.mt-3.mb-3
+                textarea.form-control.large#content(placeholder='Enter your content here', name='content')
+                label(for='content') Content
+            .mb-3
+                input.form-control.form-control-lg#images(type='file', name='images', accept='image/jpg, image/jpeg, image/png', multiple='true')
+                label.form-label(for='images') Upload Images 
+                p.fw-bold Upload only JPEF|JPG|PNG images
+            .mb-3
+                input.form-control.form-control-lg#video(type='file', name='video', accept='video/mp4, video/mkv')
+                label.form-label(for='video') Upload Video
+                p.fw-bold Upload only MP4|MKV video files
+            .form-floating.mb-3
+                textarea.form-control.small#hashTags(placeholder='Enter hashtags', name='hashTags')
+                label(for='hashTags') Hash Tags
+                p.fw-bold Separate each hashtag by a space. '#' character will be added automatically
+            input(type='submit' class='btn btn-success btn-lg mb-3' id='addPostFormSubmitBtn' value='Add Post')
+            input(type='reset' class='btn btn-danger btn-lg ms-4 mb-3' value='Reset')

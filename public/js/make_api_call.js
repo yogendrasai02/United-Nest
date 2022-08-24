@@ -1,10 +1,13 @@
-export const makeAPICall = async function(endpoint, method, data) {
+export const makeAPICall = async function(endpoint, method, data, multipartForm = false) {
     const fetchOptions = { method };
     if(method === 'POST' || method === 'PATCH') {
-        fetchOptions.headers = {
-            'Content-Type': 'application/json'
-        };
-        fetchOptions.body = JSON.stringify(data);
+        fetchOptions.body = data;
+        if(!multipartForm) {
+            fetchOptions.body = JSON.stringify(fetchOptions.body);
+            fetchOptions.headers = {
+                'Content-Type': 'application/json'
+            };
+        }
     }
     console.log(`About to make API call to ${method}: ${endpoint}`);
     try {
