@@ -39,7 +39,7 @@ block content
             button.btn.btn-outline.border.pull-right.submitBtn(type='submit') Submit
             fieldset
               .row.getComment
-                textarea#message.form-control(placeholder='Your message' required='')
+                textarea#message.form-control(placeholder='Your Comment' required='')
                 input#username(value= user.username, type="hidden")
                 input#postid.hidden(value= postId, type="hidden")
                 input#commentid.hidden(value= commentId, type="hidden")
@@ -69,7 +69,7 @@ block content
             .col-sm-2 
               button.btn.btn-outline.border.filterbtn Filter
           
-          h3= comments.length+' Comments'
+          h3= noOfComments+' Comments'
           // COMMENT 1 - START
           for comment in comments
             .media.row
@@ -83,11 +83,12 @@ block content
                     .col-sm-6.text-end= comment['time']
                   p= comment['content']
 
-                  if(commentId === 'null')
-                    .row 
-                      .col-sm-6 rections
-                      .col-sm-6.text-end  
-                        - let cnt = comment['subComment'].length + ' comments'
+                  
+                  .row 
+                    .col-sm-6 rections
+                    .col-sm-6.text-end  
+                      if(commentId === 'null')
+                        - let cnt = comment['subComment'].length + ' comment(s)'
                         a(href=`/posts/${postId}/comments?commentId=${comment['_id']}&limit=5&page=1&filter=-commentedAt`)= cnt
             // COMMENT 1 - END
 

@@ -212,7 +212,7 @@ module.exports.get_group_details = async (req, res) => {
     }
 
     console.log('photos: ', photos);
-    res.render("viewgroup", {groupdetails: gDetails, photos: photos});
+    res.render("viewgroup", {groupdetails: gDetails, photos: photos, title: 'United Nest | Posts'});
 }
 
 module.exports.group_post = async (req, res) => {
@@ -412,7 +412,7 @@ exports.getAllConnections = catchAsync(async (req, res, next) => {
     //     }
     // });
 
-    res.render("request", {data: connections, followers: followers, following: following});
+    res.render("request", {data: connections, followers: followers, following: following, title: 'United Nest | Requests'});
 });
 
 exports.getAllFollowers = async (req, res) => {
@@ -459,7 +459,7 @@ exports.getAllFollowers = async (req, res) => {
     console.log("Accepted Users: ", acceptedUsers);
     console.log("Pending Users: ", pendingUsers);
 
-    res.render("request", {accepted: acceptedUsers, pending: pendingUsers, followers: true, following: false});
+    res.render("request", {accepted: acceptedUsers, pending: pendingUsers, followers: true, following: false, title: 'United Nest | Requests'});
 }
 
 exports.getAllFollowing = async (req, res) => {
@@ -507,7 +507,7 @@ exports.getAllFollowing = async (req, res) => {
     console.log("Accepted Users: ", acceptedUsers);
     console.log("Pending Users: ", pendingUsers);
 
-    res.render("request", {accepted: acceptedUsers, pending: pendingUsers, followers: false, following: true});
+    res.render("request", {accepted: acceptedUsers, pending: pendingUsers, followers: false, following: true, title: 'United Nest | Posts'});
 }
 
 exports.unfollowUser = catchAsync(async(req, res, next) => {
@@ -602,29 +602,31 @@ exports.getComments = catchAsync(async (req, res, next) => {
     let comments; 
 
     if(commentId === "null") {
-        comments = await Comment.find({$and: [{post: postId}, {parentComment: null}]}).skip((page - 1) * limit).limit(limit).sort("-commentedAt");
+        comments = await Comment.find({$and: [{post: postId}, {parentComment: null}]}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
     } else {
-        comments = await Comment.find({$and: [{post: postId}, {parentComment: commentId}]}).skip((page - 1) * limit).limit(limit).sort("-commentedAt");
+        comments = await Comment.find({$and: [{post: postId}, {parentComment: commentId}]}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
     }
 
     console.log("Comments: ", comments);
     console.log("Pages Cnt: ", pagesCnt);
 
-    console.log(comments[0]);
-    console.log(comments[0]['reactionsCnt']);
-    console.log(comments[0]['reactionsCnt'].values());
-    console.log(typeof comments[0]['reactionsCnt'].values());
-    let va = comments[0]['reactionsCnt'].values();
+    // console.log(comments[0]);
+    // console.log(comments[0]['reactionsCnt']);
+    // console.log(comments[0]['reactionsCnt'].values());
+    // console.log(typeof comments[0]['reactionsCnt'].values());
+    // let va = comments[0]['reactionsCnt'].values();
 
-    let noOfSubComments;
+    // let noOfSubComments;
 
-    for(let val of va) {
-        noOfSubComments = val;
-    }
+    // for(let val of va) {
+    //     noOfSubComments = val;
+    // }
 
     let i = 0;
 
     let profilePhotos = {};
+
+    let time;
 
     for(let comment of comments) {
         const commentedAt = comment['commentedAt'];
@@ -686,7 +688,7 @@ exports.getComments = catchAsync(async (req, res, next) => {
         commentDetails['username'] = cmt['username'];
     }
 
-    res.render("comments", {comments: comments, pagesCnt: pagesCnt, time: time, profilePhoto: profilePhotos, currPage: page, limit: limit, filterBasedOn: filter, commentId: commentId, postId: postId, commentDetails: commentDetails});
+    res.render("comments", {comments: comments, pagesCnt: pagesCnt, time: time, profilePhoto: profilePhotos, currPage: page, limit: limit, filterBasedOn: filter, commentId: commentId, postId: postId, commentDetails: commentDetails, title: 'United Nest | Comments', noOfComments: noOfComments});
 });
 
 module.exports.postComment = catchAsync(async (req, res, next) => {
@@ -711,7 +713,7 @@ module.exports.postComment = catchAsync(async (req, res, next) => {
 
         suc = await Post.findByIdAndUpdate(postId, {$inc: {"reactionsCnt.comments": 1}});
 
-        res.send({"message": "Parent comment added successdully"});
+        res.send({"message": "Parent comment added successdully", title: 'United Nest | Comments'});
         // res.redirect(`/posts/${postId}/comments?commentId=null&limit=5&page=1&filter=-comments`);
     } else {
 
@@ -726,6 +728,6 @@ module.exports.postComment = catchAsync(async (req, res, next) => {
 
         suc = await Comment.findByIdAndUpdate(commentId, {$push: {subComment: id}, $inc: {"reactionsCnt.comments": 1}});
 
-        res.send({"message": "child comment added successdully"});
+        res.send({"message": "child comment added successdully", title: 'United Nest | Comments'});
     }
 });

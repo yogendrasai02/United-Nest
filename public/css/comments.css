@@ -73,7 +73,7 @@ body{margin-top:20px;}
 }
 
 #comments .media {
-	border-top:1px dashed #DDDDDD;
+	border-top:1px solid #DDDDDD;
 	padding:20px 0;
 	margin:0;
 }
@@ -164,4 +164,16 @@ li.page-item {
 .filterbtn {
 	margin-top: 0px!important;
 	width: 100%;
+}
+
+img {
+	border-radius: 50%;
+}
+
+.content-item {
+	border-radius: 16px;
+	background-color: #f1f3f5!important;
+}
+.filterbtn {
+	border: 1px solid black!important;
 }
