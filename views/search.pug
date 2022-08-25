@@ -1,7 +1,8 @@
 extends index
 
 block append stylesheets
-  link(rel="stylesheet", href="/css/search.css")
+    link(rel="stylesheet", href="/css/search.css")
+    link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css")
 
 block append headScripts
     script(src='https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js')
@@ -94,7 +95,7 @@ block content
                               .swiper-wrapper
                                   each image in post.images
                                       .swiper-slide
-                                          img(src=`${image}`, alt='Image Not Available.')
+                                        img(src=`${image}`, alt='Image Not Available.')
                                       //- .swiper-slide
                                       //-     img(src=`${image}`, alt='Image Not Available.')                                    
                               .swiper-pagination

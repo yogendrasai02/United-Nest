@@ -121,7 +121,7 @@ block content
                                                 span(class='badge rounded-pill text-bg-primary me-2')= value
                                     - if(key == 'comments')
                                         - noOfComments = value
-                        button.btn.btn-info#comments(data-postid=`${post._id}`)
+                        button.btn.btn-info.comments(data-postid=`${post._id}`)
                             i(class="las la-comment icon-3 me-2")
                             span.fs-4= noOfComments+' Comments'
     

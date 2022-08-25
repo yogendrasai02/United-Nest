@@ -49,6 +49,6 @@ commentForm.addEventListener('submit', (e) => {
 
     console.log(url, data);
     makeAPICall(url, 'POST', data).then((data)=>{
-        window.location.href = `/posts/${postId.value}/comments?commentId=${commentId.value}&limit=5&page=1&filter=commentedAt`;
+        window.location.href = `/posts/${postId.value}/comments?commentId=${commentId.value}&limit=5&page=1&filter=-commentedAt`;
     });   
 });
