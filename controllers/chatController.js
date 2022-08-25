@@ -33,7 +33,7 @@ module.exports.chats_get = async (req, res) => {
 
     let groupsData = await Group.find({users : username});
 
-    res.render("chats.ejs", {username: username, isLoggedIn: true, users: users, groups: groupsData});
+    res.render("chats", {username: username, isLoggedIn: true, users: users, groups: groupsData});
 }
 
 module.exports.chat_get = async (req, res) => {
@@ -82,12 +82,12 @@ module.exports.chat_get = async (req, res) => {
 
     console.log("GROUPS DATA: ", groupsData);
 
-    res.render("chat.ejs", {isLoggedIn: true, roomId: roomId, fromUsername: username, toUsername: toUsername, users: users, groups: groupsData});
+    res.render("chat", {isLoggedIn: true, roomId: roomId, fromUsername: username, toUsername: toUsername, users: users, groups: groupsData});
 }
 
 module.exports.group_get = async (req, res) => {
     const userData = await userModel.find({}, {_id: 0, username: 1});
-    res.render("creategroup.ejs", {isLoggedIn: true, userData: userData});
+    res.render("creategroup", {isLoggedIn: true, userData: userData});
 }
 
 module.exports.group_post = async (req, res) => {
@@ -95,11 +95,23 @@ module.exports.group_post = async (req, res) => {
 
     const groupDetails = JSON.parse(JSON.stringify(req.body));
 
+    let groupCheck = await Group.find({groupname: groupDetails.gname});
+
+    if(groupCheck.length !== 0) {
+        //send an error message that group already exists
+        return res.send({message: "failure"});
+        // showToast('failure', 'Group name already exists', 5);
+    }
+
     const roomId = uuidv4();
 
     const createdBy = req.user.username;
 
     let users = [];
+
+    console.log(req.body);
+
+    console.log("Group details: ", groupDetails);   
 
     for(let val in groupDetails) {
         if(val.startsWith("user")) {
@@ -113,25 +125,7 @@ module.exports.group_post = async (req, res) => {
 
     await groupData.save();
 
-    try {
-        userDataFromDb = await Chat.find({users : createdBy}).exec();
-    } catch(e) {
-        console.log("Error ", e);
-    }
-
-    users = [];
-
-    for(let val of userDataFromDb) {
-        if(val['users'][0] != createdBy)
-            users.push({username: val['users'][0], roomId: val['roomId']});
-        else {
-            users.push({username: val['users'][1], roomId: val['roomId']});
-        }
-    }
-
-    let groupsData = await Group.find({users : createdBy});
-
-    res.render("chats.ejs", {username: createdBy, isLoggedIn: true, users: users, groups: groupsData});
+    res.send({message: "success"});
 }
 
 module.exports.singlechat_post = async (req, res) => {

@@ -232,3 +232,7 @@ svg:hover {
     box-shadow: none;
     outline: 3px solid black;
 }
+
+.sideNavProfile {
+    border-radius: 50%;
+}

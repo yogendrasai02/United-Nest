@@ -6,7 +6,7 @@ const commentRouter = require("../routes/commentRoutes.js");
 const reactionRouter = require("../routes/reactionRoutes");
 const postRouter = express.Router();
 
-postRouter.use(authController.authenticate, authController.authorize('user'));
+// postRouter.use(authController.authenticate, authController.authorize('user'));
 
 postRouter.use("/:postId/comments/", commentRouter);
 
@@ -18,7 +18,7 @@ postRouter.get("/:postId", postController.getPostsById);
 
 postRouter.post("/text", postController.createPostsText); //authController.authorize('user'),
 
-postRouter.post("/images", fileStorage('images').array('images'), postController.createPostsImages); // here 'image' should mathc with the name attribute in the input tag
+postRouter.post("/images", fileStorage('images').array('images', 3), postController.createPostsImages); // here 'image' should mathc with the name attribute in the input tag
 
 postRouter.post("/video", fileStorage('video').single('video'), postController.createPostsVideo);
 

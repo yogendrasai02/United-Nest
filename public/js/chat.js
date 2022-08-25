@@ -1,10 +1,11 @@
 const socket = io();
+import { showToast } from './toasts.js';
 
 //GET 2 usernames from URL 
 console.log(location.search);
 const url = location.href;
 let c = 0;
-arr = url.split('/');
+const arr = url.split('/');
 
 console.log("array: ", arr);
 const username1 = arr[arr.length - 3];
@@ -25,6 +26,10 @@ const message = document.getElementsByClassName("message")[0];
 function sendMessage() {
     const msg = message.value;
 
+    if(msg === '') {
+        showToast("fail", "message can't be empty", 2);
+        return;
+    }
     message.value = '';
     message.focus();
     data = {msg, roomId, username1, username2, dateAndTime: new Date()};

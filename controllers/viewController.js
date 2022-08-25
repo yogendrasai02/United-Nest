@@ -333,7 +333,7 @@ module.exports.chats_get = async (req, res) => {
 }
 
 module.exports.chat_get = async (req, res) => {
-let fromUserData, toUserData;
+    let fromUserData, toUserData;
 
 // try {
 //     fromUserData = await req.users;
@@ -347,392 +347,425 @@ let fromUserData, toUserData;
 //     console.log("Error: ", e);
 // }
 
-const roomId = req.params.roomId;
+    const roomId = req.params.roomId;
 
-console.log(roomId);
+    console.log(roomId);
 
-const username = req.user.username;
+    const username = req.user.username;
 
-let checkUsers = await Chat.findOne({roomId: roomId}, {_id: 0, users: 1});
-
-console.log("Check Users: ", checkUsers);
-
-if(checkUsers === null) {
-    checkUsers = await Group.findOne({roomId: roomId}, {_id: 0, users: 1});
-}
-
-checkUsers = checkUsers['users'];
-
-if(checkUsers === null) {
-    //handle the case of id doesn't exist
-}
-
-console.log("check Users: ", checkUsers);
-
-let c = 0;
-
-for(let usr of checkUsers) {
-    if(usr === username) {
-        c = 1;
-        break;
+    if(username !== req.params.username1) {
+        return res.redirect("/chats");
     }
-}
 
-if(c === 0) {
-    res.redirect("/chats");
-}
-// if(username !== req.params.username1) {
-//     return res.redirect("/chats");
-// }
+    let checkUsers = await Chat.findOne({roomId: roomId}, {_id: 0, users: 1});
 
-console.log("fromUsername: ",username);
+    console.log("Check Users: ", checkUsers);
 
-// console.log(req.user);
+    if(checkUsers === null) {
+        checkUsers = await Group.findOne({roomId: roomId}, {_id: 0, users: 1});
+    }
 
-const toUsername = req.params.name2;
+    if(checkUsers === null) {
+        //handle the case of id doesn't exist
+        return res.redirect("/chats");
+    }
+    
+    checkUsers = checkUsers['users'];
 
-let groupCheck = await Group.find({groupname: toUsername});
+    console.log("check Users: ", checkUsers);
 
-let isGroup = false;
+    let c = 0;
 
-console.log("Group check: ",groupCheck);
-
-if(groupCheck.length !== 0) {
-    isGroup = true;
-}
-
-try {
-    userDataFromDb = await Chat.find({users : username}).exec();
-} catch(e) {
-    console.log("Error ", e);
-}
-
-users = [];
-
-let toUserProfilePhoto = '';
-
-for(let val of userDataFromDb) {
-    let user = {};
-    let usrname;
-    if(val['users'][0] != username) {
-        const userData = await User.findOne({username: val['users'][0]}, {_id: 0, profilePhoto: 1});
-        if(userData['profilePhoto'] === '') {
-            userData['profilePhoto'] = '/img/user.png';
+    for(let usr of checkUsers) {
+        if(usr === username) {
+            c = 1;
+            break;
         }
-        usrname = val['users'][0];
-        user = {username: val['users'][0], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
     }
-    else {
-        const userData = await User.findOne({username: val['users'][1]}, {_id: 0, profilePhoto: 1});
-        if(userData['profilePhoto'] === '') {
-            userData['profilePhoto'] = '/img/user.png';
+
+    if(c === 0) {
+        res.redirect("/chats");
+    }
+    // if(username !== req.params.username1) {
+    //     return res.redirect("/chats");
+    // }
+
+    console.log("fromUsername: ",username);
+
+    // console.log(req.user);
+
+    const toUsername = req.params.name2;
+
+    let groupCheck = await Group.find({groupname: toUsername});
+
+    let isGroup = false;
+
+    console.log("Group check: ",groupCheck);
+
+    if(groupCheck.length !== 0) {
+        isGroup = true;
+    }
+
+    try {
+        userDataFromDb = await Chat.find({users : username}).exec();
+    } catch(e) {
+        console.log("Error ", e);
+    }
+
+    users = [];
+
+    let toUserProfilePhoto = '';
+
+    for(let val of userDataFromDb) {
+        let user = {};
+        let usrname;
+        if(val['users'][0] != username) {
+            const userData = await User.findOne({username: val['users'][0]}, {_id: 0, profilePhoto: 1});
+            if(userData['profilePhoto'] === '') {
+                userData['profilePhoto'] = '/img/user.png';
+            }
+            usrname = val['users'][0];
+            user = {username: val['users'][0], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
         }
-        usrname = val['users'][1];
-        user = {username: val['users'][1], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
+        else {
+            const userData = await User.findOne({username: val['users'][1]}, {_id: 0, profilePhoto: 1});
+            if(userData['profilePhoto'] === '') {
+                userData['profilePhoto'] = '/img/user.png';
+            }
+            usrname = val['users'][1];
+            user = {username: val['users'][1], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
+        }
+        if(usrname == toUsername) {
+            toUserProfilePhoto = user['profilePhoto'];
+        }
+        users.push(user);
     }
-    if(usrname == toUsername) {
-        toUserProfilePhoto = user['profilePhoto'];
+
+    let groupsData = await Group.find({users : username});
+
+    console.log("USERS: ", users);
+
+    console.log("GROUPS DATA: ", groupsData);
+
+    console.log(toUserProfilePhoto);
+
+    if(toUserProfilePhoto === '') {
+        toUserProfilePhoto = '/img/users-three.png';
     }
-    users.push(user);
-}
 
-let groupsData = await Group.find({users : username});
-
-console.log("USERS: ", users);
-
-console.log("GROUPS DATA: ", groupsData);
-
-console.log(toUserProfilePhoto);
-
-if(toUserProfilePhoto === '') {
-    toUserProfilePhoto = '/img/users-three.png';
-}
-
-res.render("chat", {isLoggedIn: true, roomId: roomId, username: username, toUsername: toUsername, users: users, groups: groupsData, title: 'United Nest | Posts', toUserProfilePhoto: toUserProfilePhoto, isGroup: isGroup});
+    res.render("chat", {isLoggedIn: true, roomId: roomId, username: username, toUsername: toUsername, users: users, groups: groupsData, title: 'United Nest | Posts', toUserProfilePhoto: toUserProfilePhoto, isGroup: isGroup});
 }
 
 module.exports.group_get = async (req, res) => {
-const userData = await User.find({}, {_id: 0, username: 1});
-res.render("creategroup", {isLoggedIn: true, userData: userData, title: 'United Nest | Chats'});
+    let username = req.user.username;
+    let userDataFromDb;
+
+    console.log(username);
+
+    try {
+        userDataFromDb = await Chat.find({users : username}).exec();
+    } catch(e) {
+        console.log("Error ", e);
+    }
+
+    console.log("Userdata from DB: ", userDataFromDb);
+
+    users = [];
+
+    for(let usr of userDataFromDb) {
+        if(usr['users'][0] != username) {
+            users.push(usr['users'][0]);
+        }
+        else {
+            users.push(usr['users'][1]);
+        }
+    }
+
+    // users.push(username);
+
+    console.log(users);
+
+    res.render("creategroup", {isLoggedIn: true, users: users, title: 'United Nest | Chats'});
 }
 
 module.exports.get_group_details = async (req, res) => {
-const gname = req.params.gname;
-console.log("gname: ", gname);
+    const gname = req.params.gname;
+    console.log("gname: ", gname);
 
-const gDetails = await Group.find({groupname: gname});
+    const gDetails = await Group.find({groupname: gname});
 
-console.log("gDetails: ",gDetails); 
+    console.log("gDetails: ",gDetails); 
 
-const users = gDetails[0].users;
+    const users = gDetails[0].users;
 
-const photos = {};
+    const photos = {};
 
-for(let user of users) {
-    const profilePhoto = await User.find({username: user}, {profilePhoto: 1});
-    if(profilePhoto[0]['profilePhoto'] === '') {
-        photos[user] = '/img/user.png';
-    } else {
-        photos[user] = profilePhoto[0]['profilePhoto'];
+    for(let user of users) {
+        const profilePhoto = await User.find({username: user}, {profilePhoto: 1});
+        if(profilePhoto[0]['profilePhoto'] === '') {
+            photos[user] = '/img/user.png';
+        } else {
+            photos[user] = profilePhoto[0]['profilePhoto'];
+        }
     }
-}
 
-console.log('photos: ', photos);
-res.render("viewgroup", {groupdetails: gDetails, photos: photos, title: 'United Nest | Posts'});
+    console.log('photos: ', photos);
+    console.log("group details: ", gDetails);
+    res.render("viewgroup", {groupdetails: gDetails, photos: photos, title: 'United Nest | Posts'});
 }
 
 module.exports.group_post = async (req, res) => {
-console.log("In Group post");
+    console.log("In Group post");
 
-const groupDetails = JSON.parse(JSON.stringify(req.body));
+    const groupDetails = JSON.parse(JSON.stringify(req.body));
 
-let groupCheck = await Group.find({groupname: groupDetails.gname});
+    let groupCheck = await Group.find({groupname: groupDetails.gname});
 
-if(groupCheck.length !== 0) {
-    //send an error message that group already exists
-    // showToast('failure', 'Group name already exists', 5);
-}
-
-const roomId = uuidv4();
-
-const createdBy = req.user.username;
-
-let users = [];
-
-console.log(req.body);
-
-console.log("Group details: ", groupDetails);   
-
-for(let val in groupDetails) {
-    if(val.startsWith("user")) {
-        users.push(groupDetails[val]);
+    if(groupCheck.length !== 0) {
+        //send an error message that group already exists
+        // showToast('failure', 'Group name already exists', 5);
     }
-}
 
-users.push(createdBy);
+    const roomId = uuidv4();
 
-const groupData = new Group({roomId: roomId, createdBy: createdBy, users: users, groupname: groupDetails.gname, description: groupDetails.description});
+    const createdBy = req.user.username;
 
-await groupData.save();
+    let users = [];
 
-res.redirect("/chats");
-// try {
-//     userDataFromDb = await Chat.find({users : createdBy}).exec();
-// } catch(e) {
-//     console.log("Error ", e);
-// }
+    console.log(req.body);
 
-// users = [];
+    console.log("Group details: ", groupDetails);   
 
-// for(let val of userDataFromDb) {
-//     let user = {};
-//     if(val['users'][0] != createdBy) {
-//         const userData = await User.findOne({username: val['users'][0]}, {_id: 0, profilePhoto: 1});
-//         user = {username: val['users'][0], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
-//     }
-//     else {
-//         const userData = await User.findOne({username: val['users'][1]}, {_id: 0, profilePhoto: 1});
-//         user = {username: val['users'][1], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
-//     }
+    for(let val in groupDetails) {
+        if(val.startsWith("user")) {
+            users.push(groupDetails[val]);
+        }
+    }
 
-//     users.push(user);
-// }
+    users.push(createdBy);
 
-// let groupsData = await Group.find({users : createdBy});
+    const groupData = new Group({roomId: roomId, createdBy: createdBy, users: users, groupname: groupDetails.gname, description: groupDetails.description});
 
-// res.render("chats", {username: createdBy, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Posts'});
+    await groupData.save();
+
+    res.redirect("/chats");
+    // try {
+    //     userDataFromDb = await Chat.find({users : createdBy}).exec();
+    // } catch(e) {
+    //     console.log("Error ", e);
+    // }
+
+    // users = [];
+
+    // for(let val of userDataFromDb) {
+    //     let user = {};
+    //     if(val['users'][0] != createdBy) {
+    //         const userData = await User.findOne({username: val['users'][0]}, {_id: 0, profilePhoto: 1});
+    //         user = {username: val['users'][0], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
+    //     }
+    //     else {
+    //         const userData = await User.findOne({username: val['users'][1]}, {_id: 0, profilePhoto: 1});
+    //         user = {username: val['users'][1], roomId: val['roomId'], profilePhoto: userData['profilePhoto']};
+    //     }
+
+    //     users.push(user);
+    // }
+
+    // let groupsData = await Group.find({users : createdBy});
+
+    // res.render("chats", {username: createdBy, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Posts'});
 }
 
 
 // ** Route Handler for /followRequests/:action endpoint **
 exports.getPendingFollowRequests = catchAsync(async (req, res, next) => {
-const { action } = req.params;
-const initialFilter = { status: 'pending' };
-if(action === 'sent')
-    initialFilter.requestSender = req.user.username;
-else if(action === 'received')
-    initialFilter.requestReceiver = req.user.username;
-else
-    return next(new AppError('Action parameter value can be either sent|received', 400));
-const queryUtils = new QueryUtils(
-    UserConnection.find(initialFilter), req.query
-    ).filter().sort('-requestSentTime').limit().paginate();
-const followRequests = await queryUtils.query;
-res.status(200).json({
-    status: 'success',
-    results: followRequests.length,
-    data: {
-        followRequests
-    }
-});
+    const { action } = req.params;
+    const initialFilter = { status: 'pending' };
+    if(action === 'sent')
+        initialFilter.requestSender = req.user.username;
+    else if(action === 'received')
+        initialFilter.requestReceiver = req.user.username;
+    else
+        return next(new AppError('Action parameter value can be either sent|received', 400));
+    const queryUtils = new QueryUtils(
+        UserConnection.find(initialFilter), req.query
+        ).filter().sort('-requestSentTime').limit().paginate();
+    const followRequests = await queryUtils.query;
+    res.status(200).json({
+        status: 'success',
+        results: followRequests.length,
+        data: {
+            followRequests
+        }
+    });
 });
 
 // ** Route handler for send follow request endpoint **
 exports.sendFollowRequest = catchAsync(async (req, res, next) => {
-const { username } = req.params;
-const intendedUser = await User.findOne({ username });
-if(!intendedUser) {
-    return next(new AppError('Invalid username, Intended User Not Found', 400));
-}
-console.log(username);
-const sentRequest = await UserConnection.create({
-    requestSender: req.user.username,
-    requestReceiver: intendedUser.username
-});
-res.status(201).json({
-    status: 'success',
-    data: {
-        sentRequest
+    const { username } = req.params;
+    const intendedUser = await User.findOne({ username });
+    if(!intendedUser) {
+        return next(new AppError('Invalid username, Intended User Not Found', 400));
     }
-});
+    console.log(username);
+    const sentRequest = await UserConnection.create({
+        requestSender: req.user.username,
+        requestReceiver: intendedUser.username
+    });
+    res.status(201).json({
+        status: 'success',
+        data: {
+            sentRequest
+        }
+    });
 });
 
 // ** Route handle for accept|reject follow request endpoint **
 exports.actOnFollowRequest = catchAsync(async (req, res, next) => {
     console.log("act on follow request");
-const { username, action } = req.params;
-if(username === req.user.username) {
-    return next(new AppError('Username cannot be same as currently logged in user', 400));
-}
-if(!['accept', 'reject'].includes(action)) {
-    return next(new AppError('Action parameter value can be either accept|reject'));
-}
-const senderUser = await User.findOne({ username });
-if(!senderUser) {
-    return next(new AppError('Invalid username, Sender User not found', 400));
-}
-let followRequest = await UserConnection.findOne({
-    requestSender: senderUser.username,
-    requestReceiver: req.user.username,
-    status: 'pending'
-});
-if(!followRequest) {
-    return next(new AppError('A pending follow request from the specified user does not exist', 400));
-}
-if(action === 'reject') {
-    await UserConnection.deleteOne({ _id: followRequest['_id'] });
-    // res.status(204).json({
+    const { username, action } = req.params;
+    if(username === req.user.username) {
+        return next(new AppError('Username cannot be same as currently logged in user', 400));
+    }
+    if(!['accept', 'reject'].includes(action)) {
+        return next(new AppError('Action parameter value can be either accept|reject'));
+    }
+    const senderUser = await User.findOne({ username });
+    if(!senderUser) {
+        return next(new AppError('Invalid username, Sender User not found', 400));
+    }
+    let followRequest = await UserConnection.findOne({
+        requestSender: senderUser.username,
+        requestReceiver: req.user.username,
+        status: 'pending'
+    });
+    if(!followRequest) {
+        return next(new AppError('A pending follow request from the specified user does not exist', 400));
+    }
+    if(action === 'reject') {
+        await UserConnection.deleteOne({ _id: followRequest['_id'] });
+        // res.status(204).json({
+        //     status: 'success',
+        //     data: null
+        // });
+
+        res.redirect("/requests/allfollowers");
+        return;
+    }
+
+    console.log("Hello");
+
+    followRequest.status = 'accepted';
+
+    let d = await UserConnection.findOne({ 
+        requestSender: req.user.username,
+        requestReceiver: senderUser.username,
+        status: 'accepted'
+    })
+
+    console.log("d value is: ", d);
+
+    // if(d.length !== 0) {    
+    //     const roomId = uuidv4();
+    //     const users = [];
+
+    //     users.push(req.user.username);
+    //     users.push(senderUser.username);
+
+    //     const chatData = new Chat({roomId: roomId, users: users});
+
+    //     let suc = await chatData.save();
+    // }
+
+    followRequest.requestAcceptedTime = Date.now();
+    followRequest = await followRequest.save();
+    // res.status(200).json({
     //     status: 'success',
-    //     data: null
+    //     data: {
+    //         followRequest
+    //     }
     // });
 
     res.redirect("/requests/allfollowers");
-    return;
-}
-
-console.log("Hello");
-
-followRequest.status = 'accepted';
-
-let d = await UserConnection.findOne({ 
-    requestSender: req.user.username,
-    requestReceiver: senderUser.username,
-    status: 'accepted'
-})
-
-console.log("d value is: ", d);
-
-// if(d.length !== 0) {    
-//     const roomId = uuidv4();
-//     const users = [];
-
-//     users.push(req.user.username);
-//     users.push(senderUser.username);
-
-//     const chatData = new Chat({roomId: roomId, users: users});
-
-//     let suc = await chatData.save();
-// }
-
-followRequest.requestAcceptedTime = Date.now();
-followRequest = await followRequest.save();
-// res.status(200).json({
-//     status: 'success',
-//     data: {
-//         followRequest
-//     }
-// });
-
-res.redirect("/requests/allfollowers");
 });
 
 exports.getAllConnections = catchAsync(async (req, res, next) => {
-console.log("In all connections");
-const queryObj = {
-    status: 'accepted'
-};
+    console.log("In all connections");
+    const queryObj = {
+        status: 'accepted'
+    };
 
-let followers = false, following = false;
+    let followers = false, following = false;
 
-if(req.path === '/requests/followers') {
-    queryObj.requestReceiver = req.user.username;
-    followers = true;
-} else if(req.path === '/requests/following') {
-   queryObj.requestSender = req.user.username; 
-   following = true;
-} else {
-    return next(new AppError('Invalid URL, not supported', 400));
-}
-const queryUtils = new QueryUtils(
-    UserConnection.find(queryObj), req.query
-    ).filter().sort().limit().paginate();
-const connections = await queryUtils.query;
-// res.status(200).json({
-//     status: 'success',
-//     results: connections.length,
-//     data: {
-//         connections
-//     }
-// });
+    if(req.path === '/requests/followers') {
+        queryObj.requestReceiver = req.user.username;
+        followers = true;
+    } else if(req.path === '/requests/following') {
+    queryObj.requestSender = req.user.username; 
+    following = true;
+    } else {
+        return next(new AppError('Invalid URL, not supported', 400));
+    }
+    const queryUtils = new QueryUtils(
+        UserConnection.find(queryObj), req.query
+        ).filter().sort().limit().paginate();
+    const connections = await queryUtils.query;
+    // res.status(200).json({
+    //     status: 'success',
+    //     results: connections.length,
+    //     data: {
+    //         connections
+    //     }
+    // });
 
-res.render("request", {data: connections, followers: followers, following: following, title: 'United Nest | Requests'});
+    res.render("request", {data: connections, followers: followers, following: following, title: 'United Nest | Requests'});
 });
 
 exports.getAllFollowers = async (req, res) => {
-const followersAccepted = await UserConnection.find({$and: [{requestReceiver: req.user.username}, {status: "accepted"}]});
+    const followersAccepted = await UserConnection.find({$and: [{requestReceiver: req.user.username}, {status: "accepted"}]});
 
-const followersPending = await UserConnection.find({$and: [{requestReceiver: req.user.username}, {status: "pending"}]});
+    const followersPending = await UserConnection.find({$and: [{requestReceiver: req.user.username}, {status: "pending"}]});
 
-console.log("Followers accepted", followersAccepted);
+    console.log("Followers accepted", followersAccepted);
 
-console.log("Followers pending", followersPending);
+    console.log("Followers pending", followersPending);
 
-const acceptedUsers = [];
+    const acceptedUsers = [];
 
-for(let fa of followersAccepted) {
-    let user = {}; 
-    
-    user['username'] = fa['requestSender'];
-    let profilePhoto = await User.find({username: fa['requestSender']}, {_id: 0, profilePhoto: 1});
-    user['profilePhoto'] = profilePhoto[0]['profilePhoto'];
+    for(let fa of followersAccepted) {
+        let user = {}; 
+        
+        user['username'] = fa['requestSender'];
+        let profilePhoto = await User.find({username: fa['requestSender']}, {_id: 0, profilePhoto: 1});
+        user['profilePhoto'] = profilePhoto[0]['profilePhoto'];
 
-    if(user['profilePhoto'] === '') {
-        user['profilePhoto'] = '/img/user.png';
+        if(user['profilePhoto'] === '') {
+            user['profilePhoto'] = '/img/user.png';
+        }
+
+        acceptedUsers.push(user);
     }
 
-    acceptedUsers.push(user);
-}
+    const pendingUsers = [];
 
-const pendingUsers = [];
+    for(let fp of followersPending) {
+        let user = {}; 
 
-for(let fp of followersPending) {
-    let user = {}; 
+        user['username'] = fp['requestSender'];
+        let profilePhoto = await User.find({username: fp['requestSender']}, {_id: 0, profilePhoto: 1});
+        user['profilePhoto'] = profilePhoto[0]['profilePhoto'];
 
-    user['username'] = fp['requestSender'];
-    let profilePhoto = await User.find({username: fp['requestSender']}, {_id: 0, profilePhoto: 1});
-    user['profilePhoto'] = profilePhoto[0]['profilePhoto'];
+        if(user['profilePhoto'] === '') {
+            user['profilePhoto'] = '/img/user.png';
+        }
 
-    if(user['profilePhoto'] === '') {
-        user['profilePhoto'] = '/img/user.png';
+        pendingUsers.push(user);
     }
 
-    pendingUsers.push(user);
-}
+    console.log("Accepted Users: ", acceptedUsers);
+    console.log("Pending Users: ", pendingUsers);
 
-console.log("Accepted Users: ", acceptedUsers);
-console.log("Pending Users: ", pendingUsers);
-
-res.render("request", {accepted: acceptedUsers, pending: pendingUsers, followers: true, following: false, title: 'United Nest | Requests'});
+    res.render("request", {accepted: acceptedUsers, pending: pendingUsers, followers: true, following: false, title: 'United Nest | Requests'});
 }
 
 exports.getAllFollowing = async (req, res) => {

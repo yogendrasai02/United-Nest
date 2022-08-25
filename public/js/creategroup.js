@@ -1,5 +1,8 @@
+import { showToast } from './toasts.js';
+import { makeAPICall } from './make_api_call.js';
+import { endpoints } from './api_endpoints.js';
 const users = document.getElementsByClassName('users');
-const form = document.getElementById('form');
+const form = document.getElementById('createGroup');
 
 console.log(form);
 
@@ -19,6 +22,28 @@ for(let user of users) {
     })
 }
 
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let data = {};
+    console.log(e);
+
+    for(let i = 0; i < e['target'].length; i++) {
+        data[e['target'][i]['name']] = e['target'][i]['value']
+    }
+
+    // console.log(data);
+    makeAPICall(endpoints['createGroup']['url'], endpoints['createGroup']['method'], data)
+    .then((data) => {
+        if(data['message'] === 'success') {
+            window.location.href = '/chats';
+        } else {
+            showToast('fail', 'Group name already exists', 5);
+            // window.location.href = '/chats/createGroup';
+        }
+    });
+});
+
+// action='/chats/createGroup' method='POST'
 // form.addEventListener('submit', (e) => {
 //     e.preventDeafault();
 

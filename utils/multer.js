@@ -8,6 +8,7 @@ function fileStorage(type) {
     if(type == 'images') {
         obj = {
             folder: process.env.PHOTOS_FOLDER_NAME,
+            resource_type: "image"
         };
     } else {
         obj = {
@@ -18,15 +19,17 @@ function fileStorage(type) {
 
     const storage = new CloudinaryStorage({
         cloudinary: cloudinary,
-        params: async (req, file) => {
-            obj['public_id'] = file.fieldname + "-" + Date.now()
-            return obj;
-        },
+        // params: async (req, file) => {
+        //     obj['public_id'] = file.fieldname + "-" + Date.now()
+        //     console.log("Obj: ", obj);
+        //     return obj;
+        // },
     });
 
     let upload = multer({ 
         storage: storage,
         fileFilter: (req, file, cb) => {
+            console.log(file);
             let ext = path.extname(file.originalname);
             if(ext !== '.jpg' && ext !== '.jpeg' && ext !== '.png' && ext !== '.mp4' && ext !== '.mkv') {
                 cb(new Error('File type is not supported', false));

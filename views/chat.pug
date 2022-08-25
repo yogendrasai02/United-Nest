@@ -6,7 +6,7 @@ block append stylesheets
 block append scripts
   script(src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.11.0/qs.min.js" integrity="sha512-/l6vieC+YxaZywUhmqs++8uF9DeMvJE61ua5g+UK0TuHZ4TkTgB1Gm1n0NiA86uEOM9JJ6JUwyR0hboKO0fCng==" crossorigin="anonymous" referrerpolicy="no-referrer")
   script(src="/socket.io/socket.io.js")
-  script(src="/js/chat.js")
+  script(src="/js/chat.js", type="module")
 //-   <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.11.0/qs.min.js" integrity="sha512-/l6vieC+YxaZywUhmqs++8uF9DeMvJE61ua5g+UK0TuHZ4TkTgB1Gm1n0NiA86uEOM9JJ6JUwyR0hboKO0fCng==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
@@ -35,7 +35,7 @@ block rightcontent
   .flex-grow-0.py-3.px-4.border.border-bottom-0.border-start-0.border-end-0.inputmessage.rightBottom
     .input-group
       .form-floating.flex-grow-1
-        input#message.message.form-control(type='text' placeholder='Type your message' name='message')
+        input#message.message.form-control(type='text' placeholder='Type your message' name='message' required=true)
         label.form-label(for='message') Type your message
     button.btn.btn-outline.border.sendBtn 
       img(src="/img/arrow-right.png" width="20" height="20")  
