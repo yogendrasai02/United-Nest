@@ -7,7 +7,9 @@ const Chat = require("../models/chatModel");
 const Group = require("../models/groupModel");
 const Comment = require("../models/commentModel");
 const connectionController = require('./connectionController');
+const Reaction = require('../models/reactionModel');
 const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 
 // * Utility function for intersection of 2 arrays (assuming both have unique elements) *
 function set_intersect(a, b) {
@@ -90,9 +92,17 @@ exports.renderPostsPage = catchAsync(async (req, res, next) => {
 
     let posts = await Post.find({username: {$in: users}}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
 
-    posts.forEach(post => {
-        console.log(post);
-    });
+    let reactions = [];
+    for(let post of posts){
+        //fetch the current user's reaction for this post
+        let reaction = await Reaction.findOne({$and: [{user: req.user.id}, {reactedTo:'post'},{reactedToId:post.id}]})
+        if(reaction){
+            reactions.push({'reacted':true, 'type': reaction.reactionType, 'id':reaction.id})
+        }
+        else{
+            reactions.push({'reacted':false})
+        }
+    }
 
     // 2. get profile photos (as MAP)
     const userDocs = await User.find({
@@ -105,10 +115,13 @@ exports.renderPostsPage = catchAsync(async (req, res, next) => {
         profilePhotosMap.set(doc.username, doc.profilePhoto);
     });
 
+    
+
     res.render('posts', {
         title: 'United Nest | Posts',
         pagesCnt, posts, profilePhotosMap,
         currentPage: page,
+        reactions,
         sortBy
     });
 });
@@ -175,6 +188,37 @@ exports.renderSignupPage = (req, res, next) => {
         title: 'United Nest | SignUp'
     })
 }
+
+exports.renderSignupCheckoutPage = (req, res, next) => {
+    res.render('signupCheckout', {
+        title: 'Sign Up Checkout | United Nest'
+    });
+};
+
+exports.renderVerificationPage = catchAsync(async (req, res, next) => {
+    // get verification token
+    const { verificationToken } = req.params;
+    const hashedToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
+    // get user based on hashed reset token
+    const user = await User.findOne({ 
+        verificationToken: hashedToken,
+        verificationTokenExpiresAt: {
+            $gt: new Date()
+        }
+    });
+    console.log(user.verificationTokenExpiresAt);
+    console.log(new Date());
+    console.log(verificationToken);
+    console.log(hashedToken);
+    if(!user) {
+        return next(new AppError('Invalid Verification Token or Verification Token has expired', 400));
+    }
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiresAt = undefined;
+    await user.save({ validateBeforeSave: false });
+    res.redirect('/login');
+});
 
 exports.renderForgotPassPage = (req, res, next)=> {
     res.render('forgot_password', {

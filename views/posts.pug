@@ -35,6 +35,7 @@ block content
                     i(class="ph-plus-circle icon-3 me-2")
                     span.fs-4 Add New Post
     .container.mt-4#posts-container
+        - let idx = 0
         each post in posts
             .post.bg-white.w-75.p-3.pt-0.mb-4.ms-auto.me-auto(id=`${post._id}`)
                 .postHeader
@@ -93,7 +94,7 @@ block content
                             button.btn.btn-info.reactions.me-3.dropdown-toggle(type='button', data-bs-toggle='dropdown', aria-expanded='false')
                                 i(class="las la-thumbs-up icon-3 me-2")
                                 span.fs-4 Reactions
-                            ul.dropdown-menu.reactionsOptions
+                            ul#reactions.dropdown-menu.reactionsOptions
                                 -
                                     const iconsMap = new Map();
                                     iconsMap.set('likes', 'las la-thumbs-up')
@@ -103,23 +104,103 @@ block content
                                     iconsMap.set('angry', 'lar la-angry')
                                     iconsMap.set('wow', 'lar la-surprise')
                                     iconsMap.set('sad', 'las la-frown')
+                                
                                 - for(const [key, value] of post.reactionsCnt)
                                     - if(key != 'comments')
-                                        li.dropdown-item.mt-1
+                                        if reactions[idx].reacted && reactions[idx].type == key
+                                            li.dropdown-item.mt-1.selected(id=key, onclick=`javascript:sendRequest('${post.id}','${key}',true,${reactions[idx].reacted},'${reactions[idx].id}');`)
+                                                span.d-flex.align-items-center
+                                                    i(class=`${iconsMap.get(key)} icon-3 me-2`, onclick=`javascript:sendRequest('${post.id}','${key}',true,${reactions[idx].reacted},'${reactions[idx].id}');`)
+                                                    | #{key}
+                                                span(class='badge rounded-pill text-bg-primary me-2')= value
+                                        else 
+                                            li.dropdown-item.mt-1(id=key, onclick=`javascript:sendRequest('${post.id}','${key}',false,${reactions[idx].reacted},'${reactions[idx].id}');`)
                                             span.d-flex.align-items-center
-                                                i(class=`${iconsMap.get(key)} icon-3 me-2`)
+                                                i(class=`${iconsMap.get(key)} icon-3 me-2`, onclick=`javascript:sendRequest('${post.id}','${key}',false,${reactions[idx].reacted},'${reactions[idx].id}');`)
                                                 | #{key}
                                             span(class='badge rounded-pill text-bg-primary me-2')= value
                                     - if(key == 'comments')
                                         - noOfComments = value
-                        button.btn.btn-info.comments(data-postid=`${post._id}`)
+                        button.btn.btn-info#comments(data-postid=`${post._id}`)
                             i(class="las la-comment icon-3 me-2")
                             span.fs-4= noOfComments+' Comments'
+    
+            - idx = idx + 1      
     .container.mt-4.mb-4.d-flex.justify-content-between.align-items-center#posts-pagination-controls
         button.btn.btn-success#prevPage
             i(class="ph-arrow-circle-left icon-3 me-3")
             span.fs-4 Previous Page
+        - if(pagesCnt === 0) { currentPage = 0; }
         .fs-4#pageIndicator(data-currentpage=currentPage, data-pagescnt=pagesCnt) Page #{currentPage} / #{pagesCnt}
         button.btn.btn-success#nextPage
             span.fs-4 Next Page
             i(class="ph-arrow-circle-right icon-3 ms-3")
+
+        script.
+            const makeAPICall = async function(endpoint, method, data, multipartForm = false) {
+                const fetchOptions = { method };
+                if(method === 'POST' || method === 'PATCH') {
+                    fetchOptions.body = data;
+                    if(!multipartForm) {
+                        fetchOptions.body = JSON.stringify(fetchOptions.body);
+                        fetchOptions.headers = {
+                            'Content-Type': 'application/json'
+                        };
+                    }
+                }
+                console.log(`About to make API call to ${method}: ${endpoint}`);
+                try {
+                    const res = await fetch(endpoint, fetchOptions);
+                    const responseData = await res.json();
+                    console.log('Received Response from API');
+                    console.log(responseData);
+                    return responseData;
+                } catch (err) {
+                    console.log('Error while making API Call');
+                    console.log(err);
+                    return err;
+                }
+            };
+            async function sendRequest(id,type,selected,reacted,reactionId){
+                console.log('I have been called')
+                if(selected){
+                    console.log('i have been selected')
+                //we need to delete the current reaction
+                    let url = `http://localhost:4000/api/v1/posts/${id}/reactions/${reactionId}`;
+                    let method = 'DELETE'
+                    const response = await makeAPICall(url,method)
+                    if(response.status && response.status === 'success'){
+                        //showToast('success', 'Reaction deleted....', 5);
+                        location.reload();
+                    } 
+                    else {
+                        alert(response.message);
+                    }
+                }
+                else if(reacted){
+                //we need to modify the reaction, we need the id
+                    let url = `http://localhost:4000/api/v1/posts/${id}/reactions/${reactionId}?type=${type}`;
+                    let method = 'PATCH'
+                    const response = await makeAPICall(url,method)
+                    if(response.status && response.status === 'success'){
+                        //showToast('success', 'Reaction updated....', 5);
+                        location.reload();
+                    } 
+                    else {
+                        alert(response.message);
+                    }
+                }
+                else{
+                //we need to make a new reaction
+                    let url = `http://localhost:4000/api/v1/posts/${id}/reactions?type=${type}`;
+                    let method = 'POST'
+                    const response = await makeAPICall(url,method)
+                    if(response.status && response.status === 'success'){
+                        //showToast('success', 'Reaction deleted....', 5);
+                        location.reload();
+                    } 
+                    else {
+                        alert(response.message);
+                    }
+                }
+            }

@@ -74,7 +74,11 @@ exports.isLoggedIn = catchAsync(async (req, res, next) => {
         // 2. verify token: this might lead to TokenExpiredError|JsonWebTokenError
         const decodedToken = await util.promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
         // 3. get user from decoded token
-        const user = await User.findById(decodedToken.id);
+        // const user = await User.findById(decodedToken.id);
+        const user = await User.findOne({
+            _id: decodedToken.id,
+            isVerified: true
+        });
         // 4. check if user still exists (not deleted after JWT issual)
         if(!user) {
             next();
@@ -114,15 +118,26 @@ exports.signup = catchAsync(async (req, res, next) => {
     const payload = { name, username, email, mobile, password, passwordConfirm };
     // 2. save user to DB (runs validators, hashed pwd)
     const createdUser = await User.create(payload);
-    // 3. create JWT
-    const token = createToken(createdUser['_id'], res);
-    // 4. send response
-    console.log(`Exiting SignUp Route Handler🟡`);
+    const user = await User.findOne({ username: createdUser.username });
+    const verificationToken = user.getVerificationToken();
+    await user.save({ validateBeforeSave: false });
+    // user has to verify with email to login
+    const verificationLink = `${req.protocol}://${req.get('host')}/verify-account/${verificationToken}`;
+    await (new Email()).sendAccountVerificationEmail(createdUser.email, 'Verify your Account', verificationLink);
     res.status(201).json({
         status: 'success',
-        authToken: token,
-        data: { createdUser }   // FIXME: this document has password: null, try to remove that
+        message: 'Success. Account must now be verified to access the application.',
+        redirectURL: '/signup-checkout'
     });
+    // // 3. create JWT
+    // const token = createToken(createdUser['_id'], res);
+    // // 4. send response
+    // console.log(`Exiting SignUp Route Handler🟡`);
+    // res.status(201).json({
+    //     status: 'success',
+    //     authToken: token,
+    //     data: { createdUser }   // FIXME: this document has password: null, try to remove that
+    // });
 });
 
 // ** Route handler for /login route **
@@ -151,6 +166,7 @@ exports.login = catchAsync(async (req, res, next) => {
         return next(new AppError('Please provide the password'), 400);
     }
     // 2. find user by searchQuery built
+    searchQueryObj.isVerified = true;
     const user = await User.findOne(searchQueryObj).select('+password');
     if(!user) {
         return next(new AppError('User with given credentials not found', 401));
@@ -196,12 +212,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
         const subject = 'Reset Password for your United Nest account';
         // FIXME: this resetPwdURL should be handled at frontend?
         // TODO: Refactor this sending email thing into methods of Email class itself (ex: sendPwdResetMail())
-        const resetPasswordURL = `${req.protocol}://${req.hostname}:${process.env.PORT}/api/v1/auth/resetPassword/${passwordResetToken}`;
-        const emailText = `Hello ${user.name}, you have initiated a request to reset your password.\n` + 
-                        `Please use the following link to reset your password:\n${resetPasswordURL}\n` +
-                        `This link is valid for 10 minutes and will expire by ` +
-                        user.passwordResetTokenExpiresAt.toString();
-        await (new Email()).sendEmail(user.email, subject, emailText);
+        // const resetPasswordURL = `${req.protocol}://${req.hostname}:${process.env.PORT}/api/v1/auth/resetPassword/${passwordResetToken}`;
+        // const emailText = `Hello ${user.name}, you have initiated a request to reset your password.\n` + 
+        //                 `Please use the following link to reset your password:\n${resetPasswordURL}\n` +
+        //                 `This link is valid for 10 minutes and will expire by ` +
+        //                 user.passwordResetTokenExpiresAt.toString();
+        // await (new Email()).sendEmail(user.email, subject, emailText);
+        const resetPwdURL = `${req.protocol}://${req.get('host')}/resetPassword/${passwordResetToken}`;
+        await (new Email()).sendResetPasswordEmail(user.email, 'Reset Password request', resetPwdURL);
         console.log('Exiting Forgot Password Route Handler🟡');
     }
     res.status(200).json({
@@ -218,7 +236,10 @@ exports.resetPassword = catchAsync(async(req, res, next) => {
     const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
     // get user based on hashed reset token
     const user = await User.findOne({ 
-        passwordResetToken: hashedResetToken
+        passwordResetToken: hashedResetToken,
+        passwordResetTokenExpiresAt: {
+            $gt: new Date()
+        }
     });
     if(!user) {
         return next(new AppError('Invalid Reset Token or Reset Token has expired', 400));

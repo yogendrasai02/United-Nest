@@ -76,6 +76,16 @@ const userSchema = new mongoose.Schema({
     },
     passwordResetTokenExpiresAt: {
         type: Date
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationToken: {
+        type: String
+    }, 
+    verificationTokenExpiresAt: {
+        type: Date
     }
 }, {    // This option adds createdAt, updatedAt fields which are handled automatically
     timestamps: true,
@@ -125,9 +135,20 @@ userSchema.methods.getPasswordResetToken = function() {
     const passwordResetToken = crypto.randomBytes(32).toString('hex');
     const hashedToken = crypto.createHash('sha256').update(passwordResetToken).digest('hex');
     this.passwordResetToken = hashedToken;
-    this.passwordResetTokenExpiresAt = Date.now() + 10 * 60 * 1000;
+    this.passwordResetTokenExpiresAt = new Date (Date.now() + 10 * 60 * 1000);
     return passwordResetToken;
 }
+
+userSchema.methods.getVerificationToken = function() {
+    const token = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    this.verificationToken = hashedToken;
+    this.verificationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 1000);
+    console.log('token:', token);
+    console.log('hashedToken:', hashedToken);
+    console.log('expires:', this.verificationTokenExpiresAt);
+    return token;
+};
 
 // *** MIDDLEWARES ***
 
