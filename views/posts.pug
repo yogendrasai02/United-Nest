@@ -2,12 +2,12 @@ extends index
 
 block append stylesheets
     link(rel='stylesheet', href='/css/posts_styles.css')
-    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css')
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.css' crossorigin='anonymous')
 
 block append headScripts
-    script(src='https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js')
-    script(src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js")
-    script(src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js")
+    script(src='https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js' crossorigin='anonymous')
+    script(src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js" crossorigin='anonymous')
+    script(src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js" crossorigin='anonymous')
 
 block append scripts
     script(type='module', src='/js/posts.js')
@@ -97,8 +97,8 @@ block content
                             ul#reactions.dropdown-menu.reactionsOptions
                                 -
                                     const iconsMap = new Map();
-                                    iconsMap.set('likes', 'las la-thumbs-up')
-                                    iconsMap.set('dislikes', 'las la-thumbs-down')
+                                    iconsMap.set('like', 'las la-thumbs-up')
+                                    iconsMap.set('dislike', 'las la-thumbs-down')
                                     iconsMap.set('love', 'ph-heart')
                                     iconsMap.set('funny', 'las la-laugh-squint')
                                     iconsMap.set('angry', 'lar la-angry')
@@ -107,6 +107,7 @@ block content
                                 
                                 - for(const [key, value] of post.reactionsCnt)
                                     - if(key != 'comments')
+                                        - console.log("Reactions Idx: ", reactions[idx]);
                                         if reactions[idx].reacted && reactions[idx].type == key
                                             li.dropdown-item.mt-1.selected(id=key, onclick=`javascript:sendRequest('${post.id}','${key}',true,${reactions[idx].reacted},'${reactions[idx].id}');`)
                                                 span.d-flex.align-items-center
@@ -115,10 +116,10 @@ block content
                                                 span(class='badge rounded-pill text-bg-primary me-2')= value
                                         else 
                                             li.dropdown-item.mt-1(id=key, onclick=`javascript:sendRequest('${post.id}','${key}',false,${reactions[idx].reacted},'${reactions[idx].id}');`)
-                                              span.d-flex.align-items-center
-                                                i(class=`${iconsMap.get(key)} icon-3 me-2`, onclick=`javascript:sendRequest('${post.id}','${key}',false,${reactions[idx].reacted},'${reactions[idx].id}');`)
-                                                | #{key}
-                                              span(class='badge rounded-pill text-bg-primary me-2')= value
+                                                span.d-flex.align-items-center
+                                                    i(class=`${iconsMap.get(key)} icon-3 me-2`, onclick=`javascript:sendRequest('${post.id}','${key}',false,${reactions[idx].reacted},'${reactions[idx].id}');`)
+                                                    | #{key}
+                                                span(class='badge rounded-pill text-bg-primary me-2')= value
                                     - if(key == 'comments')
                                         - noOfComments = value
                         button.btn.btn-info.comments(data-postid=`${post._id}`)
@@ -166,7 +167,8 @@ block content
                 if(selected){
                     console.log('i have been selected')
                 //we need to delete the current reaction
-                    let url = `http://localhost:4000/api/v1/posts/${id}/reactions/${reactionId}`;
+                    let url = `/api/v1/posts/${id}/reactions/${reactionId}`;
+                    //- let url = `http://localhost:4000/api/v1/posts/${id}/reactions/${reactionId}`;
                     let method = 'DELETE'
                     const response = await makeAPICall(url,method)
                     if(response.status && response.status === 'success'){
@@ -179,7 +181,8 @@ block content
                 }
                 else if(reacted){
                 //we need to modify the reaction, we need the id
-                    let url = `http://localhost:4000/api/v1/posts/${id}/reactions/${reactionId}?type=${type}`;
+                    let url = `/api/v1/posts/${id}/reactions/${reactionId}?type=${type}`;
+                    //- let url = `http://localhost:4000/api/v1/posts/${id}/reactions/${reactionId}?type=${type}`;
                     let method = 'PATCH'
                     const response = await makeAPICall(url,method)
                     if(response.status && response.status === 'success'){
@@ -192,7 +195,8 @@ block content
                 }
                 else{
                 //we need to make a new reaction
-                    let url = `http://localhost:4000/api/v1/posts/${id}/reactions?type=${type}`;
+                    let url = `/api/v1/posts/${id}/reactions?type=${type}`;
+                    //- let url = `http://localhost:4000/api/v1/posts/${id}/reactions?type=${type}`;
                     let method = 'POST'
                     const response = await makeAPICall(url,method)
                     if(response.status && response.status === 'success'){

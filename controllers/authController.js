@@ -21,6 +21,7 @@ const createToken = (id, res) => {
     res.cookie(
         'authToken', token, {
             httpOnly: true,
+            secure: (process.env.NODE_ENV === 'production'),
             maxAge: process.env.JWT_EXPIRES_IN_MILLISECONDS
         }
     );
@@ -59,7 +60,7 @@ exports.authenticate = catchAsync(async (req, res, next) => {
     // console.log(user);
     // 7. add user to res.locals so that user document is accessible in PUG file
     res.locals.user = user;
-    next();
+    return next();
 });
 
 // ** This middleware is required in the views, to redirect user if he is already logged in **
@@ -68,7 +69,7 @@ exports.isLoggedIn = catchAsync(async (req, res, next) => {
         // 1. check if token exists & get token -> from cookie
         const tokenInCookie = req.cookies.authToken;
         if(!tokenInCookie) {
-            next();
+            return next();
         }
         const token = req.cookies.authToken;
         // 2. verify token: this might lead to TokenExpiredError|JsonWebTokenError
@@ -81,20 +82,20 @@ exports.isLoggedIn = catchAsync(async (req, res, next) => {
         });
         // 4. check if user still exists (not deleted after JWT issual)
         if(!user) {
-            next();
+            return next();
         }
         // 5. check if user changed password after JWT issual
         // TODO: test this thing once update/reset password are implemented
         if(user.passwordChangedAfter(decodedToken.iat)) {
-            next();
+            return next();
         }
         // 6. if everything is ok, add userDocument res.locals -> 'user' obj in PUG template
         res.locals.user = user;
-        res.redirect('/posts');
+        return res.redirect('/posts');
     } catch(err) {
         // DO NOTHING, user is not logged in, so just call next()
     }
-    next();
+    return next();
 });
 
 // ** Function to Restrict Routes based on user permission. It RETURNS a middleware **
@@ -106,7 +107,7 @@ exports.authorize = (...permittedRoles) => {
         if(!permittedRoles.includes(req.user.role)) {
             return next(new AppError('You are not allowed to perform this action', 403));
         }
-        next();
+        return next();
     };
 };
 
@@ -124,7 +125,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     // user has to verify with email to login
     const verificationLink = `${req.protocol}://${req.get('host')}/verify-account/${verificationToken}`;
     await (new Email()).sendAccountVerificationEmail(createdUser.email, 'Verify your Account', verificationLink);
-    res.status(201).json({
+    return res.status(201).json({
         status: 'success',
         message: 'Success. Account must now be verified to access the application.',
         redirectURL: '/signup-checkout'
@@ -133,7 +134,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     // const token = createToken(createdUser['_id'], res);
     // // 4. send response
     // console.log(`Exiting SignUp Route Handler🟡`);
-    // res.status(201).json({
+    // return res.status(201).json({
     //     status: 'success',
     //     authToken: token,
     //     data: { createdUser }   // FIXME: this document has password: null, try to remove that
@@ -179,7 +180,7 @@ exports.login = catchAsync(async (req, res, next) => {
     // 4. create & send JWT
     const token = createToken(user.id, res);
     console.log('Exiting Login Route Handler🟡');
-    res.status(200).json({
+    return res.status(200).json({
         status: 'success',
         authToken: token
     });
@@ -188,9 +189,10 @@ exports.login = catchAsync(async (req, res, next) => {
 // ** To Logout a user (Only for Frontend purpose) **
 exports.logout = (req, res, next) => {
     res.clearCookie('authToken', {
-        httpOnly: true
+        httpOnly: true,
+        secure: (process.env.NODE_ENV === 'production')
     });   // options must be same as set in res.cookie() excluding maxAge|expiresIn
-    res.redirect('/');
+    return res.redirect('/');
 };
 
 // ** Route Handler for /forgotPassword **
@@ -222,7 +224,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
         await (new Email()).sendResetPasswordEmail(user.email, 'Reset Password request', resetPwdURL);
         console.log('Exiting Forgot Password Route Handler🟡');
     }
-    res.status(200).json({
+    return res.status(200).json({
         status: 'success',
         message: 'If an user exists with that email, the Password Reset instructions will be sent to that email'
     });
@@ -250,7 +252,7 @@ exports.resetPassword = catchAsync(async(req, res, next) => {
     user['passwordConfirm'] = passwordConfirm;
     await user.save();
     console.log('Exiting Reset Password Route Handler🟡');
-    res.status(200).json({
+    return res.status(200).json({
         status: 'success',
         message: 'Password reset successful. Please login to continue'
     });

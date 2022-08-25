@@ -4,7 +4,8 @@ import {endpoints} from './api_endpoints.js';
 const form1 = document.getElementById('form1');
 const form2 = document.getElementById('form2');
 
-const baseURL = 'http://localhost:4000';
+// const baseURL = 'http://localhost:4000';
+const baseURL = '';
 // let username = document.getElementById('username').innerHTML;
 
 // console.log(username);

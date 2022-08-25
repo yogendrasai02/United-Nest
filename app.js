@@ -9,6 +9,10 @@ const morgan = require("morgan");
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
 const socketio = require("socket.io");
+const rateLimiter = require('express-rate-limit');
+const helmet = require('helmet');
+const xssClean = require('xss-clean');
+const expressMongoSanitize = require('express-mongo-sanitize');
 
 // ** Import our OWN modules **
 const AppError = require("./utils/AppError");
@@ -49,6 +53,7 @@ app.use(
   })
 );
 
+
 // ** Serve static files from 'public' folder **
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -62,7 +67,23 @@ app.use(cookieParser());
 
 app.use(express.urlencoded({
     extended: true
-}))
+}));
+
+// Limit API requests
+app.use('/api', rateLimiter({
+  windowMs: 60 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests from this IP, please try again after an hour',
+}));
+
+// Set HTTP Security Headers
+// app.use(helmet());
+
+// XSS
+app.use(xssClean());
+
+// Sanitize input
+app.use(expressMongoSanitize());
 
 const twilioClient = require('twilio')(
   process.env.TWILIO_API_KEY_SID,
@@ -96,7 +117,8 @@ const initSocket = async (req, res, next) => {
                 if(userdata['profilePhoto'] === '') {
                     userdata['profilePhoto'] = '/img/user.png';
                 }
-                socket.emit('message', {username: dataFromDb[i].fromUsername, message: dataFromDb[i].message, dateAndTime: new Date(dataFromDb[i].dateAndTime).getHours() + ':' + new Date(dataFromDb[i].dateAndTime).getMinutes(), profilePhoto: userdata['profilePhoto']});
+                socket.emit('message', {username: dataFromDb[i].fromUsername, message: dataFromDb[i].message, dateAndTime: dataFromDb[i].dateAndTime, profilePhoto: userdata['profilePhoto']});
+                // new Date(dataFromDb[i].dateAndTime).getHours() + ':' + new Date(dataFromDb[i].dateAndTime).getMinutes()
             }
         });
 
@@ -110,7 +132,8 @@ const initSocket = async (req, res, next) => {
             if(userdata['profilePhoto'] === '') {
                 userdata['profilePhoto'] = '/img/user.png';
             }
-            io.to(data.roomId).emit('message', {username: data.username1, message: data.msg, dateAndTime: new Date(data.dateAndTime).getHours() + ':' + new Date(data.dateAndTime).getMinutes(), profilePhoto: userdata['profilePhoto']});
+            io.to(data.roomId).emit('message', {username: data.username1, message: data.msg, dateAndTime: data.dateAndTime, profilePhoto: userdata['profilePhoto']});
+            // data.dateAndTime).getHours() + ':' + new Date(data.dateAndTime).getMinutes()
         })
         
     });
@@ -138,7 +161,7 @@ app.use(
   "/api/v1/video-call",
   (req, res, next) => {
     req.twilioClient = twilioClient;
-    next();
+    return next();
   },
   videoCallRouter
 );
@@ -151,7 +174,7 @@ app.use("/", viewRouter);
 // ** Unhandled Routes **
 app.all("*", (req, res, next) => {
   const err = new AppError("Specified Resource|Path does not exist", 404);
-  next(err);
+  return next(err);
 });
 
 // ** Use the Global Error Handler (add to middleware stack) **

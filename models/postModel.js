@@ -21,7 +21,7 @@ const postSchema = new mongoose.Schema({
     reactionsCnt: {
         type: Map,
         of: Number,
-        default: {'likes': 0, 'dislikes': 0, 'love': 0, 'funny': 0, 'angry': 0, 'wow': 0, 'sad': 0, 'comments': 0}
+        default: {'like': 0, 'dislike': 0, 'love': 0, 'funny': 0, 'angry': 0, 'wow': 0, 'sad': 0, 'comments': 0}
     },
     hashTags: {
         type: [String],

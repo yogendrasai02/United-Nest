@@ -4,7 +4,7 @@ block append stylesheets
     link(rel='stylesheet', href='/css/video_call_styles.css')
 
 block append headScripts
-    script(src='//sdk.twilio.com/js/video/releases/2.24.0/twilio-video.min.js')
+    script(src='//sdk.twilio.com/js/video/releases/2.24.0/twilio-video.min.js' crossorigin='anonymous')
 
 block append scripts
     script(src='/js/video_call.js' type='module')

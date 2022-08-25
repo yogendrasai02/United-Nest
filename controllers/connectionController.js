@@ -60,7 +60,7 @@ exports.getAllFriends = catchAsync(async (req, res, next) => {
             profilePhoto: el.profilePhoto
         });
     });
-    res.status(200).json({
+    return res.status(200).json({
         status: 'success',
         data: {
             friends
@@ -82,7 +82,7 @@ exports.getPendingFollowRequests = catchAsync(async (req, res, next) => {
         UserConnection.find(initialFilter), req.query
         ).filter().sort('-requestSentTime').limit().paginate();
     const followRequests = await queryUtils.query;
-    res.status(200).json({
+    return res.status(200).json({
         status: 'success',
         results: followRequests.length,
         data: {
@@ -103,7 +103,7 @@ exports.sendFollowRequest = catchAsync(async (req, res, next) => {
         requestSender: req.user.username,
         requestReceiver: intendedUser.username
     });
-    res.status(201).json({
+    return res.status(201).json({
         status: 'success',
         data: {
             sentRequest
@@ -134,11 +134,10 @@ exports.actOnFollowRequest = catchAsync(async (req, res, next) => {
     }
     if(action === 'reject') {
         await UserConnection.deleteOne({ _id: followRequest['_id'] });
-        res.status(204).json({
+        return res.status(204).json({
             status: 'success',
             data: null
         });
-        return;
     }
     followRequest.status = 'accepted';
 
@@ -169,7 +168,7 @@ exports.actOnFollowRequest = catchAsync(async (req, res, next) => {
 
     followRequest.requestAcceptedTime = Date.now();
     followRequest = await followRequest.save();
-    res.status(200).json({
+    return res.status(200).json({
         status: 'success',
         data: {
             followRequest
@@ -192,7 +191,7 @@ exports.getAllConnections = catchAsync(async (req, res, next) => {
         UserConnection.find(queryObj), req.query
         ).filter().sort().limit().paginate();
     const connections = await queryUtils.query;
-    res.status(200).json({
+    return res.status(200).json({
         status: 'success',
         results: connections.length,
         data: {
@@ -219,7 +218,7 @@ exports.unfollowUser = catchAsync(async(req, res, next) => {
     if(result.deletedCount == 0) {
         return next(new AppError('Specified user doesnt exists or you are not following that user', 400));
     }
-    res.status(204).json({
+    return res.status(204).json({
         status: 'success',
         data: null
     });

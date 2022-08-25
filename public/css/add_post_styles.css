@@ -30,3 +30,9 @@ textarea.large {
 .spinner-grow {
     z-index: 99999;
 }
+
+.postBtn {
+    color: black;
+    border-radius: 8px!important;
+    border: 1px solid black!important;
+}

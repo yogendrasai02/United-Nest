@@ -102,7 +102,7 @@ module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
 
     console.log("data is: ", data);
 
-    res.status(200).json({
+    return res.status(200).json({
         status: 'success',
         pagesCnt: pagesCnt,
         results: data.length,
@@ -114,7 +114,7 @@ module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
     } else if(type === "user") {
         const users = await User.find({name: {$regex: searchValue, $options: 'i'}});
 
-        res.send({users: users});
+        return res.send({users: users});
     } else {
         return next(new AppError("Type is not coorect", 400));
     }

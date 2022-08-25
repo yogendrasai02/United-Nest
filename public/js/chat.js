@@ -1,6 +1,5 @@
 const socket = io();
 import { showToast } from './toasts.js';
-
 //GET 2 usernames from URL 
 console.log(location.search);
 const url = location.href;
@@ -32,7 +31,7 @@ function sendMessage() {
     }
     message.value = '';
     message.focus();
-    data = {msg, roomId, username1, username2, dateAndTime: new Date()};
+    let data = {msg, roomId, username1, username2, dateAndTime: new Date()};
     console.log("MEssage is: ", msg);
     socket.emit('chatMessage', data);
 }
@@ -102,7 +101,8 @@ function outputMessage(message) {
 
     let div2 = document.createElement("div");
     div2.classList.add('text-muted', 'small', 'text-nowrap', 'mt-2');
-    div2.innerHTML = message.dateAndTime;
+    console.log(message.dateAndTime);
+    div2.innerHTML = moment(message.dateAndTime).format('HH:mm');
 
     let inner_div_1 = document.createElement("div");
 

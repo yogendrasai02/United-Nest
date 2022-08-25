@@ -22,7 +22,7 @@ const globalErrorHandler = (err, req, res, next) => {
         err = handleJWTTokenExpiredError(err);
     if(err.name === 'JsonWebTokenError')
         err = handleJWTJsonWebTokenError(err);
-    res.status(err.statusCode).json({
+    return res.status(err.statusCode).json({
         status: err.status,
         message: err.message
     });

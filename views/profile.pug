@@ -19,11 +19,13 @@ block content
                     p  
                         a(href='#') @#{user.username}
                     p.contacts 
-                        i.ph-envelope 
-                        span &nbsp#{user.email} 
-                        span &nbsp;|&nbsp;
-                        i.ph-phone 
-                        span &nbsp;#{user.mobile}
+                        div
+                          i.ph-envelope 
+                          span &nbsp#{user.email} 
+                        //- span &nbsp;|&nbsp;
+                        div
+                          i.ph-phone 
+                          span &nbsp;#{user.mobile}
                 .description 
                     p 
                         i #{user.description}
@@ -31,7 +33,8 @@ block content
                 hr
                 .update
                     button 
-                        a(href='http://localhost:4000/update') Update Profile
+                        a(href='/update') Update Profile
+                        //- a(href='http://localhost:4000/update') Update Profile
             .right
                 div
                     h3 #{postsCount}
