@@ -69,13 +69,13 @@ app.use(express.urlencoded({
 }));
 
 // Limit API requests
-app.use('/api', rateLimiter({
-  windowMs: 60 * 60 * 1000,
-  max: 100,
-  message: 'Too many requests from this IP, please try again after an hour',
-  standardHeaders: true,
-  legacyHeaders: false
-}));
+// app.use('/api', rateLimiter({
+//   windowMs: 60 * 60 * 1000,
+//   max: 100,
+//   message: 'Too many requests from this IP, please try again after an hour',
+//   standardHeaders: true,
+//   legacyHeaders: false
+// }));
 
 // Set HTTP Security Headers
 // app.use(helmet());
