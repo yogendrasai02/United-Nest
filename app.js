@@ -53,6 +53,7 @@ app.use(
   })
 );
 
+
 // ** Serve static files from 'public' folder **
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -69,22 +70,20 @@ app.use(express.urlencoded({
 }));
 
 // Limit API requests
-// app.use('/api', rateLimiter({
-//   windowMs: 60 * 60 * 1000,
-//   max: 100,
-//   message: 'Too many requests from this IP, please try again after an hour',
-//   standardHeaders: true,
-//   legacyHeaders: false
-// }));
+app.use('/api', rateLimiter({
+  windowMs: 60 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests from this IP, please try again after an hour',
+}));
 
 // Set HTTP Security Headers
 // app.use(helmet());
 
 // XSS
-// app.use(xssClean());
+app.use(xssClean());
 
 // Sanitize input
-// app.use(expressMongoSanitize());
+app.use(expressMongoSanitize());
 
 const twilioClient = require('twilio')(
   process.env.TWILIO_API_KEY_SID,
@@ -160,7 +159,7 @@ app.use(
   "/api/v1/video-call",
   (req, res, next) => {
     req.twilioClient = twilioClient;
-    next();
+    return next();
   },
   videoCallRouter
 );
@@ -173,7 +172,7 @@ app.use("/", viewRouter);
 // ** Unhandled Routes **
 app.all("*", (req, res, next) => {
   const err = new AppError("Specified Resource|Path does not exist", 404);
-  next(err);
+  return next(err);
 });
 
 // ** Use the Global Error Handler (add to middleware stack) **

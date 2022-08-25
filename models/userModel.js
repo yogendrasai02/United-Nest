@@ -163,7 +163,7 @@ userSchema.pre('save', async function(next) {
         this.passwordResetToken = undefined;
         this.passwordResetTokenExpiresAt = undefined;
     }
-    next();
+    return next();
 });
 
 // ** Post Save middleware to remove fields which SHOULD NOT be sent to client **

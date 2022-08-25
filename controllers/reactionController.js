@@ -35,7 +35,7 @@ exports.getReactions = catchAsync(
 
         if(commentId){
             let reactions = await Reaction.find({$and: [{reactedTo: 'comment'}, {reactedToId: commentId}]}).skip((page - 1) * limit).limit(limit);
-            res.status(200).json({
+            return res.status(200).json({
                 status: 'success',
                 data: {
                     reactions,
@@ -45,7 +45,7 @@ exports.getReactions = catchAsync(
         }
         else{
             let reactions = await Reaction.find({$and: [{reactedTo: 'post'}, {reactedToId: postId}]}).skip((page - 1) * limit).limit(limit);
-            res.status(200).json({
+            return res.status(200).json({
                 status: 'success',
                 data : {
                     reactions,
@@ -87,7 +87,7 @@ exports.postReaction = catchAsync(
             payload.user = req.user.id;
             const reaction = await Reaction.create(payload);
             
-            res.status(200).json({
+            return res.status(200).json({
                 status: 'success',
                 data: {
                     reaction
@@ -102,7 +102,7 @@ exports.postReaction = catchAsync(
             payload.user = req.user.id;
             const reaction = await Reaction.create(payload);
 
-            res.status(200).json({
+            return res.status(200).json({
                 status: 'success',
                 data: {
                     reaction
@@ -139,7 +139,7 @@ exports.updateReaction = catchAsync(
         }
         
         let reaction = await Reaction.findByIdAndUpdate(reactionId, {$set: {reactionType: type}});
-        res.status(201).json({
+        return res.status(201).json({
             status: 'success',
             data: {
                 reaction
@@ -169,7 +169,7 @@ exports.deleteReaction = catchAsync(
         }
         try{
             await Reaction.findByIdAndDelete(reactionId);
-            res.status(201).json({
+            return res.status(201).json({
                 status: 'success',
                 message: 'Deleted the reaction successfully'
             });

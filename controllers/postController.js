@@ -54,7 +54,7 @@ module.exports.getPosts = catchAsync(async (req, res, next) => {
 
     console.log("data is: ", data);
 
-    res.status(200).json({
+    return res.status(200).json({
         status: 'success',
         pagesCnt: pagesCnt,
         results: data.length,
@@ -75,7 +75,7 @@ module.exports.getPostsById = catchAsync(async (req, res, next) => {
 
     responseObj = {message: "success", post:"post"};
 
-    res.send(responseObj);
+    return res.send(responseObj);
 });
 
 module.exports.createPostsText = catchAsync(async (req, res, next) => {
@@ -98,7 +98,7 @@ module.exports.createPostsText = catchAsync(async (req, res, next) => {
 
     let suc = await postData.save();
 
-    res.status(201).json({
+    return res.status(201).json({
         status: 'success',
         message: "Post added successfully"
     });
@@ -123,7 +123,7 @@ module.exports.createPostsImages = catchAsync(async (req, res, next) => {
 
         let suc = await postData.save();
 
-        res.status(201).json({ status: 'success', message: "Post containing image is added successfully"});
+        return res.status(201).json({ status: 'success', message: "Post containing image is added successfully"});
     } else {
         let {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
         hashTags = hashTags.split(' ');
@@ -132,7 +132,7 @@ module.exports.createPostsImages = catchAsync(async (req, res, next) => {
 
         let suc = await postData.save();
 
-        res.status(201).json({
+        return res.status(201).json({
             status: 'success',
             message: "Post containing image and text is added successfully"
         });
@@ -153,7 +153,7 @@ module.exports.createPostsVideo = catchAsync(async (req, res, next) => {
 
         let suc = await postData.save();
 
-        res.status(201).json({status: 'success', message: "Post containing video is added successfully"});
+        return res.status(201).json({status: 'success', message: "Post containing video is added successfully"});
     } else {
         let {content, contentType, username, postedAt, hashTags} = postsDataFromFrontEnd;
         hashTags = hashTags.split(' ');
@@ -162,7 +162,7 @@ module.exports.createPostsVideo = catchAsync(async (req, res, next) => {
 
         let suc = await postData.save();
 
-        res.status(201).json({status:'success', message: "Post containing video and text is added successfully"});
+        return res.status(201).json({status:'success', message: "Post containing video and text is added successfully"});
     }
 });
 
@@ -188,7 +188,7 @@ module.exports.updatePostsText = catchAsync(async (req, res, next) => {
 
     console.log({content, hashTags, updatedAt});
 
-    res.send({message: "Post containing text is updated"});
+    return res.send({message: "Post containing text is updated"});
 });
 
 module.exports.updatePostsImages = catchAsync(async (req, res, next) => {
@@ -214,11 +214,11 @@ module.exports.updatePostsImages = catchAsync(async (req, res, next) => {
     if(contentType == 'image') {
         let suc = await Post.updateMany({_id: pid}, {$set: {hashTags: hashTags, images: imagesUrlArray, updatedAt: updatedAt}});
 
-        res.send({message: "Post containing image is updated successfully"});
+        return res.send({message: "Post containing image is updated successfully"});
     } else {
         let suc = await Post.updateMany({_id: pid}, {$set: {content: content, hashTags: hashTags, images: imagesUrlArray, updatedAt: updatedAt}});
 
-        res.send({message: "Post containing image and text is updated successfully"});
+        return res.send({message: "Post containing image and text is updated successfully"});
     }
 });
 
@@ -242,11 +242,11 @@ module.exports.updatePostsVideo = catchAsync(async (req, res, next) => {
     if(contentType == 'video') {
         let suc = await Post.updateMany({_id: pid}, {$set: {hashTags: hashTags, video: videoUrl, updatedAt: updatedAt}});
 
-        res.send({message: "Post containing video is updated successfully"});
+        return res.send({message: "Post containing video is updated successfully"});
     } else {
         let suc = await Post.updateMany({_id: pid}, {$set: {content: content, hashTags: hashTags, video: videoUrl, updatedAt: updatedAt}});
 
-        res.send({message: "Post containing video and text is updated successfully"});
+        return res.send({message: "Post containing video and text is updated successfully"});
     }
 });
 

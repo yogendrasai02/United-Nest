@@ -8,7 +8,7 @@ const User = require('../models/userModel');
 exports.getProfile = catchAsync(
     async (req,res,next)=>{
 
-        res.status(200).json({
+        return res.status(200).json({
             status: 'success',
             data: { 
                 user: req.user
@@ -29,7 +29,7 @@ exports.getProfileByID = catchAsync(
         if(connection && connection.status == 'accepted'){
             const posts = await Post.find({username: user.username});
             console.log(posts);
-            res.status(200).json({
+            return res.status(200).json({
                 status: 'success',
                 data: {
                     user,
@@ -38,7 +38,7 @@ exports.getProfileByID = catchAsync(
             })
         }
         else{
-            res.status(200).json({
+            return res.status(200).json({
                 status: 'success',
                 data: {
                     user : {
@@ -58,7 +58,7 @@ exports.deleteProfile = catchAsync(
     async (req,res,next) => {
         try{
             await User.findByIdAndUpdate(req.user.id, {$set : {isActive:false}});
-            res.status(201).json({
+            return res.status(201).json({
                 status:'success',
                 data:{'message': 'Deleted the User Successfully'}
             });
@@ -94,7 +94,7 @@ exports.updateProfile = catchAsync(
         }
         try{
             const updatedUser = await User.findByIdAndUpdate(req.user.id, updatedocs);
-            res.status(201).json({
+            return res.status(201).json({
                 status: 'success',
                 data : {updatedUser}
             }); 

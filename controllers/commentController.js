@@ -67,7 +67,7 @@ module.exports.getComments = catchAsync(async (req, res, next) => {
         comments = await Comment.find({$and: [{post: postId}, {parentComment: commentId}]}).skip((page - 1) * limit).limit(limit).sort(filterBasedOn);
     }
     
-    res.send({comments: comments, pagesCnt: pagesCnt});
+    return res.send({comments: comments, pagesCnt: pagesCnt});
 }); 
 
 module.exports.postComment = catchAsync(async (req, res, next) => {
@@ -89,7 +89,7 @@ module.exports.postComment = catchAsync(async (req, res, next) => {
 
         suc = await Post.findByIdAndUpdate(postId, {$inc: {"reactionsCnt.comments": 1}});
 
-        res.send({"message": "Parent comment added successdully"});
+        return res.send({"message": "Parent comment added successdully"});
     } else {
 
         console.log("In child comment");
@@ -103,7 +103,7 @@ module.exports.postComment = catchAsync(async (req, res, next) => {
 
         suc = await Comment.findByIdAndUpdate(commentId, {$push: {subComment: id}, $inc: {"reactionsCnt.comments": 1}});
 
-        res.send({"message": "child comment added successdully"});
+        return res.send({"message": "child comment added successdully"});
     }
 });
 
@@ -119,7 +119,7 @@ module.exports.updateComment = catchAsync(async (req, res, next) => {
 
     let suc = await Comment.findByIdAndUpdate(req.params.commentId, {content: content, updatedAt: updatedAt});
 
-    res.send({message: "Update successful"});
+    return res.send({message: "Update successful"});
 });
 
 module.exports.deleteComment = catchAsync(async (req, res, next) => {
@@ -151,5 +151,5 @@ module.exports.deleteComment = catchAsync(async (req, res, next) => {
 
     await Comment.findByIdAndDelete(commentId);
 
-    res.send({message: "Delete successful"});
+    return res.send({message: "Delete successful"});
 });

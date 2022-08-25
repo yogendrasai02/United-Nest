@@ -83,7 +83,7 @@ exports.joinVideoCall = catchAsync(async (req, res, next) => {
     //     httpOnly: true
     // });
     console.log(`Video Call access granted for user ${username_1} for room ${roomName}`);
-    res.status(200).json({
+    return res.status(200).json({
         status: 'success',
         roomName: roomName,
         videoCallAccessToken: token

@@ -27,7 +27,7 @@ exports.renderHomePage = (req, res, next) => {
 
 // ** To render /login page **
 exports.renderLoginPage = (req, res, next) => {
-    res.render('login', {
+    return res.render('login', {
         title: 'United Nest | Login'
     });
 };
@@ -117,7 +117,7 @@ exports.renderPostsPage = catchAsync(async (req, res, next) => {
 
     
 
-    res.render('posts', {
+    return res.render('posts', {
         title: 'United Nest | Posts',
         pagesCnt, posts, profilePhotosMap,
         currentPage: page,
@@ -127,7 +127,7 @@ exports.renderPostsPage = catchAsync(async (req, res, next) => {
 });
 
 exports.renderAddPostPage = (req, res, next) => {
-    res.render('addPost', {
+    return res.render('addPost', {
         title: 'Add Post | United Nest'
     });
 };
@@ -136,7 +136,7 @@ exports.renderAddPostPage = (req, res, next) => {
 exports.renderMyprofilePage = async (req, res, next) => {
     let count  = await Post.find({username: req.user.username}).count();
     console.log(count, req.user)
-    res.render('profile', {
+    return res.render('profile', {
         profile: 'self',
         title: 'United Nest | My-Profile',
         user: req.user,
@@ -157,7 +157,7 @@ exports.renderProfilePage = async (req,res,next) => {
         chatURL = `${req.protocol}//${req.get('host')}/chats/${req.user.username}/${uname}/${chat.roomId}`
     }
     console.log('I am insode the controller', chatURL)
-    res.render('profile', {
+    return res.render('profile', {
         profile: 'other',
         title: 'United Nest | Profile',
         user: user,
@@ -170,27 +170,27 @@ exports.renderProfilePage = async (req,res,next) => {
 
 exports.renderResetPassPage = async (req,res,next) =>{
     const token = req.params.resetToken
-    res.render('reset_password', {
+    return res.render('reset_password', {
         title: 'Unites Nest | Reset Password',
         token : token
     })
 }
 
 exports.renderProfileUpdate = (req,res,next) => {
-    res.render('update_profile', {
+    return res.render('update_profile', {
         title: 'United Nest | Update-Profile',
         user: req.user,
     })
 }
 
 exports.renderSignupPage = (req, res, next) => {
-    res.render('signup', {
+    return res.render('signup', {
         title: 'United Nest | SignUp'
     })
 }
 
 exports.renderSignupCheckoutPage = (req, res, next) => {
-    res.render('signupCheckout', {
+    return res.render('signupCheckout', {
         title: 'Sign Up Checkout | United Nest'
     });
 };
@@ -221,7 +221,7 @@ exports.renderVerificationPage = catchAsync(async (req, res, next) => {
 });
 
 exports.renderForgotPassPage = (req, res, next)=> {
-    res.render('forgot_password', {
+    return res.render('forgot_password', {
         title: 'United Nest | Forgot Password'
     })
 }
@@ -262,7 +262,7 @@ exports.renderVideoCallLobbyPage = catchAsync(async (req, res, next) => {
         else if(a > b)  return 1;
         return 0;
     });
-    res.render('videoCallLobby', {
+    return res.render('videoCallLobby', {
         title: 'Video Call Lobby | United Nest',
         friends: friends
     });
@@ -275,7 +275,7 @@ exports.renderVideoCallPage = catchAsync(async (req, res, next) => {
     //     res.redirect('/video-call-lobby');
     //     return;
     // }
-    // res.render('videoCall', {
+    // return res.render('videoCall', {
     //     accessToken
     // });
     // 1. get receiver user
@@ -287,7 +287,7 @@ exports.renderVideoCallPage = catchAsync(async (req, res, next) => {
         return next(new AppError('You can only start a video call if both users mutually follow each other', 400));
     }
     // 2. render page
-    res.render('videoCall', {
+    return res.render('videoCall', {
         title: 'Video Call | United Nest',
         username_receiver: receiver_username
     });
@@ -329,7 +329,7 @@ module.exports.chats_get = async (req, res) => {
 
     let groupsData = await Group.find({users : username});
 
-    res.render("chats", {username: username, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Chats'});
+    return res.render("chats", {username: username, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Chats'});
 }
 
 module.exports.chat_get = async (req, res) => {
@@ -448,12 +448,12 @@ if(toUserProfilePhoto === '') {
     toUserProfilePhoto = '/img/users-three.png';
 }
 
-res.render("chat", {isLoggedIn: true, roomId: roomId, username: username, toUsername: toUsername, users: users, groups: groupsData, title: 'United Nest | Posts', toUserProfilePhoto: toUserProfilePhoto, isGroup: isGroup});
+return res.render("chat", {isLoggedIn: true, roomId: roomId, username: username, toUsername: toUsername, users: users, groups: groupsData, title: 'United Nest | Posts', toUserProfilePhoto: toUserProfilePhoto, isGroup: isGroup});
 }
 
 module.exports.group_get = async (req, res) => {
 const userData = await User.find({}, {_id: 0, username: 1});
-res.render("creategroup", {isLoggedIn: true, userData: userData, title: 'United Nest | Chats'});
+return res.render("creategroup", {isLoggedIn: true, userData: userData, title: 'United Nest | Chats'});
 }
 
 module.exports.get_group_details = async (req, res) => {
@@ -478,7 +478,7 @@ for(let user of users) {
 }
 
 console.log('photos: ', photos);
-res.render("viewgroup", {groupdetails: gDetails, photos: photos, title: 'United Nest | Posts'});
+return res.render("viewgroup", {groupdetails: gDetails, photos: photos, title: 'United Nest | Posts'});
 }
 
 module.exports.group_post = async (req, res) => {
@@ -540,7 +540,7 @@ res.redirect("/chats");
 
 // let groupsData = await Group.find({users : createdBy});
 
-// res.render("chats", {username: createdBy, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Posts'});
+// return res.render("chats", {username: createdBy, isLoggedIn: true, users: users, groups: groupsData, title: 'United Nest | Posts'});
 }
 
 
@@ -685,7 +685,7 @@ const connections = await queryUtils.query;
 //     }
 // });
 
-res.render("request", {data: connections, followers: followers, following: following, title: 'United Nest | Requests'});
+return res.render("request", {data: connections, followers: followers, following: following, title: 'United Nest | Requests'});
 });
 
 exports.getAllFollowers = async (req, res) => {
@@ -732,7 +732,7 @@ for(let fp of followersPending) {
 console.log("Accepted Users: ", acceptedUsers);
 console.log("Pending Users: ", pendingUsers);
 
-res.render("request", {accepted: acceptedUsers, pending: pendingUsers, followers: true, following: false, title: 'United Nest | Requests'});
+return res.render("request", {accepted: acceptedUsers, pending: pendingUsers, followers: true, following: false, title: 'United Nest | Requests'});
 }
 
 exports.getAllFollowing = async (req, res) => {
@@ -780,7 +780,7 @@ for(let fp of followingPending) {
 console.log("Accepted Users: ", acceptedUsers);
 console.log("Pending Users: ", pendingUsers);
 
-res.render("request", {accepted: acceptedUsers, pending: pendingUsers, followers: false, following: true, title: 'United Nest | Posts'});
+return res.render("request", {accepted: acceptedUsers, pending: pendingUsers, followers: false, following: true, title: 'United Nest | Posts'});
 }
 
 exports.unfollowUser = catchAsync(async(req, res, next) => {
@@ -963,7 +963,7 @@ if(commentId !== 'null') {
     commentDetails['username'] = cmt['username'];
 }
 
-res.render("comments", {comments: comments, pagesCnt: pagesCnt, time: time, profilePhoto: profilePhotos, currPage: page, limit: limit, filterBasedOn: filter, commentId: commentId, postId: postId, commentDetails: commentDetails, title: 'United Nest | Comments', noOfComments: noOfComments, postedUsername: data['username']});
+return res.render("comments", {comments: comments, pagesCnt: pagesCnt, time: time, profilePhoto: profilePhotos, currPage: page, limit: limit, filterBasedOn: filter, commentId: commentId, postId: postId, commentDetails: commentDetails, title: 'United Nest | Comments', noOfComments: noOfComments, postedUsername: data['username']});
 });
 
 module.exports.postComment = catchAsync(async (req, res, next) => {
@@ -1088,7 +1088,7 @@ module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
             profilePhotosMap.set(doc.username, doc.profilePhoto);
         });
 
-        // res.render('posts', {
+        // return res.render('posts', {
         //     title: 'United Nest | Posts',
         //     pagesCnt, posts, profilePhotosMap,
         //     currentPage: page,
@@ -1109,8 +1109,8 @@ module.exports.searchPostsAndUsers = catchAsync(async (req, res, next) => {
         const usersData = [];
         const postsData = [];
 
-        res.render("search", {title: "United Nest | Search", usersData: usersData, posts: postsData});
+        return res.render("search", {title: "United Nest | Search", usersData: usersData, posts: postsData});
     }
 
-    res.render("search", {title: "United Nest | Search", pagesCnt: pagesCnt, results: results, usersData: usersData, posts: posts, profilePhotosMap: profilePhotosMap, currentPage: currentPage, sortBy: sortBy});
+    return res.render("search", {title: "United Nest | Search", pagesCnt: pagesCnt, results: results, usersData: usersData, posts: posts, profilePhotosMap: profilePhotosMap, currentPage: currentPage, sortBy: sortBy});
 });

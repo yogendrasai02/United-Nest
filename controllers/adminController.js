@@ -20,7 +20,7 @@ exports.getUsers = catchAsync(
         let noOfUsers = await User.find().count();
         let pagesCnt =  Math.floor(noOfUsers / limit) + (noOfUsers % limit !== 0);
         console.log(users)
-        res.status(200).json({
+        return res.status(200).json({
             status: 'success',
             data: { users, pagesCnt }
         })
@@ -36,7 +36,7 @@ exports.getUserById = catchAsync(
             if(!user){
                 return next(new AppError('The User with the ID doesnot exist', 400));
             }
-            res.status(200).json({
+            return res.status(200).json({
                 status: 'success',
                 data: { user }
             });
@@ -53,7 +53,7 @@ exports.deleteUserById = catchAsync(
         const userid = req.params.userid;
         try{
             await User.findByIdAndDelete(userid);   
-            res.status(201).json({
+            return res.status(201).json({
                 status: 'success',
                 message: 'User successfully deleted'
             });  

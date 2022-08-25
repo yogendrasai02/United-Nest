@@ -21,7 +21,7 @@ module.exports.chats_get = async (req, res) => {
         console.log("Error ", e);
     }
 
-    users = [];
+    let users = [];
 
     for(let val of userDataFromDb) {
         if(val['users'][0] != username)
@@ -33,7 +33,7 @@ module.exports.chats_get = async (req, res) => {
 
     let groupsData = await Group.find({users : username});
 
-    res.render("chats.ejs", {username: username, isLoggedIn: true, users: users, groups: groupsData});
+    return res.render("chats.ejs", {username: username, isLoggedIn: true, users: users, groups: groupsData});
 }
 
 module.exports.chat_get = async (req, res) => {
@@ -67,7 +67,7 @@ module.exports.chat_get = async (req, res) => {
         console.log("Error ", e);
     }
 
-    users = [];
+    let users = [];
 
     for(let val of userDataFromDb) {
         if(val['users'][0] != username)
@@ -82,12 +82,12 @@ module.exports.chat_get = async (req, res) => {
 
     console.log("GROUPS DATA: ", groupsData);
 
-    res.render("chat.ejs", {isLoggedIn: true, roomId: roomId, fromUsername: username, toUsername: toUsername, users: users, groups: groupsData});
+    return res.render("chat.ejs", {isLoggedIn: true, roomId: roomId, fromUsername: username, toUsername: toUsername, users: users, groups: groupsData});
 }
 
 module.exports.group_get = async (req, res) => {
     const userData = await userModel.find({}, {_id: 0, username: 1});
-    res.render("creategroup.ejs", {isLoggedIn: true, userData: userData});
+    return res.render("creategroup.ejs", {isLoggedIn: true, userData: userData});
 }
 
 module.exports.group_post = async (req, res) => {
@@ -131,7 +131,7 @@ module.exports.group_post = async (req, res) => {
 
     let groupsData = await Group.find({users : createdBy});
 
-    res.render("chats.ejs", {username: createdBy, isLoggedIn: true, users: users, groups: groupsData});
+    return res.render("chats.ejs", {username: createdBy, isLoggedIn: true, users: users, groups: groupsData});
 }
 
 module.exports.singlechat_post = async (req, res) => {
@@ -162,5 +162,5 @@ module.exports.singlechat_post = async (req, res) => {
             }
         }
     }
-    res.send({usernames: usernames});
+    return res.send({usernames: usernames});
 }
