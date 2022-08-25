@@ -222,7 +222,22 @@ svg:hover {
     }
 }
 
-.form-control { 
+input, textarea { 
+    border: none !important;
+    border-radius: 0 !important;
+    border-bottom: 4px solid black !important;
+}
+
+input, textarea, select {
+    background-color: #fff !important;
+}
+
+input:focus, textarea:focus, select:focus {
+    box-shadow: none !important;
+    outline: 3px solid black !important;
+}
+
+/* .form-control { 
     border: none;
     border-radius: 0;
     border-bottom: 4px solid black;
@@ -231,4 +246,4 @@ svg:hover {
 .form-control:focus {
     box-shadow: none;
     outline: 3px solid black;
-}
+} */

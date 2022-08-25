@@ -115,10 +115,10 @@ block content
                                                 span(class='badge rounded-pill text-bg-primary me-2')= value
                                         else 
                                             li.dropdown-item.mt-1(id=key, onclick=`javascript:sendRequest('${post.id}','${key}',false,${reactions[idx].reacted},'${reactions[idx].id}');`)
-                                            span.d-flex.align-items-center
-                                                i(class=`${iconsMap.get(key)} icon-3 me-2`, onclick=`javascript:sendRequest('${post.id}','${key}',false,${reactions[idx].reacted},'${reactions[idx].id}');`)
-                                                | #{key}
-                                            span(class='badge rounded-pill text-bg-primary me-2')= value
+                                                span.d-flex.align-items-center
+                                                    i(class=`${iconsMap.get(key)} icon-3 me-2`, onclick=`javascript:sendRequest('${post.id}','${key}',false,${reactions[idx].reacted},'${reactions[idx].id}');`)
+                                                    | #{key}
+                                                span(class='badge rounded-pill text-bg-primary me-2')= value
                                     - if(key == 'comments')
                                         - noOfComments = value
                         button.btn.btn-info#comments(data-postid=`${post._id}`)

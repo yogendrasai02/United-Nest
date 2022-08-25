@@ -21,6 +21,7 @@ const createToken = (id, res) => {
     res.cookie(
         'authToken', token, {
             httpOnly: true,
+            secure: (process.env.NODE_ENV === 'production'),
             maxAge: process.env.JWT_EXPIRES_IN_MILLISECONDS
         }
     );
@@ -188,7 +189,8 @@ exports.login = catchAsync(async (req, res, next) => {
 // ** To Logout a user (Only for Frontend purpose) **
 exports.logout = (req, res, next) => {
     res.clearCookie('authToken', {
-        httpOnly: true
+        httpOnly: true,
+        secure: (process.env.NODE_ENV === 'production')
     });   // options must be same as set in res.cookie() excluding maxAge|expiresIn
     res.redirect('/');
 };

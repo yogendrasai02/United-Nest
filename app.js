@@ -9,6 +9,10 @@ const morgan = require("morgan");
 const swaggerUI = require("swagger-ui-express");
 const YAML = require("yamljs");
 const socketio = require("socket.io");
+const rateLimiter = require('express-rate-limit');
+const helmet = require('helmet');
+const xssClean = require('xss-clean');
+const expressMongoSanitize = require('express-mongo-sanitize');
 
 // ** Import our OWN modules **
 const AppError = require("./utils/AppError");
@@ -62,7 +66,25 @@ app.use(cookieParser());
 
 app.use(express.urlencoded({
     extended: true
-}))
+}));
+
+// Limit API requests
+app.use('/api', rateLimiter({
+  windowMs: 60 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests from this IP, please try again after an hour',
+  standardHeaders: true,
+  legacyHeaders: false
+}));
+
+// Set HTTP Security Headers
+app.use(helmet());
+
+// XSS
+app.use(xssClean());
+
+// Sanitize input
+app.use(expressMongoSanitize());
 
 const twilioClient = require('twilio')(
   process.env.TWILIO_API_KEY_SID,

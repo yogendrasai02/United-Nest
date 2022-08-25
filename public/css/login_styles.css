@@ -1,3 +1,6 @@
+body {
+    background-color: #fff !important;
+}
 .grid {
     min-height: 100vh;
     max-height: 100vh;
