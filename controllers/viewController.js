@@ -864,12 +864,12 @@ if(commentId === "null") {
         console.log("Hello");
         filterBasedOn = {"reactionsCnt.comments": 1};
     } else if(filterBasedOn === '-commentedAt') {
-        filterBasedOn = {commentedAt: -1};
+        filterBasedOn = {"commentedAt": -1};
     } else if(filterBasedOn === 'commentedAt') {
-        filterBasedOn = {commentedAt: 1};
+        filterBasedOn = {"commentedAt": 1};
     }
 } else {
-    filterBasedOn = {commentedAt: -1};
+    filterBasedOn = {"commentedAt": -1};
 }
 
 let comments; 
@@ -1003,7 +1003,7 @@ if(commentId === "null") {
 
     suc = await Comment.findByIdAndUpdate(commentId, {$push: {subComment: id}, $inc: {"reactionsCnt.comments": 1}});
 
-    res.send({"message": "child comment added successdully", title: 'United Nest | Comments'});
+    res.send({"message": "child comment added successfully", title: 'United Nest | Comments'});
 }
 });
 

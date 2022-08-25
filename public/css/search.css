@@ -168,6 +168,6 @@ video {
     text-decoration: none;
 }
 
-.hashTagLink {
+.hashTagLink, .hashTagLink:hover, .hashTagLink:active, .hashTagLink:visited, .hashTagLink:focus {
     color: #0d6efd;
 }
