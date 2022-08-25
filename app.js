@@ -78,13 +78,13 @@ app.use('/api', rateLimiter({
 }));
 
 // Set HTTP Security Headers
-app.use(helmet());
+// app.use(helmet());
 
 // XSS
-app.use(xssClean());
+// app.use(xssClean());
 
 // Sanitize input
-app.use(expressMongoSanitize());
+// app.use(expressMongoSanitize());
 
 const twilioClient = require('twilio')(
   process.env.TWILIO_API_KEY_SID,
