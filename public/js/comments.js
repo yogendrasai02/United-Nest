@@ -8,7 +8,8 @@ const commentId = document.getElementById('commentid');
 const username = document.getElementById('username');
 const comment = document.getElementById('message');
 
-const baseURL = 'http://localhost:4000';
+// const baseURL = 'http://localhost:4000';
+const baseURL = '';
 
 filterbtn.addEventListener('click', () => {
     console.log(s1.value);

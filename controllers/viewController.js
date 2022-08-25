@@ -154,7 +154,7 @@ exports.renderProfilePage = async (req,res,next) => {
     let friend = (con.status === 'accepted') ? true : false;
     let chatURL = ''
     if(chat){
-        chatURL = `http://localhost:4000/chats/${req.user.username}/${uname}/${chat.roomId}`
+        chatURL = `${req.protocol}//${req.get('host')}/chats/${req.user.username}/${uname}/${chat.roomId}`
     }
     console.log('I am insode the controller', chatURL)
     res.render('profile', {

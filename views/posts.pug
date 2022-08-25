@@ -166,7 +166,8 @@ block content
                 if(selected){
                     console.log('i have been selected')
                 //we need to delete the current reaction
-                    let url = `http://localhost:4000/api/v1/posts/${id}/reactions/${reactionId}`;
+                    let url = `/api/v1/posts/${id}/reactions/${reactionId}`;
+                    //- let url = `http://localhost:4000/api/v1/posts/${id}/reactions/${reactionId}`;
                     let method = 'DELETE'
                     const response = await makeAPICall(url,method)
                     if(response.status && response.status === 'success'){
@@ -179,7 +180,8 @@ block content
                 }
                 else if(reacted){
                 //we need to modify the reaction, we need the id
-                    let url = `http://localhost:4000/api/v1/posts/${id}/reactions/${reactionId}?type=${type}`;
+                    let url = `/api/v1/posts/${id}/reactions/${reactionId}?type=${type}`;
+                    //- let url = `http://localhost:4000/api/v1/posts/${id}/reactions/${reactionId}?type=${type}`;
                     let method = 'PATCH'
                     const response = await makeAPICall(url,method)
                     if(response.status && response.status === 'success'){
@@ -192,7 +194,8 @@ block content
                 }
                 else{
                 //we need to make a new reaction
-                    let url = `http://localhost:4000/api/v1/posts/${id}/reactions?type=${type}`;
+                    let url = `/api/v1/posts/${id}/reactions?type=${type}`;
+                    //- let url = `http://localhost:4000/api/v1/posts/${id}/reactions?type=${type}`;
                     let method = 'POST'
                     const response = await makeAPICall(url,method)
                     if(response.status && response.status === 'success'){
