@@ -35,6 +35,9 @@ exports.renderLoginPage = (req, res, next) => {
 // ** To render /posts page **
 exports.renderPostsPage = catchAsync(async (req, res, next) => {
 
+    console.log(req.cookies);
+    console.log(req.user);
+
     if(!req.query)  req.query = {};
 
     // 1. get posts

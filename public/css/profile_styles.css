@@ -133,6 +133,10 @@ main {
   background-color: gray;
 }
 
+#profile-label {
+  outline: 4px solid #a060ff;
+}
+
 .card .right {
   width: 40%;
   display: flex;

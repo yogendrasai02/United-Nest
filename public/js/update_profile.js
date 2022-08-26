@@ -81,7 +81,7 @@ const FormSubmitHandler = async ()=>{
         showToast('success', 'Update Success, Redirecting...', 5);
         setTimeout(() => {
             location.href = '/my-profile';
-        }, 300 * 1000);
+        }, 3 * 1000);
     } else {
         showToast(response.status || 'error', response.message || 'Please try after sometime');
     }

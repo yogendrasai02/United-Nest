@@ -171,6 +171,12 @@ svg:hover {
     transform: rotate(-180deg);
 }
 
+#sidenav_profile_pic {
+    transform: scale(2);
+    border-radius: 50%;
+    outline: 2px solid #a060ff;
+}
+
 /* Small screens */
 @media only screen and (max-width: 600px) {
     .sidenavbar {
@@ -232,18 +238,11 @@ input, textarea, select {
     background-color: #fff !important;
 }
 
+input.bg-gray, textarea.bg-gray, select.bg-gray {
+    background-color: rgb(241, 242, 242) !important;
+}
+
 input:focus, textarea:focus, select:focus {
     box-shadow: none !important;
     outline: 3px solid black !important;
 }
-
-/* .form-control { 
-    border: none;
-    border-radius: 0;
-    border-bottom: 4px solid black;
-}
-
-.form-control:focus {
-    box-shadow: none;
-    outline: 3px solid black;
-} */

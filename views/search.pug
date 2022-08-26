@@ -64,14 +64,14 @@ block content
       .container.mt-4#posts-container
           each post in posts
               .post.bg-white.w-75.p-3.pt-0.mb-4.ms-auto.me-auto(id=`${post._id}`)
-                  .postHeader
-                      .profilePhoto
+                  .postHeader.p-2
+                      .profilePhoto.me-3
                           - const author = post.username;
                           - const profilePhoto = profilePhotosMap.get(author);
                           img.img-fluid.rounded(src=`${profilePhoto}`, alt=`${author}`)
                       .authorDetails.mt-3
                           p
-                              a.fs-4(href='profile of user')= author
+                              a.text-primary.fs-4(href='profile of user')= author
                           p.fs-6.postedAt= post.postedAt
                   .postBody.p-3
                       -

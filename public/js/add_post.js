@@ -1,3 +1,4 @@
+import { Modal } from 'bootstrap';
 import { showToast } from './toasts.js';
 import { makeAPICall } from './make_api_call.js';
 import { endpoints } from './api_endpoints.js';
@@ -81,6 +82,33 @@ window.onload = () => {
         if(response.status && response.status === 'success') {
             showToast('success', response.message + '. Redirecting to posts page now...', 1);
             setTimeout(() => { location.assign('/posts'); }, 1000);
+        } else if(response.status && ['isNSFW', 'toxicText'].includes(response.status)) {
+            const reasons = response.reasons;
+            let reasonsEl = '<ul>';
+            reasons.forEach(reason => {
+                const li = `<li>${reason}</li>`;
+                reasonsEl += li;
+            });
+            reasonsEl += '</ul>';
+            const modal = document.createElement('div');
+            modal.classList.add('modal', 'fade');
+            modal.setAttribute('aria-hidden', true);
+            modal.innerHTML = `
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title text-danger">${response.message}</h4>
+                        <button type="button" class="btn-close border border-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class='fs-4'>It is because your Post Content is inappropriate!</p>
+                        ${reasonsEl}
+                    </div>
+                </div>
+            </div>
+            `;
+            const myModal = new Modal(modal);
+            myModal.show();
         } else {
             showToast(response.status || 'error', response.status.message, 2);
             setTimeout(() => { location.assign('/add-post'); }, 1000);

@@ -1,38 +1,28 @@
-form{
+.container {
     display: flex;
     justify-content: center;
-    flex-direction: column;
     align-items: center;
+    width: 50%;
 }
 
-#file{
+/* #file {
     display: none;
-}
+} */
 
 
 #profile-label{
-    width:150px;
-    height:150px;
+    max-width:150px;
+    max-height:150px;
     border-radius: 50%;
-    margin-bottom: 30px;
-    margin-bottom: 30px;
+    border: 3px solid #a060ff;
 }
 
-form input{
-    width: 300px;
-    margin-bottom: 20px;
-    padding: 0px 4px;
-    width: 350px;
-    padding: 8px;
-    border: solid 2px #e4edfb;
-    border-radius: 5px;
-    outline: none;
+#profile-label:hover {
+    cursor: pointer;
 }
 
-form textarea{
-    width:350px;
-    height: 50px;
-    margin-bottom: 20px;
+#desc {
+    min-height: 100px;
 }
 
 #uploadFormSubmitBtn{

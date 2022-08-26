@@ -15,22 +15,23 @@ block content
                 else
                     img#profile-label(src='https://cdn-icons-png.flaticon.com/128/3135/3135715.png', alt="photo")
                 .card-info
-                    h2= user.name
+                    h2.fs-4= user.name
                     p  
-                        a(href='#') @#{user.username}
-                    p.contacts 
-                        i.ph-envelope 
-                        span &nbsp#{user.email} 
-                        span &nbsp;|&nbsp;
-                        i.ph-phone 
-                        span &nbsp;#{user.mobile}
+                        a.fs-5(href='#') @#{user.username}
+                    .contacts.d-flex.flex-column.justify-content-start.align-items-start
+                        .mail.d-flex.justify-content-start.align-items-center.mb-3
+                            i.ph-envelope.icon-3.me-3
+                            p.fs-5 #{user.email} 
+                        .mobile.d-flex.justify-content-start.align-items-center
+                            i.ph-phone.icon-3.me-3
+                            p.fs-5 #{user.mobile}
                 .description 
                     p 
-                        i #{user.description}
+                        em.fs-5 #{user.description}
                 
                 hr
                 .update
-                    button 
+                    button.mb-4
                         a(href='/update') Update Profile
                         //- a(href='http://localhost:4000/update') Update Profile
             .right
@@ -51,18 +52,19 @@ block content
                 else
                     img#profile-label(src='https://cdn-icons-png.flaticon.com/128/3135/3135715.png', alt="photo")
                 .card-info
-                    h2= user.name
+                    h2.fs-4= user.name
                     p  
-                        a(href='') @#{user.username}
-                    p.contacts
-                        i.ph-envelope 
-                        span &nbsp#{user.email} 
-                        span &nbsp;|&nbsp;
-                        i.ph-phone 
-                        span &nbsp;#{user.mobile}
+                        a.fs-5(href='#') @#{user.username}
+                    .contacts.d-flex.flex-column.justify-content-start.align-items-start
+                        .mail.d-flex.justify-content-start.align-items-center.mb-3
+                            i.ph-envelope.icon-3.me-3
+                            p.fs-5 #{user.email} 
+                        .mobile.d-flex.justify-content-start.align-items-center
+                            i.ph-phone.icon-3.me-3
+                            p.fs-5 #{user.mobile}
                 .description 
                     p 
-                        i #{user.description}
+                        em.fs-5 #{user.description}
                 
                 hr
                 .update

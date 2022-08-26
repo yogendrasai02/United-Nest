@@ -13,6 +13,43 @@ const handleJWTJsonWebTokenError = err => {
 // TODO: Handle Mongoose & MongoDB errors here, once they are established
 // TODO: Handle invalid Mongoose id error
 
+const handleDEVError = (err, req, res) => {
+    const fromAPI = req.originalUrl.startsWith('/api');
+    if(fromAPI) {
+        return res.status(err.statusCode).json({
+            status: err.status,
+            message: err.message,
+            stack: err.stack
+        });
+    } else {
+        return res.render('error', {
+            title: 'United Nest | ERROR',
+            errorCode: err.statusCode,
+            errorMessage: err.message 
+        });
+    }
+};
+
+const handlePRODError = (err, req, res) => {
+    const fromAPI = req.originalUrl.startsWith('/api');
+    if(fromAPI) {
+        return res.status(err.statusCode).json({
+            status: err.status,
+            message: err.message,
+            stack: err.stack
+        });
+    } else {
+        if(!(err.isOperational === true)) {
+            err.message = 'Something went really wrong. Please try after sometime!'
+        }
+        return res.render('error', {
+            title: 'United Nest | ERROR',
+            errorCode: err.statusCode,
+            errorMessage: err.message 
+        });
+    }
+};
+
 const globalErrorHandler = (err, req, res, next) => {
     console.log('💥An Error has occured💥');
     console.log(err);
@@ -22,10 +59,11 @@ const globalErrorHandler = (err, req, res, next) => {
         err = handleJWTTokenExpiredError(err);
     if(err.name === 'JsonWebTokenError')
         err = handleJWTJsonWebTokenError(err);
-    return res.status(err.statusCode).json({
-        status: err.status,
-        message: err.message
-    });
+    if(process.env.NODE_ENV === 'development') {
+        handleDEVError(err, req, res);
+    } else {
+        handlePRODError(err, req, res);
+    }
 };
 
 module.exports = globalErrorHandler;

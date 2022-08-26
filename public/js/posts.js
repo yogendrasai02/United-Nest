@@ -1,11 +1,14 @@
 import { makeAPICall } from './make_api_call.js';
 
-
-const swiper = new Swiper('.swiper', {
+const swiper = new Swiper('.images', {
     autoHeight: true,
     pagination: {
       el: '.swiper-pagination',
-      type: 'fraction'
+      clickable: true,
+      dynamicBullets: true,
+      renderBullet: function (index, className) {
+        return '<span class="' + className + '">' + (index + 1) + "</span>";
+      }
     },
     navigation: {
       nextEl: '.swiper-button-next',

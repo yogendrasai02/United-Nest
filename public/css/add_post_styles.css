@@ -30,3 +30,11 @@ textarea.large {
 .spinner-grow {
     z-index: 99999;
 }
+
+#addPostFormSubmitBtn {
+    background-color: #a060ff !important;
+}
+
+#addPostFormResetBtn {
+    background-color: tomato !important;
+}

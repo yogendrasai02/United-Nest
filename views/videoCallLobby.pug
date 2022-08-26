@@ -11,10 +11,10 @@ block content
         i(class='las la-lock icon-4 global-primary-color') 
         | Start a completely secure 1X1 video call with your connection 
     p.helperText.fs-4 #{user.username}, Select a user and request for a video call:
-    .container.mx-auto.row.friends
+    .d-flex.justify-content-start.mx-auto.ms-3.friends
         each friend in friends
-            .col-6.col-sm-4.col-md-3.d-flex.align-items-center.friend(id=friend.username)
+            .mx-3.friend.d-flex.align-items-center.p-4.rounded(id=friend.username)
                 div
-                    img.w-100.h-100.videoCallPhoto(src=friend.profilePhoto, alt=friend.username)
+                    img.img-fluid.videoCallPhoto(src=friend.profilePhoto, alt=friend.username)
                 .d-flex.align-items-center.ms-3
-                    h2= friend.username
+                    p.fs-4= friend.username

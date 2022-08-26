@@ -1,9 +1,113 @@
+const Filter = require('bad-words');
+// require('@tensorflow/tfjs');
+const toxicity = require('@tensorflow-models/toxicity');
+const axios = require('axios');
+
 const Post = require("../models/postModel.js");
 const ObjectId = require("mongodb").ObjectId;
 const Connection = require("../models/connectionModel.js");
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/AppError');
+
+const filterBadWords = (content) => {
+    const filter = new Filter();
+    return filter.clean(content); 
+};
+
+const detectToxicText = async (content) => {
+    // const threshold = 0.6;
+    // const model = await toxicity.load(threshold);
+    const model = await toxicity.load();
+    const sentences = [content];
+    const pred = await model.classify(sentences);
+    // console.log(pred);
+    return pred;
+};
+
+const detectNSFWImage = async (imageURL) => {
+    const response = await axios.get(
+        process.env.SIGHTENGINE_IMAGE_MODERATION_API_URL, {
+            params: {
+                'url': imageURL, 
+                'models': "nudity,wad,offensive,gore",
+                'api_user': process.env.SIGHTENGINE_IMAGE_MODERATION_API_USERNAME,
+                'api_secret': process.env.SIGHTENGINE_IMAGE_MODERATION_API_SECRET
+            }
+        }
+    );
+    // console.log(response.data);
+    return response.data;
+};
+
+exports.filterToxicText = catchAsync(async (req, res, next) => {
+    if(req.body.content && req.body.content.length > 0) {
+        // 1. detect toxic text
+        try {
+            const predictions = await detectToxicText(req.body.content);
+            let toxic = false, reasons = [];
+            for(let el of predictions) {
+                const {label, results} = el;
+                // console.log(el, results);
+                if(results[0].match === true) {
+                    toxic = true;
+                    reasons.push(label);
+                }   
+            }
+            if(toxic) {
+                return res.status(400).json({
+                    status: 'toxicText',
+                    message: 'Toxic Text Detected! Post Creation Cancelled.',
+                    reasons: reasons
+                });
+            }
+        } catch (err) {
+            console.log(err);
+            return next(new AppError('Something went wrong while detecting toxic text', 500));
+        }
+        // 2. filter bad words text
+        req.body.content = filterBadWords(req.body.content);
+    }
+    return next();
+});
+
+exports.imagesModeration = catchAsync(async (req, res, next) => {
+    if(req.files && req.files.length > 0 && req.body.contentType.includes('image')) {
+        try {
+            let reasons = new Set();
+            for(let file of req.files) {
+                const path = file.path;
+                console.log('For Image URL:', path);
+                const response = await detectNSFWImage(path);
+                const hasNudity = !(response.nudity.safe >= 0.6);
+                const hasWeapons = (response.weapon >= 0.6);
+                const hasAlcohol = (response.alcohol >= 0.6);
+                const hasDrugs = (response.drugs >= 0.6);
+                const isOffensive = (response.offensive.prob >= 0.6);
+                const isGore = (response.gore.prob >= 0.6);
+                const isNSFW = (hasNudity || hasWeapons || hasAlcohol || hasDrugs || isOffensive || isGore);
+                if(isNSFW) {
+                    if(hasNudity) reasons.add('Has Nudity');
+                    if(hasWeapons)  reasons.add('Has Weapons');
+                    if(hasAlcohol)  reasons.add('Has Alcohol');
+                    if(hasDrugs)    reasons.add('Has Drugs');
+                    if(isOffensive) reasons.add('Is Offensive');
+                    if(isGore)  reasons.add('Is Gore');
+                }
+            }
+            if(reasons.size > 0) {
+                return res.status(400).json({
+                    status: 'isNSFW',
+                    message: 'Not Safe For Work images detected! Post Creation Cancelled.',
+                    reasons: Array.from(reasons)
+                })
+            }
+        } catch (err) {
+            return next(new AppError('Something went wrong while moderating images', 500));
+        }
+    }
+    return next();
+});
 
 module.exports.getPosts = catchAsync(async (req, res, next) => {
     let filterBasedOn = req.query.sort;
