@@ -117,7 +117,8 @@ const initSocket = async (req, res, next) => {
                 if(userdata['profilePhoto'] === '') {
                     userdata['profilePhoto'] = '/img/user.png';
                 }
-                socket.emit('message', {username: dataFromDb[i].fromUsername, message: dataFromDb[i].message, dateAndTime: new Date(dataFromDb[i].dateAndTime).getHours() + ':' + new Date(dataFromDb[i].dateAndTime).getMinutes(), profilePhoto: userdata['profilePhoto']});
+                socket.emit('message', {username: dataFromDb[i].fromUsername, message: dataFromDb[i].message, dateAndTime: dataFromDb[i].dateAndTime, profilePhoto: userdata['profilePhoto']});
+                // new Date(dataFromDb[i].dateAndTime).getHours() + ':' + new Date(dataFromDb[i].dateAndTime).getMinutes()
             }
         });
 
@@ -131,7 +132,8 @@ const initSocket = async (req, res, next) => {
             if(userdata['profilePhoto'] === '') {
                 userdata['profilePhoto'] = '/img/user.png';
             }
-            io.to(data.roomId).emit('message', {username: data.username1, message: data.msg, dateAndTime: new Date(data.dateAndTime).getHours() + ':' + new Date(data.dateAndTime).getMinutes(), profilePhoto: userdata['profilePhoto']});
+            io.to(data.roomId).emit('message', {username: data.username1, message: data.msg, dateAndTime: data.dateAndTime, profilePhoto: userdata['profilePhoto']});
+            // data.dateAndTime).getHours() + ':' + new Date(data.dateAndTime).getMinutes()
         })
         
     });

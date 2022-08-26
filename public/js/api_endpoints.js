@@ -49,5 +49,9 @@ export const endpoints = {
     addPostVideo: {
         url: baseURL + '/api/v1/posts/video',
         method: 'POST'
+    },
+    createGroup: {
+        url: baseURL + '/api/v1/chats/createGroup', 
+        method: 'POST'
     }
 };

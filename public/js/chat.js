@@ -1,10 +1,10 @@
 const socket = io();
-
+import { showToast } from './toasts.js';
 //GET 2 usernames from URL 
 console.log(location.search);
 const url = location.href;
 let c = 0;
-arr = url.split('/');
+const arr = url.split('/');
 
 console.log("array: ", arr);
 const username1 = arr[arr.length - 3];
@@ -25,9 +25,13 @@ const message = document.getElementsByClassName("message")[0];
 function sendMessage() {
     const msg = message.value;
 
+    if(msg === '') {
+        showToast("fail", "message can't be empty", 2);
+        return;
+    }
     message.value = '';
     message.focus();
-    data = {msg, roomId, username1, username2, dateAndTime: new Date()};
+    let data = {msg, roomId, username1, username2, dateAndTime: new Date()};
     console.log("MEssage is: ", msg);
     socket.emit('chatMessage', data);
 }
@@ -97,7 +101,8 @@ function outputMessage(message) {
 
     let div2 = document.createElement("div");
     div2.classList.add('text-muted', 'small', 'text-nowrap', 'mt-2');
-    div2.innerHTML = message.dateAndTime;
+    console.log(message.dateAndTime);
+    div2.innerHTML = moment(message.dateAndTime).format('HH:mm');
 
     let inner_div_1 = document.createElement("div");
 

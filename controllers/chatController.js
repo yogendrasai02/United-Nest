@@ -5,162 +5,186 @@ const GroupMessages = require("../models/groupMessagesModel");
 const ChatMessages = require("../models/chatMessagesModel");
 const UserConnection = require("../models/connectionModel");
 
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 
 module.exports.chats_get = async (req, res) => {
+  let username, userDataFromDb;
 
-    let username, userDataFromDb;
+  username = req.user.username;
 
-    username = req.user.username;
+  console.log(username);
 
-    console.log(username);
+  try {
+    userDataFromDb = await Chat.find({ users: username }).exec();
+  } catch (e) {
+    console.log("Error ", e);
+  }
 
-    try {
-        userDataFromDb = await Chat.find({users : username}).exec();
-    } catch(e) {
-        console.log("Error ", e);
+  let users = [];
+
+  for (let val of userDataFromDb) {
+    if (val["users"][0] != username)
+      users.push({ username: val["users"][0], roomId: val["roomId"] });
+    else {
+      users.push({ username: val["users"][1], roomId: val["roomId"] });
     }
+  }
 
-    let users = [];
+  let groupsData = await Group.find({ users: username });
 
-    for(let val of userDataFromDb) {
-        if(val['users'][0] != username)
-            users.push({username: val['users'][0], roomId: val['roomId']});
-        else {
-            users.push({username: val['users'][1], roomId: val['roomId']});
-        }
-    }
-
-    let groupsData = await Group.find({users : username});
-
-    return res.render("chats.ejs", {username: username, isLoggedIn: true, users: users, groups: groupsData});
-}
+  return res.render("chats.ejs", {
+    username: username,
+    isLoggedIn: true,
+    users: users,
+    groups: groupsData,
+  });
+};
 
 module.exports.chat_get = async (req, res) => {
-    let fromUserData, toUserData;
+  let fromUserData, toUserData;
 
-    // try {
-    //     fromUserData = await req.users;
-    // } catch(e) {
-    //     console.log("Error ", e);
-    // }
+  // try {
+  //     fromUserData = await req.users;
+  // } catch(e) {
+  //     console.log("Error ", e);
+  // }
 
-    // try {
-    //     toUserData = await userModel.findOne({username: username2}).exec();
-    // } catch (e) {
-    //     console.log("Error: ", e);
-    // }
+  // try {
+  //     toUserData = await userModel.findOne({username: username2}).exec();
+  // } catch (e) {
+  //     console.log("Error: ", e);
+  // }
 
-    const roomId = req.params.roomId;
+  const roomId = req.params.roomId;
 
-    const username = req.user.username;
+  const username = req.user.username;
 
-    console.log("fromUsername: ",username);
+  console.log("fromUsername: ", username);
 
-    // console.log(req.user);
+  // console.log(req.user);
 
-    const toUsername = req.params.username2;
+  const toUsername = req.params.username2;
 
-    try {
-        userDataFromDb = await Chat.find({users : username}).exec();
-    } catch(e) {
-        console.log("Error ", e);
-    }
+  try {
+    userDataFromDb = await Chat.find({ users: username }).exec();
+  } catch (e) {
+    console.log("Error ", e);
+  }
 
-    let users = [];
+  let users = [];
 
-    for(let val of userDataFromDb) {
-        if(val['users'][0] != username)
-            users.push({username: val['users'][0], roomId: val['roomId']});
-        else
-            users.push({username: val['users'][1], roomId: val['roomId']});
-    }
+  for (let val of userDataFromDb) {
+    if (val["users"][0] != username)
+      users.push({ username: val["users"][0], roomId: val["roomId"] });
+    else users.push({ username: val["users"][1], roomId: val["roomId"] });
+  }
 
-    let groupsData = await Group.find({users : username});
+  let groupsData = await Group.find({ users: username });
 
-    console.log("USERS: ", users);
+  console.log("USERS: ", users);
 
-    console.log("GROUPS DATA: ", groupsData);
+  console.log("GROUPS DATA: ", groupsData);
 
-    return res.render("chat.ejs", {isLoggedIn: true, roomId: roomId, fromUsername: username, toUsername: toUsername, users: users, groups: groupsData});
-}
+  return res.render("chat.ejs", {
+    isLoggedIn: true,
+    roomId: roomId,
+    fromUsername: username,
+    toUsername: toUsername,
+    users: users,
+    groups: groupsData,
+  });
+};
 
 module.exports.group_get = async (req, res) => {
-    const userData = await userModel.find({}, {_id: 0, username: 1});
-    return res.render("creategroup.ejs", {isLoggedIn: true, userData: userData});
-}
+  const userData = await userModel.find({}, { _id: 0, username: 1 });
+  return res.render("creategroup.ejs", {
+    isLoggedIn: true,
+    userData: userData,
+  });
+};
 
 module.exports.group_post = async (req, res) => {
-    console.log("In Group post");
+  console.log("In Group post");
 
-    const groupDetails = JSON.parse(JSON.stringify(req.body));
+  const groupDetails = JSON.parse(JSON.stringify(req.body));
 
-    const roomId = uuidv4();
+  let groupCheck = await Group.find({ groupname: groupDetails.gname });
 
-    const createdBy = req.user.username;
+  if (groupCheck.length !== 0) {
+    //send an error message that group already exists
+    return res.send({ message: "failure" });
+    // showToast('failure', 'Group name already exists', 5);
+  }
 
-    let users = [];
+  const roomId = uuidv4();
 
-    for(let val in groupDetails) {
-        if(val.startsWith("user")) {
-            users.push(groupDetails[val]);
-        }
+  const createdBy = req.user.username;
+
+  let users = [];
+
+  console.log(req.body);
+
+  console.log("Group details: ", groupDetails);
+
+  for (let val in groupDetails) {
+    if (val.startsWith("user")) {
+      users.push(groupDetails[val]);
     }
+  }
 
-    users.push(createdBy);
+  users.push(createdBy);
 
-    const groupData = new Group({roomId: roomId, createdBy: createdBy, users: users, groupname: groupDetails.gname, description: groupDetails.description});
+  const groupData = new Group({
+    roomId: roomId,
+    createdBy: createdBy,
+    users: users,
+    groupname: groupDetails.gname,
+    description: groupDetails.description,
+  });
 
-    await groupData.save();
+  await groupData.save();
 
-    try {
-        userDataFromDb = await Chat.find({users : createdBy}).exec();
-    } catch(e) {
-        console.log("Error ", e);
-    }
-
-    users = [];
-
-    for(let val of userDataFromDb) {
-        if(val['users'][0] != createdBy)
-            users.push({username: val['users'][0], roomId: val['roomId']});
-        else {
-            users.push({username: val['users'][1], roomId: val['roomId']});
-        }
-    }
-
-    let groupsData = await Group.find({users : createdBy});
-
-    return res.render("chats.ejs", {username: createdBy, isLoggedIn: true, users: users, groups: groupsData});
-}
+  return res.send({ message: "success" });
+};
 
 module.exports.singlechat_post = async (req, res) => {
-    let suc = await Chat.deleteMany({});
-    suc = await ChatMessages.deleteMany({});
-    suc = await Group.deleteMany({});
-    suc = await GroupMessages.deleteMany({});
+  let suc = await Chat.deleteMany({});
+  suc = await ChatMessages.deleteMany({});
+  suc = await Group.deleteMany({});
+  suc = await GroupMessages.deleteMany({});
 
-    let usernames = await User.find({});
-    console.log(usernames);
+  let usernames = await User.find({});
+  console.log(usernames);
 
-    for(let i = 0; i < usernames.length; i++) {
-        for(let j = i+1; j < usernames.length; j++) {
+  for (let i = 0; i < usernames.length; i++) {
+    for (let j = i + 1; j < usernames.length; j++) {
+      const d1 = await UserConnection.findOne({
+        $and: [
+          { requestSender: usernames[i]["username"] },
+          { requestReceiver: usernames[j]["username"] },
+          { status: "accepted" },
+        ],
+      });
+      const d2 = await UserConnection.findOne({
+        $and: [
+          { requestSender: usernames[j]["username"] },
+          { requestReceiver: usernames[i]["username"] },
+          { status: "accepted" },
+        ],
+      });
 
-            const d1 = await UserConnection.findOne({$and: [{requestSender: usernames[i]['username']}, {requestReceiver: usernames[j]['username']}, {status: "accepted"}]})
-            const d2 = await UserConnection.findOne({$and: [{requestSender: usernames[j]['username']}, {requestReceiver: usernames[i]['username']}, {status: "accepted"}]})
+      if (d1 !== null && d2 !== null) {
+        const roomId = uuidv4();
+        const users = [];
 
-            if(d1 !== null && d2 !== null) {
-                const roomId = uuidv4();
-                const users = [];
+        users.push(usernames[i]["username"]);
+        users.push(usernames[j]["username"]);
 
-                users.push(usernames[i]['username']);
-                users.push(usernames[j]['username']);
+        const chatData = new Chat({ roomId: roomId, users: users });
 
-                const chatData = new Chat({roomId: roomId, users: users});
-
-                let suc = await chatData.save();
-            }
-        }
+        let suc = await chatData.save();
+      }
     }
-    return res.send({usernames: usernames});
-}
+  }
+  return res.send({ usernames: usernames });
+};

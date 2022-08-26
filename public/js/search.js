@@ -1,3 +1,4 @@
+import { showToast } from './toasts.js';
 const btn = document.getElementsByClassName('btn')[0];
 const input = document.getElementById('floatingInput');
 const searchBy = document.getElementById('searchBy');
@@ -6,6 +7,11 @@ import { makeAPICall } from './make_api_call.js';
 btn.addEventListener('click', () => {
     const searchValue = input.value;
     const searchByType = searchBy.value;
+
+    if(searchValue === '') {
+      showToast('fail', 'Search value is required', 15);
+      return;
+    }
 
     console.log(searchValue, searchByType);
 

@@ -211,6 +211,8 @@ module.exports.createPostsText = catchAsync(async (req, res, next) => {
 module.exports.createPostsImages = catchAsync(async (req, res, next) => {
     const postsDataFromFrontEnd = req.body;
 
+    console.log("Posts Data From Frontend: ", postsDataFromFrontEnd);
+
     console.log("req.file is: ", req.files);
 
     const imagesUrlArray = [];

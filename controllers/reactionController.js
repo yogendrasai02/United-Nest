@@ -44,7 +44,8 @@ exports.getReactions = catchAsync(
             });
         }
         else{
-            let reactions = await Reaction.find({$and: [{reactedTo: 'post'}, {reactedToId: postId}]}).skip((page - 1) * limit).limit(limit);
+            let reactions = await Reaction.find({$and: [{reactedTo: 'post'}, {reactedToId: postId}]});  
+            // .skip((page - 1) * limit).limit(limit)
             return res.status(200).json({
                 status: 'success',
                 data : {
@@ -61,6 +62,7 @@ exports.postReaction = catchAsync(
         const commentId = req.query.commentId;
         const postId = req.params.postId;
         const type = req.query.type;
+        console.log("Type is: ", type);
         const reactions = ['like', 'dislike', 'love', 'funny', 'angry', 'wow', 'sad']
 
         if(!type || !reactions.includes(type)){
@@ -102,6 +104,11 @@ exports.postReaction = catchAsync(
             payload.user = req.user.id;
             const reaction = await Reaction.create(payload);
 
+            const updateField = `reactionsCnt.${type}`;
+
+            console.log("update field: ", updateField);
+            await Post.findByIdAndUpdate(postId, {$inc: {[updateField]: 1}});
+
             return res.status(200).json({
                 status: 'success',
                 data: {
@@ -138,7 +145,23 @@ exports.updateReaction = catchAsync(
             }
         }
         
+        const reactionData = await Reaction.findById(reactionId);
+        console.log("reaction Data: ", reactionData);
+
+        let beforeType = reactionData['reactionType'];
+
+        let str1 = `reactionsCnt.${beforeType}`;
+        let str2 = `reactionsCnt.${type}`;
+
+        console.log("str1: ", str1);
+        console.log("str2: ", str2);
+
+        await Post.findByIdAndUpdate(postId, { $inc: { [str1]: -1 } } );
+
+        await Post.findByIdAndUpdate(postId, { $inc: { [str2]: 1 } } );
+
         let reaction = await Reaction.findByIdAndUpdate(reactionId, {$set: {reactionType: type}});
+
         return res.status(201).json({
             status: 'success',
             data: {

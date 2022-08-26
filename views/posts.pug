@@ -97,8 +97,8 @@ block content
                             ul#reactions.dropdown-menu.reactionsOptions
                                 -
                                     const iconsMap = new Map();
-                                    iconsMap.set('likes', 'las la-thumbs-up')
-                                    iconsMap.set('dislikes', 'las la-thumbs-down')
+                                    iconsMap.set('like', 'las la-thumbs-up')
+                                    iconsMap.set('dislike', 'las la-thumbs-down')
                                     iconsMap.set('love', 'ph-heart')
                                     iconsMap.set('funny', 'las la-laugh-squint')
                                     iconsMap.set('angry', 'lar la-angry')
@@ -107,7 +107,8 @@ block content
                                 
                                 - for(const [key, value] of post.reactionsCnt)
                                     - if(key != 'comments')
-                                        - if(reactions[idx].reacted && reactions[idx].type == key)
+                                        - console.log("Reactions Idx: ", reactions[idx]);
+                                        if reactions[idx].reacted && reactions[idx].type == key
                                             li.dropdown-item.mt-1.selected(id=key, onclick=`javascript:sendRequest('${post.id}','${key}',true,${reactions[idx].reacted},'${reactions[idx].id}');`)
                                                 span.d-flex.align-items-center
                                                     i(class=`${iconsMap.get(key)} icon-3 me-2`, onclick=`javascript:sendRequest('${post.id}','${key}',true,${reactions[idx].reacted},'${reactions[idx].id}');`)
