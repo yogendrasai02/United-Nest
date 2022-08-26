@@ -5,7 +5,7 @@ import { isEmail } from './validators.js';
 
 let forgotForm = document.getElementById('forgotPassForm')
 
-let forgotBtn = document.getElementById('forgotPassSubmitBtn')
+// let forgotBtn = document.getElementById('forgotPassSubmitBtn')
 
 const ForgotPassHandler = async ()=>{
     let email = document.getElementById('email')
@@ -13,7 +13,7 @@ const ForgotPassHandler = async ()=>{
     let ErrorMsg = '<ul>'
     if(email.value.length == 0 || !isEmail(email.value)){
         error = true;
-        ErrorMsg += 'li>Please Enter a valid Email</li>'
+        ErrorMsg += '<li>Please Enter a valid Email</li>'
     }
     ErrorMsg += '</ul>';
     if(error){
@@ -37,6 +37,6 @@ forgotForm.addEventListener('submit', async (e) => {
     await ForgotPassHandler();
 });
 
-forgotBtn.addEventListener('click', async ()=>{
-    await ForgotPassHandler();
-})
+// forgotBtn.addEventListener('click', async ()=>{
+//     await ForgotPassHandler();
+// })
