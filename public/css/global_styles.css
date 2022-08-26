@@ -245,8 +245,6 @@ input.bg-gray, textarea.bg-gray, select.bg-gray {
 input:focus, textarea:focus, select:focus {
     box-shadow: none !important;
     outline: 3px solid black !important;
-<<<<<<< HEAD
-=======
 }
 
 /* .form-control { 
