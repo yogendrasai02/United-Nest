@@ -32,6 +32,8 @@ const ChatMessage = require("./models/chatMessagesModel");
 const app = express();
 module.exports.app = app;
 
+app.enable('trust proxy');
+
 // ** Log incoming requests **
 app.use(
   morgan(function (tokens, req, res) {
