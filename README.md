@@ -1,6 +1,9 @@
 # United-Nest
 A Social Media Application make using Node.js,ExpressJS, MongoDB, PUG Template Engine, HTML, CSS and JavaScript; as part of Academic Mini Project.
 
+👉 Application deployed at Heroku: https://united-nest.herokuapp.com/ 
+(The link might not work once Heroku removes their free tier. We will add some screenshots of our application in this file soon.)
+
 > Open the **`instructions.md`** file to view the steps required to run the app locally.
 
 # 💥Highlights💥
