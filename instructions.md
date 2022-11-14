@@ -12,6 +12,41 @@
     - `JWT_SECRET_KEY` (Must use the **same** secret key consistently for the entire team all the time)
     - `JWT_EXPIRES_IN` (set it to `24h`)
 
+- Entire working `config.env` file looks like this:
+```
+NODE_ENV="development"
+PORT=4000
+DB_URL_DEVELOPMENT="......"
+DB_PASSWORD_DEVELOPMENT="......"
+DB_URL_PRODUCTION="......"
+DB_PASSWORD_PRODUCTION="......"
+JWT_SECRET_KEY="......"
+JWT_EXPIRES_IN="......"
+JWT_EXPIRES_IN_MILLISECONDS="......"    # x hours in milliseconds
+# for DEV, emails endup in MAILTRAP inbox
+EMAIL_HOST_DEVELOPMENT="smtp.mailtrap.io"
+EMAIL_PORT_DEVELOPMENT="465"
+EMAIL_USERNAME_DEVELOPMENT="......"
+EMAIL_PASSWORD_DEVELOPMENT="......"
+# for PROD, send REAL emails
+EMAIL_HOST_PRODUCTION="smtp-relay.sendinblue.com"
+EMAIL_PORT_PRODUCTION="587"
+EMAIL_USERNAME_PRODUCTION="......"
+EMAIL_PASSWORD_PRODUCTION="......"
+CLOUDINARY_CLOUD_NAME="......"
+CLOUDINARY_API_KEY="......"
+CLOUDINARY_API_SECRET="......"
+PHOTOS_FOLDER_NAME="......"
+VIDEOS_FOLDER_NAME="......"
+TWILIO_ACCOUNT_SID="......"
+TWILIO_API_KEY_SID="......"
+TWILIO_API_KEY_SECRET="......"
+TWILIO_ACCESS_TOKEN_EXPIRES_IN_SECONDS="......"
+SIGHTENGINE_IMAGE_MODERATION_API_URL="https://api.sightengine.com/1.0/check.json"
+SIGHTENGINE_IMAGE_MODERATION_API_USERNAME="......"
+SIGHTENGINE_IMAGE_MODERATION_API_SECRET="......"
+```
+
 - Start the server by running the following command in the terminal (at the root level): `npm run start:dev`.
     - To start in production: `npm run start:prod`.
     - These scripts are available in `package.json` file.
